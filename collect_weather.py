@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 BASE_URL = "https://archive-api.open-meteo.com/v1/archive"
 LATITUDE = 36.35
 LONGITUDE = 127.38
-DATA_DIR = "./data/weather"
+DATA_DIR = "./data/weather_sep"
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
@@ -54,8 +54,8 @@ def save_json(date_str: str, weather_data: dict):
     print(f"Saved: {filename}")
 
 def main():
-    start_date = datetime(2026, 10, 1)
-    end_date = datetime(2026, 10, 31)
+    start_date = datetime(2026, 9, 1)
+    end_date = datetime(2026, 9, 30)
 
     current_date = start_date
     while current_date <= end_date:

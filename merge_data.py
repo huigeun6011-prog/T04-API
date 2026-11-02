@@ -3,9 +3,9 @@ import json
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
-WEATHER_DIR = "./data/weather"
-SUBWAY_DIR = "./data/subway"
-MERGED_DIR = "./data/merged"
+WEATHER_DIR = "./data/weather_sep"
+SUBWAY_DIR = "./data/subway_sep"
+MERGED_DIR = "./data/merged_sep"
 
 os.makedirs(MERGED_DIR, exist_ok=True)
 
@@ -101,8 +101,8 @@ def save_merged(date_str: str, data: dict):
     print(f"Saved: {path}")
 
 def main():
-    start_date = datetime(2026, 10, 1)
-    end_date = datetime(2026, 10, 31)
+    start_date = datetime(2026, 9, 1)
+    end_date = datetime(2026, 9, 30)
     
     current_date = start_date
     while current_date <= end_date:
