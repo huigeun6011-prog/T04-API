@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 BASE_URL = "https://archive-api.open-meteo.com/v1/archive"
 LATITUDE = 36.35
 LONGITUDE = 127.38
-DATA_DIR = "./data/weather_sep"
+DATA_DIR = "./data/weather"
 
 os.makedirs(DATA_DIR, exist_ok=True)
 

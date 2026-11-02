@@ -3,9 +3,9 @@ import json
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
-WEATHER_DIR = "./data/weather_sep"
-SUBWAY_DIR = "./data/subway_sep"
-MERGED_DIR = "./data/merged_sep"
+WEATHER_DIR = "./data/weather"
+SUBWAY_DIR = "./data/subway"
+MERGED_DIR = "./data/merged"
 
 os.makedirs(MERGED_DIR, exist_ok=True)
 

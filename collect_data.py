@@ -9,7 +9,7 @@ load_dotenv()
 
 SERVICE_KEY = os.getenv("SUBWAY_API_KEY")
 BASE_URL = "https://apis.data.go.kr/B554695/TicketTypeTrafficSVC/getTicketTypeTraffic01"
-DATA_DIR = "./data/subway_sep"
+DATA_DIR = "./data/subway"
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
