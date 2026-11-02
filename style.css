@@ -3,7 +3,7 @@
     --panel-bg: #2a2a40;
     --text-color: #e0e0e0;
     --accent-color: #4a90e2;
-    --line-color: #007bff;
+    --line-color: #009344;
     --station-color: #ffffff;
     --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -117,7 +117,8 @@ svg {
     fill: var(--station-color);
     stroke: #000;
     stroke-width: 2px;
-    transition: fill 0.2s;
+    transition: fill 0.2s, r 0.3s;
+    fill-opacity: 0.9; /* 약간의 투명도 추가 (선택사항) */
 }
 
 .station-node:hover {

@@ -90,7 +90,7 @@ async function updateDashboard(date, hour) {
             const node = document.getElementById(`station-${sub.station_no}`);
             if (node) {
                 // 승차 인원에 비례하여 반지름 조정 (최소 3, 최대 15)
-                const radius = Math.max(3, Math.min(15, sub.boardings / 10));
+                const radius = Math.max(3, Math.min(20, sub.boardings / 75));
                 node.setAttribute("r", radius);
             }
         });
