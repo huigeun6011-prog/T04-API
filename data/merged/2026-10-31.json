@@ -1,0 +1,2357 @@
+{
+  "date": "2026-10-31",
+  "hourly_data": [
+    {
+      "hour": 0,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 11.9
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 0
+        },
+        {
+          "station_no": "102",
+          "boardings": 0
+        },
+        {
+          "station_no": "103",
+          "boardings": 0
+        },
+        {
+          "station_no": "104",
+          "boardings": 1
+        },
+        {
+          "station_no": "105",
+          "boardings": 5
+        },
+        {
+          "station_no": "106",
+          "boardings": 1
+        },
+        {
+          "station_no": "107",
+          "boardings": 1
+        },
+        {
+          "station_no": "108",
+          "boardings": 0
+        },
+        {
+          "station_no": "109",
+          "boardings": 0
+        },
+        {
+          "station_no": "110",
+          "boardings": 0
+        },
+        {
+          "station_no": "111",
+          "boardings": 0
+        },
+        {
+          "station_no": "112",
+          "boardings": 1
+        },
+        {
+          "station_no": "113",
+          "boardings": 4
+        },
+        {
+          "station_no": "114",
+          "boardings": 3
+        },
+        {
+          "station_no": "115",
+          "boardings": 0
+        },
+        {
+          "station_no": "116",
+          "boardings": 3
+        },
+        {
+          "station_no": "117",
+          "boardings": 1
+        },
+        {
+          "station_no": "118",
+          "boardings": 0
+        },
+        {
+          "station_no": "119",
+          "boardings": 0
+        },
+        {
+          "station_no": "120",
+          "boardings": 3
+        },
+        {
+          "station_no": "121",
+          "boardings": 0
+        },
+        {
+          "station_no": "122",
+          "boardings": 0
+        }
+      ]
+    },
+    {
+      "hour": 1,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 12.2
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 0
+        },
+        {
+          "station_no": "102",
+          "boardings": 0
+        },
+        {
+          "station_no": "103",
+          "boardings": 0
+        },
+        {
+          "station_no": "104",
+          "boardings": 0
+        },
+        {
+          "station_no": "105",
+          "boardings": 0
+        },
+        {
+          "station_no": "106",
+          "boardings": 0
+        },
+        {
+          "station_no": "107",
+          "boardings": 0
+        },
+        {
+          "station_no": "108",
+          "boardings": 0
+        },
+        {
+          "station_no": "109",
+          "boardings": 0
+        },
+        {
+          "station_no": "110",
+          "boardings": 0
+        },
+        {
+          "station_no": "111",
+          "boardings": 0
+        },
+        {
+          "station_no": "112",
+          "boardings": 0
+        },
+        {
+          "station_no": "113",
+          "boardings": 0
+        },
+        {
+          "station_no": "114",
+          "boardings": 0
+        },
+        {
+          "station_no": "115",
+          "boardings": 0
+        },
+        {
+          "station_no": "116",
+          "boardings": 0
+        },
+        {
+          "station_no": "117",
+          "boardings": 0
+        },
+        {
+          "station_no": "118",
+          "boardings": 0
+        },
+        {
+          "station_no": "119",
+          "boardings": 0
+        },
+        {
+          "station_no": "120",
+          "boardings": 0
+        },
+        {
+          "station_no": "121",
+          "boardings": 0
+        },
+        {
+          "station_no": "122",
+          "boardings": 0
+        }
+      ]
+    },
+    {
+      "hour": 2,
+      "weather": {
+        "precipitation": 0.2,
+        "snowfall": 0.0,
+        "temperature_2m": 12.2
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 0
+        },
+        {
+          "station_no": "102",
+          "boardings": 0
+        },
+        {
+          "station_no": "103",
+          "boardings": 0
+        },
+        {
+          "station_no": "104",
+          "boardings": 0
+        },
+        {
+          "station_no": "105",
+          "boardings": 0
+        },
+        {
+          "station_no": "106",
+          "boardings": 0
+        },
+        {
+          "station_no": "107",
+          "boardings": 0
+        },
+        {
+          "station_no": "108",
+          "boardings": 0
+        },
+        {
+          "station_no": "109",
+          "boardings": 0
+        },
+        {
+          "station_no": "110",
+          "boardings": 0
+        },
+        {
+          "station_no": "111",
+          "boardings": 0
+        },
+        {
+          "station_no": "112",
+          "boardings": 0
+        },
+        {
+          "station_no": "113",
+          "boardings": 0
+        },
+        {
+          "station_no": "114",
+          "boardings": 0
+        },
+        {
+          "station_no": "115",
+          "boardings": 0
+        },
+        {
+          "station_no": "116",
+          "boardings": 0
+        },
+        {
+          "station_no": "117",
+          "boardings": 0
+        },
+        {
+          "station_no": "118",
+          "boardings": 0
+        },
+        {
+          "station_no": "119",
+          "boardings": 0
+        },
+        {
+          "station_no": "120",
+          "boardings": 0
+        },
+        {
+          "station_no": "121",
+          "boardings": 0
+        },
+        {
+          "station_no": "122",
+          "boardings": 0
+        }
+      ]
+    },
+    {
+      "hour": 3,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 11.3
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 0
+        },
+        {
+          "station_no": "102",
+          "boardings": 0
+        },
+        {
+          "station_no": "103",
+          "boardings": 0
+        },
+        {
+          "station_no": "104",
+          "boardings": 0
+        },
+        {
+          "station_no": "105",
+          "boardings": 0
+        },
+        {
+          "station_no": "106",
+          "boardings": 0
+        },
+        {
+          "station_no": "107",
+          "boardings": 0
+        },
+        {
+          "station_no": "108",
+          "boardings": 0
+        },
+        {
+          "station_no": "109",
+          "boardings": 0
+        },
+        {
+          "station_no": "110",
+          "boardings": 0
+        },
+        {
+          "station_no": "111",
+          "boardings": 0
+        },
+        {
+          "station_no": "112",
+          "boardings": 0
+        },
+        {
+          "station_no": "113",
+          "boardings": 0
+        },
+        {
+          "station_no": "114",
+          "boardings": 0
+        },
+        {
+          "station_no": "115",
+          "boardings": 0
+        },
+        {
+          "station_no": "116",
+          "boardings": 0
+        },
+        {
+          "station_no": "117",
+          "boardings": 0
+        },
+        {
+          "station_no": "118",
+          "boardings": 0
+        },
+        {
+          "station_no": "119",
+          "boardings": 0
+        },
+        {
+          "station_no": "120",
+          "boardings": 0
+        },
+        {
+          "station_no": "121",
+          "boardings": 0
+        },
+        {
+          "station_no": "122",
+          "boardings": 0
+        }
+      ]
+    },
+    {
+      "hour": 4,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 11.1
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 0
+        },
+        {
+          "station_no": "102",
+          "boardings": 0
+        },
+        {
+          "station_no": "103",
+          "boardings": 0
+        },
+        {
+          "station_no": "104",
+          "boardings": 0
+        },
+        {
+          "station_no": "105",
+          "boardings": 0
+        },
+        {
+          "station_no": "106",
+          "boardings": 0
+        },
+        {
+          "station_no": "107",
+          "boardings": 0
+        },
+        {
+          "station_no": "108",
+          "boardings": 0
+        },
+        {
+          "station_no": "109",
+          "boardings": 0
+        },
+        {
+          "station_no": "110",
+          "boardings": 7
+        },
+        {
+          "station_no": "111",
+          "boardings": 0
+        },
+        {
+          "station_no": "112",
+          "boardings": 0
+        },
+        {
+          "station_no": "113",
+          "boardings": 0
+        },
+        {
+          "station_no": "114",
+          "boardings": 0
+        },
+        {
+          "station_no": "115",
+          "boardings": 0
+        },
+        {
+          "station_no": "116",
+          "boardings": 0
+        },
+        {
+          "station_no": "117",
+          "boardings": 0
+        },
+        {
+          "station_no": "118",
+          "boardings": 0
+        },
+        {
+          "station_no": "119",
+          "boardings": 0
+        },
+        {
+          "station_no": "120",
+          "boardings": 0
+        },
+        {
+          "station_no": "121",
+          "boardings": 0
+        },
+        {
+          "station_no": "122",
+          "boardings": 0
+        }
+      ]
+    },
+    {
+      "hour": 5,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 11.2
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 89
+        },
+        {
+          "station_no": "102",
+          "boardings": 38
+        },
+        {
+          "station_no": "103",
+          "boardings": 55
+        },
+        {
+          "station_no": "104",
+          "boardings": 10
+        },
+        {
+          "station_no": "105",
+          "boardings": 26
+        },
+        {
+          "station_no": "106",
+          "boardings": 26
+        },
+        {
+          "station_no": "107",
+          "boardings": 74
+        },
+        {
+          "station_no": "108",
+          "boardings": 49
+        },
+        {
+          "station_no": "109",
+          "boardings": 110
+        },
+        {
+          "station_no": "110",
+          "boardings": 43
+        },
+        {
+          "station_no": "111",
+          "boardings": 36
+        },
+        {
+          "station_no": "112",
+          "boardings": 35
+        },
+        {
+          "station_no": "113",
+          "boardings": 71
+        },
+        {
+          "station_no": "114",
+          "boardings": 73
+        },
+        {
+          "station_no": "115",
+          "boardings": 15
+        },
+        {
+          "station_no": "116",
+          "boardings": 106
+        },
+        {
+          "station_no": "117",
+          "boardings": 33
+        },
+        {
+          "station_no": "118",
+          "boardings": 17
+        },
+        {
+          "station_no": "119",
+          "boardings": 27
+        },
+        {
+          "station_no": "120",
+          "boardings": 35
+        },
+        {
+          "station_no": "121",
+          "boardings": 26
+        },
+        {
+          "station_no": "122",
+          "boardings": 62
+        }
+      ]
+    },
+    {
+      "hour": 6,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 11.0
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 141
+        },
+        {
+          "station_no": "102",
+          "boardings": 100
+        },
+        {
+          "station_no": "103",
+          "boardings": 96
+        },
+        {
+          "station_no": "104",
+          "boardings": 115
+        },
+        {
+          "station_no": "105",
+          "boardings": 35
+        },
+        {
+          "station_no": "106",
+          "boardings": 21
+        },
+        {
+          "station_no": "107",
+          "boardings": 91
+        },
+        {
+          "station_no": "108",
+          "boardings": 78
+        },
+        {
+          "station_no": "109",
+          "boardings": 147
+        },
+        {
+          "station_no": "110",
+          "boardings": 86
+        },
+        {
+          "station_no": "111",
+          "boardings": 72
+        },
+        {
+          "station_no": "112",
+          "boardings": 64
+        },
+        {
+          "station_no": "113",
+          "boardings": 96
+        },
+        {
+          "station_no": "114",
+          "boardings": 100
+        },
+        {
+          "station_no": "115",
+          "boardings": 15
+        },
+        {
+          "station_no": "116",
+          "boardings": 191
+        },
+        {
+          "station_no": "117",
+          "boardings": 51
+        },
+        {
+          "station_no": "118",
+          "boardings": 28
+        },
+        {
+          "station_no": "119",
+          "boardings": 57
+        },
+        {
+          "station_no": "120",
+          "boardings": 69
+        },
+        {
+          "station_no": "121",
+          "boardings": 31
+        },
+        {
+          "station_no": "122",
+          "boardings": 116
+        }
+      ]
+    },
+    {
+      "hour": 7,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 10.4
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 232
+        },
+        {
+          "station_no": "102",
+          "boardings": 121
+        },
+        {
+          "station_no": "103",
+          "boardings": 174
+        },
+        {
+          "station_no": "104",
+          "boardings": 383
+        },
+        {
+          "station_no": "105",
+          "boardings": 50
+        },
+        {
+          "station_no": "106",
+          "boardings": 62
+        },
+        {
+          "station_no": "107",
+          "boardings": 175
+        },
+        {
+          "station_no": "108",
+          "boardings": 143
+        },
+        {
+          "station_no": "109",
+          "boardings": 219
+        },
+        {
+          "station_no": "110",
+          "boardings": 155
+        },
+        {
+          "station_no": "111",
+          "boardings": 126
+        },
+        {
+          "station_no": "112",
+          "boardings": 111
+        },
+        {
+          "station_no": "113",
+          "boardings": 147
+        },
+        {
+          "station_no": "114",
+          "boardings": 142
+        },
+        {
+          "station_no": "115",
+          "boardings": 56
+        },
+        {
+          "station_no": "116",
+          "boardings": 308
+        },
+        {
+          "station_no": "117",
+          "boardings": 98
+        },
+        {
+          "station_no": "118",
+          "boardings": 86
+        },
+        {
+          "station_no": "119",
+          "boardings": 98
+        },
+        {
+          "station_no": "120",
+          "boardings": 100
+        },
+        {
+          "station_no": "121",
+          "boardings": 73
+        },
+        {
+          "station_no": "122",
+          "boardings": 241
+        }
+      ]
+    },
+    {
+      "hour": 8,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 11.9
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 271
+        },
+        {
+          "station_no": "102",
+          "boardings": 171
+        },
+        {
+          "station_no": "103",
+          "boardings": 254
+        },
+        {
+          "station_no": "104",
+          "boardings": 557
+        },
+        {
+          "station_no": "105",
+          "boardings": 114
+        },
+        {
+          "station_no": "106",
+          "boardings": 96
+        },
+        {
+          "station_no": "107",
+          "boardings": 330
+        },
+        {
+          "station_no": "108",
+          "boardings": 250
+        },
+        {
+          "station_no": "109",
+          "boardings": 385
+        },
+        {
+          "station_no": "110",
+          "boardings": 190
+        },
+        {
+          "station_no": "111",
+          "boardings": 238
+        },
+        {
+          "station_no": "112",
+          "boardings": 184
+        },
+        {
+          "station_no": "113",
+          "boardings": 203
+        },
+        {
+          "station_no": "114",
+          "boardings": 221
+        },
+        {
+          "station_no": "115",
+          "boardings": 65
+        },
+        {
+          "station_no": "116",
+          "boardings": 501
+        },
+        {
+          "station_no": "117",
+          "boardings": 202
+        },
+        {
+          "station_no": "118",
+          "boardings": 218
+        },
+        {
+          "station_no": "119",
+          "boardings": 169
+        },
+        {
+          "station_no": "120",
+          "boardings": 191
+        },
+        {
+          "station_no": "121",
+          "boardings": 111
+        },
+        {
+          "station_no": "122",
+          "boardings": 425
+        }
+      ]
+    },
+    {
+      "hour": 9,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 14.1
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 329
+        },
+        {
+          "station_no": "102",
+          "boardings": 174
+        },
+        {
+          "station_no": "103",
+          "boardings": 289
+        },
+        {
+          "station_no": "104",
+          "boardings": 739
+        },
+        {
+          "station_no": "105",
+          "boardings": 154
+        },
+        {
+          "station_no": "106",
+          "boardings": 81
+        },
+        {
+          "station_no": "107",
+          "boardings": 311
+        },
+        {
+          "station_no": "108",
+          "boardings": 220
+        },
+        {
+          "station_no": "109",
+          "boardings": 406
+        },
+        {
+          "station_no": "110",
+          "boardings": 183
+        },
+        {
+          "station_no": "111",
+          "boardings": 243
+        },
+        {
+          "station_no": "112",
+          "boardings": 215
+        },
+        {
+          "station_no": "113",
+          "boardings": 234
+        },
+        {
+          "station_no": "114",
+          "boardings": 212
+        },
+        {
+          "station_no": "115",
+          "boardings": 69
+        },
+        {
+          "station_no": "116",
+          "boardings": 573
+        },
+        {
+          "station_no": "117",
+          "boardings": 175
+        },
+        {
+          "station_no": "118",
+          "boardings": 124
+        },
+        {
+          "station_no": "119",
+          "boardings": 167
+        },
+        {
+          "station_no": "120",
+          "boardings": 232
+        },
+        {
+          "station_no": "121",
+          "boardings": 108
+        },
+        {
+          "station_no": "122",
+          "boardings": 458
+        }
+      ]
+    },
+    {
+      "hour": 10,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 15.7
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 272
+        },
+        {
+          "station_no": "102",
+          "boardings": 131
+        },
+        {
+          "station_no": "103",
+          "boardings": 271
+        },
+        {
+          "station_no": "104",
+          "boardings": 789
+        },
+        {
+          "station_no": "105",
+          "boardings": 192
+        },
+        {
+          "station_no": "106",
+          "boardings": 81
+        },
+        {
+          "station_no": "107",
+          "boardings": 331
+        },
+        {
+          "station_no": "108",
+          "boardings": 249
+        },
+        {
+          "station_no": "109",
+          "boardings": 430
+        },
+        {
+          "station_no": "110",
+          "boardings": 210
+        },
+        {
+          "station_no": "111",
+          "boardings": 325
+        },
+        {
+          "station_no": "112",
+          "boardings": 240
+        },
+        {
+          "station_no": "113",
+          "boardings": 243
+        },
+        {
+          "station_no": "114",
+          "boardings": 243
+        },
+        {
+          "station_no": "115",
+          "boardings": 60
+        },
+        {
+          "station_no": "116",
+          "boardings": 617
+        },
+        {
+          "station_no": "117",
+          "boardings": 224
+        },
+        {
+          "station_no": "118",
+          "boardings": 175
+        },
+        {
+          "station_no": "119",
+          "boardings": 196
+        },
+        {
+          "station_no": "120",
+          "boardings": 208
+        },
+        {
+          "station_no": "121",
+          "boardings": 139
+        },
+        {
+          "station_no": "122",
+          "boardings": 545
+        }
+      ]
+    },
+    {
+      "hour": 11,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 17.3
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 312
+        },
+        {
+          "station_no": "102",
+          "boardings": 134
+        },
+        {
+          "station_no": "103",
+          "boardings": 318
+        },
+        {
+          "station_no": "104",
+          "boardings": 973
+        },
+        {
+          "station_no": "105",
+          "boardings": 249
+        },
+        {
+          "station_no": "106",
+          "boardings": 93
+        },
+        {
+          "station_no": "107",
+          "boardings": 395
+        },
+        {
+          "station_no": "108",
+          "boardings": 288
+        },
+        {
+          "station_no": "109",
+          "boardings": 421
+        },
+        {
+          "station_no": "110",
+          "boardings": 237
+        },
+        {
+          "station_no": "111",
+          "boardings": 456
+        },
+        {
+          "station_no": "112",
+          "boardings": 241
+        },
+        {
+          "station_no": "113",
+          "boardings": 261
+        },
+        {
+          "station_no": "114",
+          "boardings": 243
+        },
+        {
+          "station_no": "115",
+          "boardings": 56
+        },
+        {
+          "station_no": "116",
+          "boardings": 632
+        },
+        {
+          "station_no": "117",
+          "boardings": 256
+        },
+        {
+          "station_no": "118",
+          "boardings": 210
+        },
+        {
+          "station_no": "119",
+          "boardings": 160
+        },
+        {
+          "station_no": "120",
+          "boardings": 295
+        },
+        {
+          "station_no": "121",
+          "boardings": 158
+        },
+        {
+          "station_no": "122",
+          "boardings": 449
+        }
+      ]
+    },
+    {
+      "hour": 12,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 18.0
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 279
+        },
+        {
+          "station_no": "102",
+          "boardings": 116
+        },
+        {
+          "station_no": "103",
+          "boardings": 282
+        },
+        {
+          "station_no": "104",
+          "boardings": 944
+        },
+        {
+          "station_no": "105",
+          "boardings": 384
+        },
+        {
+          "station_no": "106",
+          "boardings": 119
+        },
+        {
+          "station_no": "107",
+          "boardings": 469
+        },
+        {
+          "station_no": "108",
+          "boardings": 299
+        },
+        {
+          "station_no": "109",
+          "boardings": 562
+        },
+        {
+          "station_no": "110",
+          "boardings": 311
+        },
+        {
+          "station_no": "111",
+          "boardings": 522
+        },
+        {
+          "station_no": "112",
+          "boardings": 337
+        },
+        {
+          "station_no": "113",
+          "boardings": 210
+        },
+        {
+          "station_no": "114",
+          "boardings": 232
+        },
+        {
+          "station_no": "115",
+          "boardings": 64
+        },
+        {
+          "station_no": "116",
+          "boardings": 706
+        },
+        {
+          "station_no": "117",
+          "boardings": 301
+        },
+        {
+          "station_no": "118",
+          "boardings": 240
+        },
+        {
+          "station_no": "119",
+          "boardings": 146
+        },
+        {
+          "station_no": "120",
+          "boardings": 305
+        },
+        {
+          "station_no": "121",
+          "boardings": 177
+        },
+        {
+          "station_no": "122",
+          "boardings": 397
+        }
+      ]
+    },
+    {
+      "hour": 13,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 18.3
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 286
+        },
+        {
+          "station_no": "102",
+          "boardings": 133
+        },
+        {
+          "station_no": "103",
+          "boardings": 263
+        },
+        {
+          "station_no": "104",
+          "boardings": 1001
+        },
+        {
+          "station_no": "105",
+          "boardings": 520
+        },
+        {
+          "station_no": "106",
+          "boardings": 123
+        },
+        {
+          "station_no": "107",
+          "boardings": 377
+        },
+        {
+          "station_no": "108",
+          "boardings": 247
+        },
+        {
+          "station_no": "109",
+          "boardings": 547
+        },
+        {
+          "station_no": "110",
+          "boardings": 359
+        },
+        {
+          "station_no": "111",
+          "boardings": 567
+        },
+        {
+          "station_no": "112",
+          "boardings": 385
+        },
+        {
+          "station_no": "113",
+          "boardings": 220
+        },
+        {
+          "station_no": "114",
+          "boardings": 268
+        },
+        {
+          "station_no": "115",
+          "boardings": 71
+        },
+        {
+          "station_no": "116",
+          "boardings": 825
+        },
+        {
+          "station_no": "117",
+          "boardings": 255
+        },
+        {
+          "station_no": "118",
+          "boardings": 271
+        },
+        {
+          "station_no": "119",
+          "boardings": 167
+        },
+        {
+          "station_no": "120",
+          "boardings": 273
+        },
+        {
+          "station_no": "121",
+          "boardings": 127
+        },
+        {
+          "station_no": "122",
+          "boardings": 491
+        }
+      ]
+    },
+    {
+      "hour": 14,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 18.2
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 220
+        },
+        {
+          "station_no": "102",
+          "boardings": 154
+        },
+        {
+          "station_no": "103",
+          "boardings": 221
+        },
+        {
+          "station_no": "104",
+          "boardings": 1214
+        },
+        {
+          "station_no": "105",
+          "boardings": 621
+        },
+        {
+          "station_no": "106",
+          "boardings": 96
+        },
+        {
+          "station_no": "107",
+          "boardings": 385
+        },
+        {
+          "station_no": "108",
+          "boardings": 199
+        },
+        {
+          "station_no": "109",
+          "boardings": 537
+        },
+        {
+          "station_no": "110",
+          "boardings": 305
+        },
+        {
+          "station_no": "111",
+          "boardings": 457
+        },
+        {
+          "station_no": "112",
+          "boardings": 368
+        },
+        {
+          "station_no": "113",
+          "boardings": 165
+        },
+        {
+          "station_no": "114",
+          "boardings": 284
+        },
+        {
+          "station_no": "115",
+          "boardings": 83
+        },
+        {
+          "station_no": "116",
+          "boardings": 707
+        },
+        {
+          "station_no": "117",
+          "boardings": 222
+        },
+        {
+          "station_no": "118",
+          "boardings": 272
+        },
+        {
+          "station_no": "119",
+          "boardings": 125
+        },
+        {
+          "station_no": "120",
+          "boardings": 280
+        },
+        {
+          "station_no": "121",
+          "boardings": 127
+        },
+        {
+          "station_no": "122",
+          "boardings": 379
+        }
+      ]
+    },
+    {
+      "hour": 15,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 18.7
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 200
+        },
+        {
+          "station_no": "102",
+          "boardings": 100
+        },
+        {
+          "station_no": "103",
+          "boardings": 178
+        },
+        {
+          "station_no": "104",
+          "boardings": 1267
+        },
+        {
+          "station_no": "105",
+          "boardings": 736
+        },
+        {
+          "station_no": "106",
+          "boardings": 115
+        },
+        {
+          "station_no": "107",
+          "boardings": 314
+        },
+        {
+          "station_no": "108",
+          "boardings": 210
+        },
+        {
+          "station_no": "109",
+          "boardings": 496
+        },
+        {
+          "station_no": "110",
+          "boardings": 306
+        },
+        {
+          "station_no": "111",
+          "boardings": 541
+        },
+        {
+          "station_no": "112",
+          "boardings": 448
+        },
+        {
+          "station_no": "113",
+          "boardings": 161
+        },
+        {
+          "station_no": "114",
+          "boardings": 301
+        },
+        {
+          "station_no": "115",
+          "boardings": 117
+        },
+        {
+          "station_no": "116",
+          "boardings": 779
+        },
+        {
+          "station_no": "117",
+          "boardings": 224
+        },
+        {
+          "station_no": "118",
+          "boardings": 277
+        },
+        {
+          "station_no": "119",
+          "boardings": 139
+        },
+        {
+          "station_no": "120",
+          "boardings": 251
+        },
+        {
+          "station_no": "121",
+          "boardings": 84
+        },
+        {
+          "station_no": "122",
+          "boardings": 357
+        }
+      ]
+    },
+    {
+      "hour": 16,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 17.5
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 251
+        },
+        {
+          "station_no": "102",
+          "boardings": 125
+        },
+        {
+          "station_no": "103",
+          "boardings": 286
+        },
+        {
+          "station_no": "104",
+          "boardings": 1302
+        },
+        {
+          "station_no": "105",
+          "boardings": 937
+        },
+        {
+          "station_no": "106",
+          "boardings": 121
+        },
+        {
+          "station_no": "107",
+          "boardings": 327
+        },
+        {
+          "station_no": "108",
+          "boardings": 231
+        },
+        {
+          "station_no": "109",
+          "boardings": 513
+        },
+        {
+          "station_no": "110",
+          "boardings": 309
+        },
+        {
+          "station_no": "111",
+          "boardings": 590
+        },
+        {
+          "station_no": "112",
+          "boardings": 500
+        },
+        {
+          "station_no": "113",
+          "boardings": 191
+        },
+        {
+          "station_no": "114",
+          "boardings": 320
+        },
+        {
+          "station_no": "115",
+          "boardings": 113
+        },
+        {
+          "station_no": "116",
+          "boardings": 662
+        },
+        {
+          "station_no": "117",
+          "boardings": 246
+        },
+        {
+          "station_no": "118",
+          "boardings": 313
+        },
+        {
+          "station_no": "119",
+          "boardings": 170
+        },
+        {
+          "station_no": "120",
+          "boardings": 259
+        },
+        {
+          "station_no": "121",
+          "boardings": 93
+        },
+        {
+          "station_no": "122",
+          "boardings": 419
+        }
+      ]
+    },
+    {
+      "hour": 17,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 15.4
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 279
+        },
+        {
+          "station_no": "102",
+          "boardings": 139
+        },
+        {
+          "station_no": "103",
+          "boardings": 245
+        },
+        {
+          "station_no": "104",
+          "boardings": 1423
+        },
+        {
+          "station_no": "105",
+          "boardings": 945
+        },
+        {
+          "station_no": "106",
+          "boardings": 137
+        },
+        {
+          "station_no": "107",
+          "boardings": 314
+        },
+        {
+          "station_no": "108",
+          "boardings": 275
+        },
+        {
+          "station_no": "109",
+          "boardings": 611
+        },
+        {
+          "station_no": "110",
+          "boardings": 410
+        },
+        {
+          "station_no": "111",
+          "boardings": 578
+        },
+        {
+          "station_no": "112",
+          "boardings": 510
+        },
+        {
+          "station_no": "113",
+          "boardings": 209
+        },
+        {
+          "station_no": "114",
+          "boardings": 265
+        },
+        {
+          "station_no": "115",
+          "boardings": 96
+        },
+        {
+          "station_no": "116",
+          "boardings": 783
+        },
+        {
+          "station_no": "117",
+          "boardings": 251
+        },
+        {
+          "station_no": "118",
+          "boardings": 267
+        },
+        {
+          "station_no": "119",
+          "boardings": 187
+        },
+        {
+          "station_no": "120",
+          "boardings": 281
+        },
+        {
+          "station_no": "121",
+          "boardings": 136
+        },
+        {
+          "station_no": "122",
+          "boardings": 398
+        }
+      ]
+    },
+    {
+      "hour": 18,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 12.2
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 202
+        },
+        {
+          "station_no": "102",
+          "boardings": 87
+        },
+        {
+          "station_no": "103",
+          "boardings": 181
+        },
+        {
+          "station_no": "104",
+          "boardings": 1012
+        },
+        {
+          "station_no": "105",
+          "boardings": 923
+        },
+        {
+          "station_no": "106",
+          "boardings": 119
+        },
+        {
+          "station_no": "107",
+          "boardings": 319
+        },
+        {
+          "station_no": "108",
+          "boardings": 183
+        },
+        {
+          "station_no": "109",
+          "boardings": 446
+        },
+        {
+          "station_no": "110",
+          "boardings": 267
+        },
+        {
+          "station_no": "111",
+          "boardings": 514
+        },
+        {
+          "station_no": "112",
+          "boardings": 414
+        },
+        {
+          "station_no": "113",
+          "boardings": 153
+        },
+        {
+          "station_no": "114",
+          "boardings": 247
+        },
+        {
+          "station_no": "115",
+          "boardings": 59
+        },
+        {
+          "station_no": "116",
+          "boardings": 557
+        },
+        {
+          "station_no": "117",
+          "boardings": 193
+        },
+        {
+          "station_no": "118",
+          "boardings": 159
+        },
+        {
+          "station_no": "119",
+          "boardings": 113
+        },
+        {
+          "station_no": "120",
+          "boardings": 221
+        },
+        {
+          "station_no": "121",
+          "boardings": 105
+        },
+        {
+          "station_no": "122",
+          "boardings": 284
+        }
+      ]
+    },
+    {
+      "hour": 19,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 10.2
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 105
+        },
+        {
+          "station_no": "102",
+          "boardings": 45
+        },
+        {
+          "station_no": "103",
+          "boardings": 112
+        },
+        {
+          "station_no": "104",
+          "boardings": 810
+        },
+        {
+          "station_no": "105",
+          "boardings": 722
+        },
+        {
+          "station_no": "106",
+          "boardings": 69
+        },
+        {
+          "station_no": "107",
+          "boardings": 251
+        },
+        {
+          "station_no": "108",
+          "boardings": 121
+        },
+        {
+          "station_no": "109",
+          "boardings": 300
+        },
+        {
+          "station_no": "110",
+          "boardings": 248
+        },
+        {
+          "station_no": "111",
+          "boardings": 479
+        },
+        {
+          "station_no": "112",
+          "boardings": 331
+        },
+        {
+          "station_no": "113",
+          "boardings": 97
+        },
+        {
+          "station_no": "114",
+          "boardings": 197
+        },
+        {
+          "station_no": "115",
+          "boardings": 29
+        },
+        {
+          "station_no": "116",
+          "boardings": 506
+        },
+        {
+          "station_no": "117",
+          "boardings": 171
+        },
+        {
+          "station_no": "118",
+          "boardings": 118
+        },
+        {
+          "station_no": "119",
+          "boardings": 78
+        },
+        {
+          "station_no": "120",
+          "boardings": 153
+        },
+        {
+          "station_no": "121",
+          "boardings": 60
+        },
+        {
+          "station_no": "122",
+          "boardings": 197
+        }
+      ]
+    },
+    {
+      "hour": 20,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 9.3
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 88
+        },
+        {
+          "station_no": "102",
+          "boardings": 44
+        },
+        {
+          "station_no": "103",
+          "boardings": 77
+        },
+        {
+          "station_no": "104",
+          "boardings": 766
+        },
+        {
+          "station_no": "105",
+          "boardings": 767
+        },
+        {
+          "station_no": "106",
+          "boardings": 70
+        },
+        {
+          "station_no": "107",
+          "boardings": 217
+        },
+        {
+          "station_no": "108",
+          "boardings": 92
+        },
+        {
+          "station_no": "109",
+          "boardings": 301
+        },
+        {
+          "station_no": "110",
+          "boardings": 134
+        },
+        {
+          "station_no": "111",
+          "boardings": 460
+        },
+        {
+          "station_no": "112",
+          "boardings": 260
+        },
+        {
+          "station_no": "113",
+          "boardings": 73
+        },
+        {
+          "station_no": "114",
+          "boardings": 167
+        },
+        {
+          "station_no": "115",
+          "boardings": 34
+        },
+        {
+          "station_no": "116",
+          "boardings": 417
+        },
+        {
+          "station_no": "117",
+          "boardings": 145
+        },
+        {
+          "station_no": "118",
+          "boardings": 90
+        },
+        {
+          "station_no": "119",
+          "boardings": 100
+        },
+        {
+          "station_no": "120",
+          "boardings": 151
+        },
+        {
+          "station_no": "121",
+          "boardings": 46
+        },
+        {
+          "station_no": "122",
+          "boardings": 213
+        }
+      ]
+    },
+    {
+      "hour": 21,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 9.1
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 69
+        },
+        {
+          "station_no": "102",
+          "boardings": 21
+        },
+        {
+          "station_no": "103",
+          "boardings": 91
+        },
+        {
+          "station_no": "104",
+          "boardings": 852
+        },
+        {
+          "station_no": "105",
+          "boardings": 698
+        },
+        {
+          "station_no": "106",
+          "boardings": 45
+        },
+        {
+          "station_no": "107",
+          "boardings": 166
+        },
+        {
+          "station_no": "108",
+          "boardings": 81
+        },
+        {
+          "station_no": "109",
+          "boardings": 166
+        },
+        {
+          "station_no": "110",
+          "boardings": 135
+        },
+        {
+          "station_no": "111",
+          "boardings": 384
+        },
+        {
+          "station_no": "112",
+          "boardings": 202
+        },
+        {
+          "station_no": "113",
+          "boardings": 57
+        },
+        {
+          "station_no": "114",
+          "boardings": 101
+        },
+        {
+          "station_no": "115",
+          "boardings": 22
+        },
+        {
+          "station_no": "116",
+          "boardings": 337
+        },
+        {
+          "station_no": "117",
+          "boardings": 114
+        },
+        {
+          "station_no": "118",
+          "boardings": 48
+        },
+        {
+          "station_no": "119",
+          "boardings": 68
+        },
+        {
+          "station_no": "120",
+          "boardings": 115
+        },
+        {
+          "station_no": "121",
+          "boardings": 47
+        },
+        {
+          "station_no": "122",
+          "boardings": 252
+        }
+      ]
+    },
+    {
+      "hour": 22,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 8.3
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 50
+        },
+        {
+          "station_no": "102",
+          "boardings": 19
+        },
+        {
+          "station_no": "103",
+          "boardings": 40
+        },
+        {
+          "station_no": "104",
+          "boardings": 681
+        },
+        {
+          "station_no": "105",
+          "boardings": 365
+        },
+        {
+          "station_no": "106",
+          "boardings": 29
+        },
+        {
+          "station_no": "107",
+          "boardings": 133
+        },
+        {
+          "station_no": "108",
+          "boardings": 47
+        },
+        {
+          "station_no": "109",
+          "boardings": 142
+        },
+        {
+          "station_no": "110",
+          "boardings": 78
+        },
+        {
+          "station_no": "111",
+          "boardings": 363
+        },
+        {
+          "station_no": "112",
+          "boardings": 110
+        },
+        {
+          "station_no": "113",
+          "boardings": 47
+        },
+        {
+          "station_no": "114",
+          "boardings": 95
+        },
+        {
+          "station_no": "115",
+          "boardings": 10
+        },
+        {
+          "station_no": "116",
+          "boardings": 241
+        },
+        {
+          "station_no": "117",
+          "boardings": 90
+        },
+        {
+          "station_no": "118",
+          "boardings": 13
+        },
+        {
+          "station_no": "119",
+          "boardings": 28
+        },
+        {
+          "station_no": "120",
+          "boardings": 92
+        },
+        {
+          "station_no": "121",
+          "boardings": 16
+        },
+        {
+          "station_no": "122",
+          "boardings": 248
+        }
+      ]
+    },
+    {
+      "hour": 23,
+      "weather": {
+        "precipitation": 0.0,
+        "snowfall": 0.0,
+        "temperature_2m": 7.8
+      },
+      "subway": [
+        {
+          "station_no": "101",
+          "boardings": 26
+        },
+        {
+          "station_no": "102",
+          "boardings": 11
+        },
+        {
+          "station_no": "103",
+          "boardings": 31
+        },
+        {
+          "station_no": "104",
+          "boardings": 372
+        },
+        {
+          "station_no": "105",
+          "boardings": 236
+        },
+        {
+          "station_no": "106",
+          "boardings": 18
+        },
+        {
+          "station_no": "107",
+          "boardings": 64
+        },
+        {
+          "station_no": "108",
+          "boardings": 25
+        },
+        {
+          "station_no": "109",
+          "boardings": 88
+        },
+        {
+          "station_no": "110",
+          "boardings": 38
+        },
+        {
+          "station_no": "111",
+          "boardings": 201
+        },
+        {
+          "station_no": "112",
+          "boardings": 83
+        },
+        {
+          "station_no": "113",
+          "boardings": 42
+        },
+        {
+          "station_no": "114",
+          "boardings": 40
+        },
+        {
+          "station_no": "115",
+          "boardings": 7
+        },
+        {
+          "station_no": "116",
+          "boardings": 190
+        },
+        {
+          "station_no": "117",
+          "boardings": 50
+        },
+        {
+          "station_no": "118",
+          "boardings": 12
+        },
+        {
+          "station_no": "119",
+          "boardings": 33
+        },
+        {
+          "station_no": "120",
+          "boardings": 50
+        },
+        {
+          "station_no": "121",
+          "boardings": 19
+        },
+        {
+          "station_no": "122",
+          "boardings": 82
+        }
+      ]
+    }
+  ]
+}
