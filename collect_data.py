@@ -52,8 +52,8 @@ def save_xml(date_str: str, xml_text: str, page_no: int):
     print(f"Saved: {filename} (page {page_no})")
 
 def main():
-    start_date = datetime(2026, 9, 1)
-    end_date = datetime(2026, 9, 30)
+    start_date = datetime(2026, 8, 1)
+    end_date = datetime(2026, 8, 31)
 
     current_date = start_date
     while current_date <= end_date:
