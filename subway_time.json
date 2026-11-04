@@ -11963,13 +11963,53 @@
       "train_id": "평일-상행-120",
       "day_type": "평일",
       "direction": "상행",
-      "origin": "정부청사",
-      "origin_depart": "23:50",
+      "origin": "반석",
+      "origin_depart": "23:32",
       "destination": "판암",
       "destination_arrive": "24:12",
-      "stop_count": 12,
+      "stop_count": 22,
       "interpolated": true,
       "stops": [
+        {
+          "station": "반석",
+          "time": "23:32"
+        },
+        {
+          "station": "지족",
+          "time": "23:34"
+        },
+        {
+          "station": "노은",
+          "time": "23:36"
+        },
+        {
+          "station": "월드컵경기장",
+          "time": "23:37"
+        },
+        {
+          "station": "현충원",
+          "time": "23:39"
+        },
+        {
+          "station": "구암",
+          "time": "23:41"
+        },
+        {
+          "station": "유성온천",
+          "time": "23:43"
+        },
+        {
+          "station": "갑천",
+          "time": "23:45"
+        },
+        {
+          "station": "월평",
+          "time": "23:47"
+        },
+        {
+          "station": "갈마",
+          "time": "23:48"
+        },
         {
           "station": "정부청사",
           "time": "23:50"
@@ -12021,7 +12061,64 @@
       ]
     },
     {
-      "train_id": "평일-하행-121",
+      "train_id": "평일-상행-121",
+      "day_type": "평일",
+      "direction": "상행",
+      "origin": "반석",
+      "origin_depart": "23:42",
+      "destination": "정부청사",
+      "destination_arrive": "24:00",
+      "stop_count": 11,
+      "interpolated": true,
+      "stops": [
+        {
+          "station": "반석",
+          "time": "23:42"
+        },
+        {
+          "station": "지족",
+          "time": "23:44"
+        },
+        {
+          "station": "노은",
+          "time": "23:46"
+        },
+        {
+          "station": "월드컵경기장",
+          "time": "23:47"
+        },
+        {
+          "station": "현충원",
+          "time": "23:49"
+        },
+        {
+          "station": "구암",
+          "time": "23:51"
+        },
+        {
+          "station": "유성온천",
+          "time": "23:53"
+        },
+        {
+          "station": "갑천",
+          "time": "23:55"
+        },
+        {
+          "station": "월평",
+          "time": "23:57"
+        },
+        {
+          "station": "갈마",
+          "time": "23:58"
+        },
+        {
+          "station": "정부청사",
+          "time": "24:00"
+        }
+      ]
+    },
+    {
+      "train_id": "평일-하행-122",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -12122,7 +12219,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-122",
+      "train_id": "평일-하행-123",
       "day_type": "평일",
       "direction": "하행",
       "origin": "서대전네거리",
@@ -12199,7 +12296,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-123",
+      "train_id": "평일-하행-124",
       "day_type": "평일",
       "direction": "하행",
       "origin": "정부청사",
@@ -12256,7 +12353,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-124",
+      "train_id": "평일-하행-125",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -12357,7 +12454,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-125",
+      "train_id": "평일-하행-126",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -12458,7 +12555,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-126",
+      "train_id": "평일-하행-127",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -12559,7 +12656,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-127",
+      "train_id": "평일-하행-128",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -12660,7 +12757,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-128",
+      "train_id": "평일-하행-129",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -12761,7 +12858,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-129",
+      "train_id": "평일-하행-130",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -12862,7 +12959,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-130",
+      "train_id": "평일-하행-131",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -12963,7 +13060,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-131",
+      "train_id": "평일-하행-132",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -13064,7 +13161,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-132",
+      "train_id": "평일-하행-133",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -13165,7 +13262,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-133",
+      "train_id": "평일-하행-134",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -13266,7 +13363,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-134",
+      "train_id": "평일-하행-135",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -13367,7 +13464,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-135",
+      "train_id": "평일-하행-136",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -13468,7 +13565,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-136",
+      "train_id": "평일-하행-137",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -13569,7 +13666,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-137",
+      "train_id": "평일-하행-138",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -13670,7 +13767,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-138",
+      "train_id": "평일-하행-139",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -13771,7 +13868,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-139",
+      "train_id": "평일-하행-140",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -13872,7 +13969,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-140",
+      "train_id": "평일-하행-141",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -13973,7 +14070,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-141",
+      "train_id": "평일-하행-142",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -14074,7 +14171,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-142",
+      "train_id": "평일-하행-143",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -14175,7 +14272,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-143",
+      "train_id": "평일-하행-144",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -14276,7 +14373,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-144",
+      "train_id": "평일-하행-145",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -14377,7 +14474,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-145",
+      "train_id": "평일-하행-146",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -14478,7 +14575,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-146",
+      "train_id": "평일-하행-147",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -14579,7 +14676,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-147",
+      "train_id": "평일-하행-148",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -14680,7 +14777,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-148",
+      "train_id": "평일-하행-149",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -14781,7 +14878,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-149",
+      "train_id": "평일-하행-150",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -14882,7 +14979,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-150",
+      "train_id": "평일-하행-151",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -14983,7 +15080,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-151",
+      "train_id": "평일-하행-152",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -15084,7 +15181,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-152",
+      "train_id": "평일-하행-153",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -15185,7 +15282,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-153",
+      "train_id": "평일-하행-154",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -15286,7 +15383,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-154",
+      "train_id": "평일-하행-155",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -15387,7 +15484,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-155",
+      "train_id": "평일-하행-156",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -15488,7 +15585,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-156",
+      "train_id": "평일-하행-157",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -15589,7 +15686,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-157",
+      "train_id": "평일-하행-158",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -15690,7 +15787,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-158",
+      "train_id": "평일-하행-159",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -15791,7 +15888,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-159",
+      "train_id": "평일-하행-160",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -15892,7 +15989,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-160",
+      "train_id": "평일-하행-161",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -15993,7 +16090,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-161",
+      "train_id": "평일-하행-162",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -16094,7 +16191,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-162",
+      "train_id": "평일-하행-163",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -16195,7 +16292,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-163",
+      "train_id": "평일-하행-164",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -16296,7 +16393,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-164",
+      "train_id": "평일-하행-165",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -16397,7 +16494,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-165",
+      "train_id": "평일-하행-166",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -16498,7 +16595,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-166",
+      "train_id": "평일-하행-167",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -16599,7 +16696,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-167",
+      "train_id": "평일-하행-168",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -16700,7 +16797,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-168",
+      "train_id": "평일-하행-169",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -16801,7 +16898,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-169",
+      "train_id": "평일-하행-170",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -16902,7 +16999,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-170",
+      "train_id": "평일-하행-171",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -17003,7 +17100,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-171",
+      "train_id": "평일-하행-172",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -17104,7 +17201,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-172",
+      "train_id": "평일-하행-173",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -17205,7 +17302,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-173",
+      "train_id": "평일-하행-174",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -17306,7 +17403,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-174",
+      "train_id": "평일-하행-175",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -17407,7 +17504,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-175",
+      "train_id": "평일-하행-176",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -17508,7 +17605,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-176",
+      "train_id": "평일-하행-177",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -17609,7 +17706,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-177",
+      "train_id": "평일-하행-178",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -17710,7 +17807,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-178",
+      "train_id": "평일-하행-179",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -17811,7 +17908,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-179",
+      "train_id": "평일-하행-180",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -17912,7 +18009,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-180",
+      "train_id": "평일-하행-181",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -18013,7 +18110,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-181",
+      "train_id": "평일-하행-182",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -18114,7 +18211,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-182",
+      "train_id": "평일-하행-183",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -18215,7 +18312,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-183",
+      "train_id": "평일-하행-184",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -18316,7 +18413,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-184",
+      "train_id": "평일-하행-185",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -18417,7 +18514,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-185",
+      "train_id": "평일-하행-186",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -18518,7 +18615,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-186",
+      "train_id": "평일-하행-187",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -18619,7 +18716,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-187",
+      "train_id": "평일-하행-188",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -18720,7 +18817,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-188",
+      "train_id": "평일-하행-189",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -18821,7 +18918,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-189",
+      "train_id": "평일-하행-190",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -18922,7 +19019,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-190",
+      "train_id": "평일-하행-191",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -19023,7 +19120,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-191",
+      "train_id": "평일-하행-192",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -19124,7 +19221,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-192",
+      "train_id": "평일-하행-193",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -19225,7 +19322,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-193",
+      "train_id": "평일-하행-194",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -19326,7 +19423,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-194",
+      "train_id": "평일-하행-195",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -19427,7 +19524,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-195",
+      "train_id": "평일-하행-196",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -19528,7 +19625,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-196",
+      "train_id": "평일-하행-197",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -19629,7 +19726,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-197",
+      "train_id": "평일-하행-198",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -19730,7 +19827,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-198",
+      "train_id": "평일-하행-199",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -19831,7 +19928,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-199",
+      "train_id": "평일-하행-200",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -19932,7 +20029,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-200",
+      "train_id": "평일-하행-201",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -20033,7 +20130,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-201",
+      "train_id": "평일-하행-202",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -20134,7 +20231,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-202",
+      "train_id": "평일-하행-203",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -20235,7 +20332,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-203",
+      "train_id": "평일-하행-204",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -20336,7 +20433,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-204",
+      "train_id": "평일-하행-205",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -20437,7 +20534,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-205",
+      "train_id": "평일-하행-206",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -20538,7 +20635,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-206",
+      "train_id": "평일-하행-207",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -20639,7 +20736,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-207",
+      "train_id": "평일-하행-208",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -20740,7 +20837,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-208",
+      "train_id": "평일-하행-209",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -20841,7 +20938,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-209",
+      "train_id": "평일-하행-210",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -20942,7 +21039,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-210",
+      "train_id": "평일-하행-211",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -21043,7 +21140,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-211",
+      "train_id": "평일-하행-212",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -21144,7 +21241,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-212",
+      "train_id": "평일-하행-213",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -21245,7 +21342,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-213",
+      "train_id": "평일-하행-214",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -21346,7 +21443,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-214",
+      "train_id": "평일-하행-215",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -21447,7 +21544,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-215",
+      "train_id": "평일-하행-216",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -21548,7 +21645,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-216",
+      "train_id": "평일-하행-217",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -21649,7 +21746,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-217",
+      "train_id": "평일-하행-218",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -21750,7 +21847,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-218",
+      "train_id": "평일-하행-219",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -21851,7 +21948,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-219",
+      "train_id": "평일-하행-220",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -21952,7 +22049,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-220",
+      "train_id": "평일-하행-221",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -22053,7 +22150,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-221",
+      "train_id": "평일-하행-222",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -22154,7 +22251,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-222",
+      "train_id": "평일-하행-223",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -22255,7 +22352,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-223",
+      "train_id": "평일-하행-224",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -22356,7 +22453,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-224",
+      "train_id": "평일-하행-225",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -22457,7 +22554,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-225",
+      "train_id": "평일-하행-226",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -22558,7 +22655,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-226",
+      "train_id": "평일-하행-227",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -22659,7 +22756,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-227",
+      "train_id": "평일-하행-228",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -22760,7 +22857,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-228",
+      "train_id": "평일-하행-229",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -22861,7 +22958,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-229",
+      "train_id": "평일-하행-230",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -22962,7 +23059,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-230",
+      "train_id": "평일-하행-231",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -23063,7 +23160,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-231",
+      "train_id": "평일-하행-232",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -23164,7 +23261,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-232",
+      "train_id": "평일-하행-233",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -23265,7 +23362,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-233",
+      "train_id": "평일-하행-234",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -23366,7 +23463,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-234",
+      "train_id": "평일-하행-235",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -23467,7 +23564,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-235",
+      "train_id": "평일-하행-236",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -23568,7 +23665,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-236",
+      "train_id": "평일-하행-237",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -23669,7 +23766,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-237",
+      "train_id": "평일-하행-238",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -23770,7 +23867,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-238",
+      "train_id": "평일-하행-239",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -23871,7 +23968,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-239",
+      "train_id": "평일-하행-240",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -23972,7 +24069,7 @@
       ]
     },
     {
-      "train_id": "평일-하행-240",
+      "train_id": "평일-하행-241",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
@@ -24073,15 +24170,15 @@
       ]
     },
     {
-      "train_id": "평일-하행-241",
+      "train_id": "평일-하행-242",
       "day_type": "평일",
       "direction": "하행",
       "origin": "판암",
       "origin_depart": "23:40",
-      "destination": "시청",
-      "destination_arrive": "23:59",
-      "stop_count": 11,
-      "interpolated": false,
+      "destination": "정부청사",
+      "destination_arrive": "24:01",
+      "stop_count": 12,
+      "interpolated": true,
       "stops": [
         {
           "station": "판암",
@@ -24126,11 +24223,15 @@
         {
           "station": "시청",
           "time": "23:59"
+        },
+        {
+          "station": "정부청사",
+          "time": "24:01"
         }
       ]
     },
     {
-      "train_id": "평일-하행-242",
+      "train_id": "평일-하행-243",
       "day_type": "평일",
       "direction": "하행",
       "origin": "유성온천",
@@ -24171,7 +24272,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-243",
+      "train_id": "휴일-상행-244",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -24272,7 +24373,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-244",
+      "train_id": "휴일-상행-245",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "구암",
@@ -24353,7 +24454,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-245",
+      "train_id": "휴일-상행-246",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "정부청사",
@@ -24414,7 +24515,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-246",
+      "train_id": "휴일-상행-247",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -24515,7 +24616,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-247",
+      "train_id": "휴일-상행-248",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -24616,7 +24717,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-248",
+      "train_id": "휴일-상행-249",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -24717,7 +24818,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-249",
+      "train_id": "휴일-상행-250",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -24818,7 +24919,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-250",
+      "train_id": "휴일-상행-251",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -24919,7 +25020,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-251",
+      "train_id": "휴일-상행-252",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -25020,7 +25121,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-252",
+      "train_id": "휴일-상행-253",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -25121,7 +25222,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-253",
+      "train_id": "휴일-상행-254",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -25222,7 +25323,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-254",
+      "train_id": "휴일-상행-255",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -25323,7 +25424,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-255",
+      "train_id": "휴일-상행-256",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -25424,7 +25525,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-256",
+      "train_id": "휴일-상행-257",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -25525,7 +25626,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-257",
+      "train_id": "휴일-상행-258",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -25626,7 +25727,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-258",
+      "train_id": "휴일-상행-259",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -25727,7 +25828,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-259",
+      "train_id": "휴일-상행-260",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -25828,7 +25929,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-260",
+      "train_id": "휴일-상행-261",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -25929,7 +26030,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-261",
+      "train_id": "휴일-상행-262",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -26030,7 +26131,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-262",
+      "train_id": "휴일-상행-263",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -26131,7 +26232,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-263",
+      "train_id": "휴일-상행-264",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -26232,7 +26333,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-264",
+      "train_id": "휴일-상행-265",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -26333,7 +26434,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-265",
+      "train_id": "휴일-상행-266",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -26434,7 +26535,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-266",
+      "train_id": "휴일-상행-267",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -26535,7 +26636,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-267",
+      "train_id": "휴일-상행-268",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -26636,7 +26737,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-268",
+      "train_id": "휴일-상행-269",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -26737,7 +26838,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-269",
+      "train_id": "휴일-상행-270",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -26838,7 +26939,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-270",
+      "train_id": "휴일-상행-271",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -26939,7 +27040,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-271",
+      "train_id": "휴일-상행-272",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -27040,7 +27141,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-272",
+      "train_id": "휴일-상행-273",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -27141,7 +27242,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-273",
+      "train_id": "휴일-상행-274",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -27242,7 +27343,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-274",
+      "train_id": "휴일-상행-275",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -27343,7 +27444,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-275",
+      "train_id": "휴일-상행-276",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -27444,7 +27545,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-276",
+      "train_id": "휴일-상행-277",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -27545,7 +27646,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-277",
+      "train_id": "휴일-상행-278",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -27646,7 +27747,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-278",
+      "train_id": "휴일-상행-279",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -27747,7 +27848,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-279",
+      "train_id": "휴일-상행-280",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -27848,7 +27949,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-280",
+      "train_id": "휴일-상행-281",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -27949,7 +28050,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-281",
+      "train_id": "휴일-상행-282",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -28050,7 +28151,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-282",
+      "train_id": "휴일-상행-283",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -28151,7 +28252,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-283",
+      "train_id": "휴일-상행-284",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -28252,7 +28353,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-284",
+      "train_id": "휴일-상행-285",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -28353,7 +28454,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-285",
+      "train_id": "휴일-상행-286",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -28454,7 +28555,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-286",
+      "train_id": "휴일-상행-287",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -28555,7 +28656,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-287",
+      "train_id": "휴일-상행-288",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -28656,7 +28757,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-288",
+      "train_id": "휴일-상행-289",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -28757,7 +28858,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-289",
+      "train_id": "휴일-상행-290",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -28858,7 +28959,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-290",
+      "train_id": "휴일-상행-291",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -28959,7 +29060,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-291",
+      "train_id": "휴일-상행-292",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -29060,7 +29161,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-292",
+      "train_id": "휴일-상행-293",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -29161,7 +29262,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-293",
+      "train_id": "휴일-상행-294",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -29262,7 +29363,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-294",
+      "train_id": "휴일-상행-295",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -29363,7 +29464,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-295",
+      "train_id": "휴일-상행-296",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -29464,7 +29565,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-296",
+      "train_id": "휴일-상행-297",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -29565,7 +29666,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-297",
+      "train_id": "휴일-상행-298",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -29666,7 +29767,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-298",
+      "train_id": "휴일-상행-299",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -29767,7 +29868,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-299",
+      "train_id": "휴일-상행-300",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -29868,7 +29969,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-300",
+      "train_id": "휴일-상행-301",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -29969,7 +30070,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-301",
+      "train_id": "휴일-상행-302",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -30070,7 +30171,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-302",
+      "train_id": "휴일-상행-303",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -30171,7 +30272,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-303",
+      "train_id": "휴일-상행-304",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -30272,7 +30373,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-304",
+      "train_id": "휴일-상행-305",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -30373,7 +30474,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-305",
+      "train_id": "휴일-상행-306",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -30474,7 +30575,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-306",
+      "train_id": "휴일-상행-307",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -30575,7 +30676,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-307",
+      "train_id": "휴일-상행-308",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -30676,7 +30777,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-308",
+      "train_id": "휴일-상행-309",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -30777,7 +30878,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-309",
+      "train_id": "휴일-상행-310",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -30878,7 +30979,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-310",
+      "train_id": "휴일-상행-311",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -30979,7 +31080,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-311",
+      "train_id": "휴일-상행-312",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -31080,7 +31181,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-312",
+      "train_id": "휴일-상행-313",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -31181,7 +31282,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-313",
+      "train_id": "휴일-상행-314",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -31282,7 +31383,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-314",
+      "train_id": "휴일-상행-315",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -31383,7 +31484,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-315",
+      "train_id": "휴일-상행-316",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -31484,7 +31585,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-316",
+      "train_id": "휴일-상행-317",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -31585,7 +31686,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-317",
+      "train_id": "휴일-상행-318",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -31686,7 +31787,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-318",
+      "train_id": "휴일-상행-319",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -31787,7 +31888,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-319",
+      "train_id": "휴일-상행-320",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -31888,7 +31989,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-320",
+      "train_id": "휴일-상행-321",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -31989,7 +32090,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-321",
+      "train_id": "휴일-상행-322",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -32090,7 +32191,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-322",
+      "train_id": "휴일-상행-323",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -32191,7 +32292,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-323",
+      "train_id": "휴일-상행-324",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -32292,7 +32393,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-324",
+      "train_id": "휴일-상행-325",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -32393,7 +32494,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-325",
+      "train_id": "휴일-상행-326",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -32494,7 +32595,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-326",
+      "train_id": "휴일-상행-327",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -32595,7 +32696,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-327",
+      "train_id": "휴일-상행-328",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -32696,7 +32797,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-328",
+      "train_id": "휴일-상행-329",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -32797,7 +32898,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-329",
+      "train_id": "휴일-상행-330",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -32898,7 +32999,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-330",
+      "train_id": "휴일-상행-331",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -32999,7 +33100,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-331",
+      "train_id": "휴일-상행-332",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -33100,7 +33201,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-332",
+      "train_id": "휴일-상행-333",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -33201,7 +33302,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-333",
+      "train_id": "휴일-상행-334",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -33302,7 +33403,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-334",
+      "train_id": "휴일-상행-335",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -33403,7 +33504,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-335",
+      "train_id": "휴일-상행-336",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -33504,7 +33605,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-336",
+      "train_id": "휴일-상행-337",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -33605,7 +33706,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-337",
+      "train_id": "휴일-상행-338",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -33706,7 +33807,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-338",
+      "train_id": "휴일-상행-339",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -33807,7 +33908,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-339",
+      "train_id": "휴일-상행-340",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -33908,7 +34009,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-340",
+      "train_id": "휴일-상행-341",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -34009,7 +34110,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-341",
+      "train_id": "휴일-상행-342",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -34110,7 +34211,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-342",
+      "train_id": "휴일-상행-343",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -34211,7 +34312,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-343",
+      "train_id": "휴일-상행-344",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -34312,7 +34413,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-344",
+      "train_id": "휴일-상행-345",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -34413,7 +34514,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-345",
+      "train_id": "휴일-상행-346",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -34514,7 +34615,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-346",
+      "train_id": "휴일-상행-347",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -34615,7 +34716,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-347",
+      "train_id": "휴일-상행-348",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -34716,7 +34817,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-348",
+      "train_id": "휴일-상행-349",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -34817,7 +34918,7 @@
       ]
     },
     {
-      "train_id": "휴일-상행-349",
+      "train_id": "휴일-상행-350",
       "day_type": "휴일",
       "direction": "상행",
       "origin": "반석",
@@ -34918,16 +35019,56 @@
       ]
     },
     {
-      "train_id": "휴일-상행-350",
+      "train_id": "휴일-상행-351",
       "day_type": "휴일",
       "direction": "상행",
-      "origin": "정부청사",
-      "origin_depart": "23:50",
+      "origin": "반석",
+      "origin_depart": "23:32",
       "destination": "판암",
       "destination_arrive": "24:12",
-      "stop_count": 12,
+      "stop_count": 22,
       "interpolated": true,
       "stops": [
+        {
+          "station": "반석",
+          "time": "23:32"
+        },
+        {
+          "station": "지족",
+          "time": "23:34"
+        },
+        {
+          "station": "노은",
+          "time": "23:36"
+        },
+        {
+          "station": "월드컵경기장",
+          "time": "23:37"
+        },
+        {
+          "station": "현충원",
+          "time": "23:39"
+        },
+        {
+          "station": "구암",
+          "time": "23:41"
+        },
+        {
+          "station": "유성온천",
+          "time": "23:43"
+        },
+        {
+          "station": "갑천",
+          "time": "23:45"
+        },
+        {
+          "station": "월평",
+          "time": "23:47"
+        },
+        {
+          "station": "갈마",
+          "time": "23:48"
+        },
         {
           "station": "정부청사",
           "time": "23:50"
@@ -34979,7 +35120,64 @@
       ]
     },
     {
-      "train_id": "휴일-하행-351",
+      "train_id": "휴일-상행-352",
+      "day_type": "휴일",
+      "direction": "상행",
+      "origin": "반석",
+      "origin_depart": "23:42",
+      "destination": "정부청사",
+      "destination_arrive": "24:00",
+      "stop_count": 11,
+      "interpolated": true,
+      "stops": [
+        {
+          "station": "반석",
+          "time": "23:42"
+        },
+        {
+          "station": "지족",
+          "time": "23:44"
+        },
+        {
+          "station": "노은",
+          "time": "23:46"
+        },
+        {
+          "station": "월드컵경기장",
+          "time": "23:47"
+        },
+        {
+          "station": "현충원",
+          "time": "23:49"
+        },
+        {
+          "station": "구암",
+          "time": "23:51"
+        },
+        {
+          "station": "유성온천",
+          "time": "23:53"
+        },
+        {
+          "station": "갑천",
+          "time": "23:55"
+        },
+        {
+          "station": "월평",
+          "time": "23:57"
+        },
+        {
+          "station": "갈마",
+          "time": "23:58"
+        },
+        {
+          "station": "정부청사",
+          "time": "24:00"
+        }
+      ]
+    },
+    {
+      "train_id": "휴일-하행-353",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -35080,7 +35278,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-352",
+      "train_id": "휴일-하행-354",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "서대전네거리",
@@ -35157,7 +35355,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-353",
+      "train_id": "휴일-하행-355",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "정부청사",
@@ -35214,7 +35412,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-354",
+      "train_id": "휴일-하행-356",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -35315,7 +35513,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-355",
+      "train_id": "휴일-하행-357",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -35416,7 +35614,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-356",
+      "train_id": "휴일-하행-358",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -35517,7 +35715,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-357",
+      "train_id": "휴일-하행-359",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -35618,7 +35816,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-358",
+      "train_id": "휴일-하행-360",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -35719,7 +35917,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-359",
+      "train_id": "휴일-하행-361",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -35820,7 +36018,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-360",
+      "train_id": "휴일-하행-362",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -35921,7 +36119,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-361",
+      "train_id": "휴일-하행-363",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -36022,7 +36220,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-362",
+      "train_id": "휴일-하행-364",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -36123,7 +36321,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-363",
+      "train_id": "휴일-하행-365",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -36224,7 +36422,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-364",
+      "train_id": "휴일-하행-366",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -36325,7 +36523,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-365",
+      "train_id": "휴일-하행-367",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -36426,7 +36624,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-366",
+      "train_id": "휴일-하행-368",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -36527,7 +36725,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-367",
+      "train_id": "휴일-하행-369",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -36628,7 +36826,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-368",
+      "train_id": "휴일-하행-370",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -36729,7 +36927,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-369",
+      "train_id": "휴일-하행-371",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -36830,7 +37028,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-370",
+      "train_id": "휴일-하행-372",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -36931,7 +37129,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-371",
+      "train_id": "휴일-하행-373",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -37032,7 +37230,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-372",
+      "train_id": "휴일-하행-374",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -37133,7 +37331,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-373",
+      "train_id": "휴일-하행-375",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -37234,7 +37432,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-374",
+      "train_id": "휴일-하행-376",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -37335,7 +37533,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-375",
+      "train_id": "휴일-하행-377",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -37436,7 +37634,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-376",
+      "train_id": "휴일-하행-378",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -37537,7 +37735,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-377",
+      "train_id": "휴일-하행-379",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -37638,7 +37836,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-378",
+      "train_id": "휴일-하행-380",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -37739,7 +37937,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-379",
+      "train_id": "휴일-하행-381",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -37840,7 +38038,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-380",
+      "train_id": "휴일-하행-382",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -37941,7 +38139,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-381",
+      "train_id": "휴일-하행-383",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -38042,7 +38240,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-382",
+      "train_id": "휴일-하행-384",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -38143,7 +38341,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-383",
+      "train_id": "휴일-하행-385",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -38244,7 +38442,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-384",
+      "train_id": "휴일-하행-386",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -38345,7 +38543,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-385",
+      "train_id": "휴일-하행-387",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -38446,7 +38644,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-386",
+      "train_id": "휴일-하행-388",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -38547,7 +38745,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-387",
+      "train_id": "휴일-하행-389",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -38648,7 +38846,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-388",
+      "train_id": "휴일-하행-390",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -38749,7 +38947,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-389",
+      "train_id": "휴일-하행-391",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -38850,7 +39048,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-390",
+      "train_id": "휴일-하행-392",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -38951,7 +39149,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-391",
+      "train_id": "휴일-하행-393",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -39052,7 +39250,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-392",
+      "train_id": "휴일-하행-394",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -39153,7 +39351,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-393",
+      "train_id": "휴일-하행-395",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -39254,7 +39452,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-394",
+      "train_id": "휴일-하행-396",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -39355,7 +39553,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-395",
+      "train_id": "휴일-하행-397",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -39456,7 +39654,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-396",
+      "train_id": "휴일-하행-398",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -39557,7 +39755,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-397",
+      "train_id": "휴일-하행-399",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -39658,7 +39856,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-398",
+      "train_id": "휴일-하행-400",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -39759,7 +39957,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-399",
+      "train_id": "휴일-하행-401",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -39860,7 +40058,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-400",
+      "train_id": "휴일-하행-402",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -39961,7 +40159,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-401",
+      "train_id": "휴일-하행-403",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -40062,7 +40260,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-402",
+      "train_id": "휴일-하행-404",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -40163,7 +40361,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-403",
+      "train_id": "휴일-하행-405",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -40264,7 +40462,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-404",
+      "train_id": "휴일-하행-406",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -40365,7 +40563,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-405",
+      "train_id": "휴일-하행-407",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -40466,7 +40664,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-406",
+      "train_id": "휴일-하행-408",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -40567,7 +40765,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-407",
+      "train_id": "휴일-하행-409",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -40668,7 +40866,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-408",
+      "train_id": "휴일-하행-410",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -40769,7 +40967,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-409",
+      "train_id": "휴일-하행-411",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -40870,7 +41068,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-410",
+      "train_id": "휴일-하행-412",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -40971,7 +41169,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-411",
+      "train_id": "휴일-하행-413",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -41072,7 +41270,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-412",
+      "train_id": "휴일-하행-414",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -41173,7 +41371,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-413",
+      "train_id": "휴일-하행-415",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -41274,7 +41472,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-414",
+      "train_id": "휴일-하행-416",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -41375,7 +41573,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-415",
+      "train_id": "휴일-하행-417",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -41476,7 +41674,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-416",
+      "train_id": "휴일-하행-418",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -41577,7 +41775,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-417",
+      "train_id": "휴일-하행-419",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -41678,7 +41876,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-418",
+      "train_id": "휴일-하행-420",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -41779,7 +41977,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-419",
+      "train_id": "휴일-하행-421",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -41880,7 +42078,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-420",
+      "train_id": "휴일-하행-422",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -41981,7 +42179,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-421",
+      "train_id": "휴일-하행-423",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -42082,7 +42280,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-422",
+      "train_id": "휴일-하행-424",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -42183,7 +42381,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-423",
+      "train_id": "휴일-하행-425",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -42284,7 +42482,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-424",
+      "train_id": "휴일-하행-426",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -42385,7 +42583,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-425",
+      "train_id": "휴일-하행-427",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -42486,7 +42684,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-426",
+      "train_id": "휴일-하행-428",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -42587,7 +42785,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-427",
+      "train_id": "휴일-하행-429",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -42688,7 +42886,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-428",
+      "train_id": "휴일-하행-430",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -42789,7 +42987,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-429",
+      "train_id": "휴일-하행-431",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -42890,7 +43088,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-430",
+      "train_id": "휴일-하행-432",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -42991,7 +43189,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-431",
+      "train_id": "휴일-하행-433",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -43092,7 +43290,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-432",
+      "train_id": "휴일-하행-434",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -43193,7 +43391,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-433",
+      "train_id": "휴일-하행-435",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -43294,7 +43492,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-434",
+      "train_id": "휴일-하행-436",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -43395,7 +43593,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-435",
+      "train_id": "휴일-하행-437",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -43496,7 +43694,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-436",
+      "train_id": "휴일-하행-438",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -43597,7 +43795,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-437",
+      "train_id": "휴일-하행-439",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -43698,7 +43896,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-438",
+      "train_id": "휴일-하행-440",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -43799,7 +43997,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-439",
+      "train_id": "휴일-하행-441",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -43900,7 +44098,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-440",
+      "train_id": "휴일-하행-442",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -44001,7 +44199,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-441",
+      "train_id": "휴일-하행-443",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -44102,7 +44300,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-442",
+      "train_id": "휴일-하행-444",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -44203,7 +44401,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-443",
+      "train_id": "휴일-하행-445",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -44304,7 +44502,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-444",
+      "train_id": "휴일-하행-446",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -44405,7 +44603,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-445",
+      "train_id": "휴일-하행-447",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -44506,7 +44704,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-446",
+      "train_id": "휴일-하행-448",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -44607,7 +44805,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-447",
+      "train_id": "휴일-하행-449",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -44708,7 +44906,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-448",
+      "train_id": "휴일-하행-450",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -44809,7 +45007,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-449",
+      "train_id": "휴일-하행-451",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -44910,7 +45108,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-450",
+      "train_id": "휴일-하행-452",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -45011,7 +45209,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-451",
+      "train_id": "휴일-하행-453",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -45112,7 +45310,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-452",
+      "train_id": "휴일-하행-454",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -45213,7 +45411,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-453",
+      "train_id": "휴일-하행-455",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -45314,7 +45512,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-454",
+      "train_id": "휴일-하행-456",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -45415,7 +45613,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-455",
+      "train_id": "휴일-하행-457",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -45516,7 +45714,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-456",
+      "train_id": "휴일-하행-458",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -45617,7 +45815,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-457",
+      "train_id": "휴일-하행-459",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -45718,7 +45916,7 @@
       ]
     },
     {
-      "train_id": "휴일-하행-458",
+      "train_id": "휴일-하행-460",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
@@ -45819,15 +46017,15 @@
       ]
     },
     {
-      "train_id": "휴일-하행-459",
+      "train_id": "휴일-하행-461",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "판암",
       "origin_depart": "23:40",
-      "destination": "시청",
-      "destination_arrive": "23:59",
-      "stop_count": 11,
-      "interpolated": false,
+      "destination": "정부청사",
+      "destination_arrive": "24:01",
+      "stop_count": 12,
+      "interpolated": true,
       "stops": [
         {
           "station": "판암",
@@ -45872,11 +46070,15 @@
         {
           "station": "시청",
           "time": "23:59"
+        },
+        {
+          "station": "정부청사",
+          "time": "24:01"
         }
       ]
     },
     {
-      "train_id": "휴일-하행-460",
+      "train_id": "휴일-하행-462",
       "day_type": "휴일",
       "direction": "하행",
       "origin": "유성온천",
