@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 
 # ==========================================
@@ -8,9 +8,8 @@ from collections import defaultdict
 # ==========================================
 STATION_HOURLY_PATH = "station_hourly.json"
 SUBWAY_DATA_DIR     = "./data/processed/subway"
-TARGET_DATE         = "2025-11-01"   # 테스트할 날짜
+TARGET_DATE         = "2025-11-04"
 
-# 역 ID ↔ 역명 매핑 (101 판암 ~ 122 반석)
 STATION_ID_TO_NAME = {
     101: "판암", 102: "신흥", 103: "대동", 104: "대전",
     105: "중앙로", 106: "중구청", 107: "서대전네거리", 108: "오룡",
@@ -21,54 +20,30 @@ STATION_ID_TO_NAME = {
 }
 
 # ==========================================
-# 2. 요일 판정 (토·일 = 휴일, 나머지 = 평일)
-# ==========================================
-from datetime import datetime
-
-# ==========================================
-# 법정 공휴일 집합 (2025, 2026)
+# 2. 요일 판정
 # ==========================================
 HOLIDAYS = {
-    # --- 2025년 ---
-    "2025-01-01",  # 신정
-    "2025-01-27", "2025-01-28", "2025-01-29", "2025-01-30",  # 설날 연휴
-    "2025-03-01",  # 삼일절 (토요일)
-    "2025-03-03",  # 삼일절 대체공휴일
-    "2025-05-05",  # 어린이날 + 부처님오신날
-    "2025-05-06",  # 어린이날 대체공휴일
-    "2025-06-03",  # 대통령선거일 (임시공휴일)
-    "2025-06-06",  # 현충일
-    "2025-08-15",  # 광복절
-    "2025-10-03",  # 개천절
-    "2025-10-05", "2025-10-06", "2025-10-07",  # 추석 연휴
-    "2025-10-08",  # 추석 대체공휴일
-    "2025-10-09",  # 한글날
-    "2025-12-25",  # 성탄절
-
-    # --- 2026년 ---
-    "2026-01-01",  # 신정
-    "2026-02-16", "2026-02-17", "2026-02-18",  # 설날 연휴
-    "2026-03-01",  # 삼일절 (일요일)
-    "2026-03-02",  # 삼일절 대체공휴일
-    "2026-05-05",  # 어린이날
-    "2026-05-24",  # 부처님오신날 (일요일)
-    "2026-05-25",  # 부처님오신날 대체공휴일
-    "2026-06-06",  # 현충일 (토요일)
-    "2026-08-15",  # 광복절 (토요일)
-    "2026-08-17",  # 광복절 대체공휴일
-    "2026-09-24", "2026-09-25", "2026-09-26",  # 추석 연휴
-    "2026-10-03",  # 개천절 (토요일)
-    "2026-10-05",  # 개천절 대체공휴일
-    "2026-10-09",  # 한글날
-    "2026-12-25",  # 성탄절
+    "2025-01-01",
+    "2025-01-27", "2025-01-28", "2025-01-29", "2025-01-30",
+    "2025-03-01", "2025-03-03",
+    "2025-05-05", "2025-05-06",
+    "2025-06-03", "2025-06-06",
+    "2025-08-15",
+    "2025-10-03", "2025-10-05", "2025-10-06", "2025-10-07",
+    "2025-10-08", "2025-10-09",
+    "2025-12-25",
+    "2026-01-01",
+    "2026-02-16", "2026-02-17", "2026-02-18",
+    "2026-03-01", "2026-03-02",
+    "2026-05-05", "2026-05-24", "2026-05-25",
+    "2026-06-06",
+    "2026-08-15", "2026-08-17",
+    "2026-09-24", "2026-09-25", "2026-09-26",
+    "2026-10-03", "2026-10-05", "2026-10-09",
+    "2026-12-25",
 }
 
 def get_day_type(date_str):
-    """
-    날짜 문자열(YYYY-MM-DD)을 받아 '평일' 또는 '휴일'을 반환.
-    - 공휴일이면 무조건 '휴일'
-    - 그 외에는 토/일이면 '휴일', 평일이면 '평일'
-    """
     if date_str in HOLIDAYS:
         return "휴일"
     dt = datetime.strptime(date_str, "%Y-%m-%d")
@@ -84,19 +59,28 @@ date_path = os.path.join(SUBWAY_DATA_DIR, f"{TARGET_DATE}.json")
 with open(date_path, encoding="utf-8") as f:
     subway_data = json.load(f)
 
+# 24시(다음날 0시) 데이터 = 11-04 막차의 지연 하차
+next_date = (datetime.strptime(TARGET_DATE, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+next_path = os.path.join(SUBWAY_DATA_DIR, f"{next_date}.json")
+if not os.path.exists(next_path):
+    raise FileNotFoundError(
+        f"{next_date}.json 이 없습니다. "
+        f"{TARGET_DATE} 영업일의 24시(막차 지연 하차) 데이터를 처리하려면 다음날 파일이 필요합니다."
+    )
+with open(next_path, encoding="utf-8") as f:
+    next_subway_data = json.load(f)
+
 day_type = get_day_type(TARGET_DATE)
 print(f"날짜: {TARGET_DATE}, 요일 구분: {day_type}")
 
 if day_type not in station_hourly:
     raise KeyError(f"station_hourly.json에 '{day_type}' 키가 없습니다.")
 
-hourly_for_day = station_hourly[day_type]  # {역명: {시간대: {departures, passes, arrivals}}}
+hourly_for_day = station_hourly[day_type]
 
 # ==========================================
-# 4. 역별·시간대별 분모 계산
+# 4. 분모 계산
 # ==========================================
-# boardings_denom[역][시간] = departures + passes
-# alightings_denom[역][시간] = passes + arrivals
 boardings_denom  = {}
 alightings_denom = {}
 
@@ -108,20 +92,89 @@ for station, hours in hourly_for_day.items():
         alightings_denom[station][h] = cell["passes"] + cell["arrivals"]
 
 # ==========================================
-# 5. 승차 인원 배정
-#   원본 승차 인원 / 승차 분모 = 열차 1대당 승차 인원
+# 4-1. 24시 귀속 대상 시간대 판정 (24시 우선, 23시 폴백)
 # ==========================================
-boarding_estimate = {}   # {역: {시간: 열차당승차}}
+def get_last_train_hour(station):
+    hours = hourly_for_day.get(station, {})
+    numeric_hours = []
+    for h in hours.keys():
+        try:
+            numeric_hours.append(int(h))
+        except (ValueError, TypeError):
+            continue
+    return max(numeric_hours) if numeric_hours else None
+
+def get_alighting_target_hour(station, prefer=24, fallback=23):
+    """0시 하차(막차 지연 하차)를 귀속시킬 시간대."""
+    for h in (str(prefer), str(fallback)):
+        denom = alightings_denom.get(station, {}).get(h, 0)
+        if denom > 0:
+            return h
+    return None
+
+def is_boarding_possible_at_zero(station):
+    """다음날 0시대 승차가 가능한지 (당일 마지막 열차 출발 이후인지)."""
+    hours = hourly_for_day.get(station, {})
+    h24 = hours.get("24", {})
+    if h24.get("departures", 0) > 0:
+        return True
+    h23 = hours.get("23", {})
+    if h23.get("departures", 0) > 0:
+        return False
+    last = get_last_train_hour(station)
+    if last is None:
+        return False
+    return hours.get(str(last), {}).get("departures", 0) > 0
+
+# ==========================================
+# 5. 승차/하차 배정
+# ==========================================
+boarding_estimate  = {}
 alighting_estimate = {}
 
-total_boarding_original = 0
-total_boarding_assigned = 0.0
+total_boarding_original  = 0
+total_boarding_assigned  = 0.0
 total_alighting_original = 0
 total_alighting_assigned = 0.0
 
-# 오차 상세 기록
-boarding_errors  = defaultdict(dict)   # {역: {시간: 오차}}
+boarding_errors  = defaultdict(dict)
 alighting_errors = defaultdict(dict)
+
+zero_hour_adjustments = []
+
+def assign_alighting(station, hour_key, count):
+    global total_alighting_original, total_alighting_assigned
+    denom = alightings_denom.get(station, {}).get(hour_key, 0)
+    total_alighting_original += count
+    if denom == 0:
+        alighting_estimate[station][hour_key] = None
+        alighting_errors[station][hour_key] = count
+        return False
+    per_train = count / denom
+    if alighting_estimate[station].get(hour_key) is None or hour_key not in alighting_estimate[station]:
+        alighting_estimate[station][hour_key] = per_train
+    else:
+        alighting_estimate[station][hour_key] += per_train
+    total_alighting_assigned += per_train * denom
+    alighting_errors[station][hour_key] = 0.0
+    return True
+
+def assign_boarding(station, hour_key, count):
+    global total_boarding_original, total_boarding_assigned
+    denom = boardings_denom.get(station, {}).get(hour_key, 0)
+    total_boarding_original += count
+    if denom == 0:
+        boarding_estimate[station][hour_key] = None
+        boarding_errors[station][hour_key] = count
+        return False
+    per_train = count / denom
+    if boarding_estimate[station].get(hour_key) is None or hour_key not in boarding_estimate[station]:
+        boarding_estimate[station][hour_key] = per_train
+    else:
+        boarding_estimate[station][hour_key] += per_train
+    total_boarding_assigned += per_train * denom
+    boarding_errors[station][hour_key] = 0.0
+    return True
 
 for sid_str, station_data in subway_data.get("stations", {}).items():
     sid = int(sid_str)
@@ -133,55 +186,86 @@ for sid_str, station_data in subway_data.get("stations", {}).items():
     boardings  = station_data.get("boardings",  {})
     alightings = station_data.get("alightings", {})
 
-    # --- 승차 ---
-    boarding_estimate[station] = {}
-    for hour_str, boarding_count in boardings.items():
-        hour_key = str(int(hour_str))   # "05" → "5"
-        denom = boardings_denom.get(station, {}).get(hour_key, 0)
-
-        total_boarding_original += boarding_count
-        if denom == 0:
-            # 분모 0인데 인원이 있으면 배정 불가
-            boarding_estimate[station][hour_key] = None
-            boarding_errors[station][hour_key] = boarding_count
-            continue
-
-        per_train = boarding_count / denom
-        boarding_estimate[station][hour_key] = per_train
-        total_boarding_assigned += per_train * denom
-        boarding_errors[station][hour_key] = 0.0
-
-    # --- 하차 ---
+    boarding_estimate[station]  = {}
     alighting_estimate[station] = {}
-    for hour_str, alighting_count in alightings.items():
+
+    # --------------------------------------------------
+    # 5-1. 당일 파일의 1~23시 승차/하차
+    #   (당일 파일의 "0" 키는 11-03 영업일 소관이므로 사용하지 않음)
+    # --------------------------------------------------
+    for hour_str, boarding_count in boardings.items():
+        if int(hour_str) == 0:
+            continue   # 당일 0시 = 전날 영업일 막차 → 제외
         hour_key = str(int(hour_str))
-        denom = alightings_denom.get(station, {}).get(hour_key, 0)
+        assign_boarding(station, hour_key, boarding_count)
 
-        total_alighting_original += alighting_count
-        if denom == 0:
-            alighting_estimate[station][hour_key] = None
-            alighting_errors[station][hour_key] = alighting_count
-            continue
+    for hour_str, alighting_count in alightings.items():
+        if int(hour_str) == 0:
+            continue   # 당일 0시 = 전날 영업일 막차 → 제외
+        hour_key = str(int(hour_str))
+        assign_alighting(station, hour_key, alighting_count)
 
-        per_train = alighting_count / denom
-        alighting_estimate[station][hour_key] = per_train
-        total_alighting_assigned += per_train * denom
-        alighting_errors[station][hour_key] = 0.0
+    # --------------------------------------------------
+    # 5-2. 다음날 0시 → 당일 24시(또는 23시) 귀속
+    #   = 당일 막차가 자정을 넘겨 하차한 기록
+    # --------------------------------------------------
+    next_station_data = next_subway_data.get("stations", {}).get(sid_str, {})
+
+    # --- 다음날 0시 승차: 마지막 열차 출발 이후면 불가 → 하차에서 차감/폐기 ---
+    boarding_count_next0 = next_station_data.get("boardings", {}).get("0")
+    if boarding_count_next0 is not None and boarding_count_next0 > 0:
+        if not is_boarding_possible_at_zero(station):
+            alighting_count_next0 = next_station_data.get("alightings", {}).get("0")
+            if alighting_count_next0 is not None and alighting_count_next0 > 0:
+                # 같은 다음날 0시 하차에서 1 차감
+                next_station_data["alightings"]["0"] = alighting_count_next0 - 1
+                zero_hour_adjustments.append(
+                    ("승차(다음날0시)", station, "24", boarding_count_next0,
+                     "하차에서 1 차감", "마지막 열차 출발 이후 승차 불가")
+                )
+            else:
+                zero_hour_adjustments.append(
+                    ("승차(다음날0시)", station, "24", boarding_count_next0,
+                     "폐기", "마지막 열차 출발 이후 + 하차 기록 없음")
+                )
+        else:
+            assign_boarding(station, "24", boarding_count_next0)
+
+    # --- 다음날 0시 하차: 24시 우선, 23시 폴백 ---
+    alighting_count_next0 = next_station_data.get("alightings", {}).get("0")
+    if alighting_count_next0 is not None and alighting_count_next0 > 0:
+        target_hour = get_alighting_target_hour(station, prefer=24, fallback=23)
+        if target_hour is None:
+            alighting_estimate[station]["24"] = None
+            alighting_errors[station]["24"] = alighting_count_next0
+            zero_hour_adjustments.append(
+                ("하차(다음날0시)", station, "24", alighting_count_next0,
+                 "배정 불가", "24시·23시 하차 분모 모두 0")
+            )
+        else:
+            assign_alighting(station, target_hour, alighting_count_next0)
+            reason = "당일 막차 지연 하차"
+            if target_hour != "24":
+                reason += f" (24시 열차 없음 → {target_hour}시 폴백)"
+            zero_hour_adjustments.append(
+                ("하차(다음날0시)", station, "24", alighting_count_next0,
+                 f"{target_hour}시로 귀속", reason)
+            )
 
 # ==========================================
-# 6. 저장 (JSON)
+# 6. 저장
 # ==========================================
 output = {
     "date": TARGET_DATE,
     "day_type": day_type,
-    "boarding_per_train":  boarding_estimate,   # {역: {시간: 열차당 승차}}
-    "alighting_per_train": alighting_estimate,   # {역: {시간: 열차당 하차}}
+    "boarding_per_train":  boarding_estimate,
+    "alighting_per_train": alighting_estimate,
 }
 
 out_path = f"reboarding_estimate_{TARGET_DATE}.json"
 with open(out_path, "w", encoding="utf-8") as f:
     json.dump(output, f, ensure_ascii=False, indent=2)
-print(f"저장 완료: {out_path}")
+print(f"\n저장 완료: {out_path}")
 
 # ==========================================
 # 7. 오차 검증
@@ -190,8 +274,6 @@ print("\n" + "=" * 60)
 print("[오차 검증]")
 print("=" * 60)
 
-# 배정된 인원 = per_train × denom
-# 총 배정 인원과 원본 총 인원의 차이
 boarding_diff  = total_boarding_assigned  - total_boarding_original
 alighting_diff = total_alighting_assigned - total_alighting_original
 
@@ -203,7 +285,23 @@ print(f"하차 원본 총합: {total_alighting_original:,}")
 print(f"하차 배정 총합: {total_alighting_assigned:,.4f}")
 print(f"하차 오차:      {alighting_diff:+.6f}")
 
-# 분모 0 케이스 목록
+# ==========================================
+# 8. 0시(다음날 0시 → 24시) 처리 내역
+# ==========================================
+print("\n" + "=" * 60)
+print("[0시(다음날 0시 → 24시) 처리 내역]")
+print("=" * 60)
+if not zero_hour_adjustments:
+    print("없음")
+else:
+    print(f"{'구분':<18} {'역명':<16} {'귀속':<4} {'원본':>6} {'처리':<16} 사유")
+    print("-" * 95)
+    for kind, st, h, val, action, reason in zero_hour_adjustments:
+        print(f"{kind:<18} {st:<16} {h:<4} {val:>6} {action:<16} {reason}")
+
+# ==========================================
+# 9. 분모 0 케이스
+# ==========================================
 print("\n" + "=" * 60)
 print("[분모 0으로 배정 불가한 항목]")
 print("=" * 60)
@@ -226,9 +324,7 @@ else:
         print(f"{kind:<4} {st:<16} {h:<4} {err:>8}")
 
 # ==========================================
-# 8. 방향별 합계 검증 (참고용)
-#   station_hourly.json에 방향 구분이 없으므로
-#   역 전체 합으로만 검증
+# 10. 역별 배정 총합 검증 (상위 5개)
 # ==========================================
 print("\n" + "=" * 60)
 print("[역별 배정 총합 검증] (상위 5개)")
