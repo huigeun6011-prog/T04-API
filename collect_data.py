@@ -9,7 +9,7 @@ load_dotenv()
 
 SERVICE_KEY = os.getenv("SUBWAY_API_KEY")
 BASE_URL = "https://apis.data.go.kr/B554695/TicketTypeTrafficSVC/getTicketTypeTraffic01"
-DATA_DIR = "./data/subway"
+DATA_DIR = "./data/raw/subway"
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
@@ -52,8 +52,8 @@ def save_xml(date_str: str, xml_text: str, page_no: int):
     print(f"Saved: {filename} (page {page_no})")
 
 def main():
-    start_date = datetime(2026, 8, 1)
-    end_date = datetime(2026, 8, 31)
+    start_date = datetime(2025, 11, 1)
+    end_date = datetime(2026, 7, 31)
 
     current_date = start_date
     while current_date <= end_date:

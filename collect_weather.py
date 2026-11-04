@@ -54,8 +54,8 @@ def save_json(date_str: str, weather_data: dict):
     print(f"Saved: {filename}")
 
 def main():
-    start_date = datetime(2026, 8, 1)
-    end_date = datetime(2026, 8, 31)
+    start_date = datetime(2025, 11, 1)
+    end_date = datetime(2026, 7, 31)
 
     current_date = start_date
     while current_date <= end_date:
