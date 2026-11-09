@@ -1,27 +1,27 @@
 # 열차별 재차인원 궤적 일괄 추출기 매뉴얼 (`extract_train_loads.py`)
 
-본 문서는 학습된 모델([`outputs/load_predictor.joblib`](file:///c:/Users/mastema/Desktop/aleph/T04/outputs/load_predictor.joblib))과 열차 운행 시각표, 날짜 및 날씨 데이터를 결합하여 **특정 날짜(또는 기간)에 운행하는 모든 열차의 정차역별 재차인원 궤적(Trajectory)을 일괄 추출하는 스크립트([`extract_train_loads.py`](file:///c:/Users/mastema/Desktop/aleph/T04/extract_train_loads.py))**의 역할, 내부 아키텍처, 그리고 사용법을 기술합니다.
+본 문서는 학습된 모델[`outputs/load_predictor.joblib`]과 열차 운행 시각표, 날짜 및 날씨 데이터를 결합하여 **특정 날짜(또는 기간)에 운행하는 모든 열차의 정차역별 재차인원 궤적(Trajectory)을 일괄 추출하는 스크립트[`extract_train_loads.py`]**의 역할, 내부 아키텍처, 그리고 사용법을 기술합니다.
 
 ---
 
 ## 1. 스크립트 역할 및 목적
 
-* **역할**: 대전도시철도 1호선에서 특정 일자에 운행하는 **모든 열차(하루 약 242대, 정차 횟수 약 5,281회)**에 대해, 열차가 역을 통과할 때마다 승객이 몇 명 타고 있는지(`load`)와 혼잡도(`congestion`)를 전수 계산하여 구조화된 파일(JSON/CSV)로 추출합니다.
-* **기존 시뮬레이션과의 차이**:
-  * 과거 단순 1/n 분배 방식(`F-001`, `train_load_simulation.py`)에서 발생하던 종점 잔류 오차(상행 $+26$명, 하행 $-23$명) 없이, **학습된 GBDT 모델을 통해 실제 출퇴근 피크 및 방향성 비대칭을 정밀하게 반영한 재차인원을 산출**합니다.
-  * 종점 도착 시 승객 전원 하차에 따른 잔류 인원 0 처리로 물리적 일관성을 유지합니다.
-* **초고속 연산**: 하루 전체 정차 데이터(5,281건)를 하나의 배치(Batch)로 구성하여 모델에 전달하므로, **하루치 전수 추출에 단 0.2~0.3초**밖에 걸리지 않습니다.
+- **역할**: 대전도시철도 1호선에서 특정 일자에 운행하는 **모든 열차(하루 약 242대, 정차 횟수 약 5,281회)**에 대해, 열차가 역을 통과할 때마다 승객이 몇 명 타고 있는지(`load`)와 혼잡도(`congestion`)를 전수 계산하여 구조화된 파일(JSON/CSV)로 추출합니다.
+- **기존 시뮬레이션과의 차이**:
+  - 과거 단순 1/n 분배 방식(`F-001`, `train_load_simulation.py`)에서 발생하던 종점 잔류 오차(상행 $+26$명, 하행 $-23$명) 없이, **학습된 GBDT 모델을 통해 실제 출퇴근 피크 및 방향성 비대칭을 정밀하게 반영한 재차인원을 산출**합니다.
+  - 종점 도착 시 승객 전원 하차에 따른 잔류 인원 0 처리로 물리적 일관성을 유지합니다.
+- **초고속 연산**: 하루 전체 정차 데이터(5,281건)를 하나의 배치(Batch)로 구성하여 모델에 전달하므로, **하루치 전수 추출에 단 0.2~0.3초**밖에 걸리지 않습니다.
 
 ---
 
 ## 2. 참조 데이터 및 의존 관계
 
-| 구분 | 파일 경로 | 설명 |
-| :--- | :--- | :--- |
-| **예측 모델** | `./outputs/load_predictor.joblib` | 2단계에서 학습된 재차인원 예측 모델 |
+| 구분                      | 파일 경로                                                | 설명                                         |
+| :------------------------ | :------------------------------------------------------- | :------------------------------------------- |
+| **예측 모델**             | `./outputs/load_predictor.joblib`                        | 2단계에서 학습된 재차인원 예측 모델          |
 | **운행 시각표 (개편 전)** | `./data/processed/subway_time/subway_time_20250930.json` | 2026-03-30 이전 시각표 (및 이후 휴일 시각표) |
-| **운행 시각표 (개편 후)** | `./data/processed/subway_time/subway_time_20260330.json` | 2026-03-30 이후 평일 개편 시각표 |
-| **기상 데이터** | `./data/raw/weather/{날짜}.json` | 해당 일자 1시간 단위 기온, 강수량, 적설량 |
+| **운행 시각표 (개편 후)** | `./data/processed/subway_time/subway_time_20260330.json` | 2026-03-30 이후 평일 개편 시각표             |
+| **기상 데이터**           | `./data/raw/weather/{날짜}.json`                         | 해당 일자 1시간 단위 기온, 강수량, 적설량    |
 
 ---
 
@@ -59,24 +59,31 @@
 터미널(PowerShell/CMD)에서 아래 명령어로 실행할 수 있습니다.
 
 ### ① 특정 단일 날짜 추출 (기본 JSON 저장)
+
 ```powershell
 python extract_train_loads.py --date 2025-11-04
 ```
-* 출력: `./outputs/train_loads/train_load_2025-11-04.json` 생성 (약 0.2초 소요)
+
+- 출력: `./outputs/train_loads/train_load_2025-11-04.json` 생성 (약 0.2초 소요)
 
 ### ② JSON과 함께 분석용 CSV 파일도 동시 생성
+
 ```powershell
 python extract_train_loads.py --date 2025-11-04 --save-csv
 ```
-* 출력: `train_load_2025-11-04.json` 및 `train_load_2025-11-04.csv` 동시 생성
+
+- 출력: `train_load_2025-11-04.json` 및 `train_load_2025-11-04.csv` 동시 생성
 
 ### ③ 특정 기간(일주일 / 한 달 등) 연속 추출
+
 ```powershell
 python extract_train_loads.py --start-date 2026-10-01 --end-date 2026-10-07
 ```
-* 출력: 지정한 7일간의 파일(`train_load_2026-10-01.json` ~ `train_load_2026-10-07.json`)이 순차적으로 생성됩니다.
+
+- 출력: 지정한 7일간의 파일(`train_load_2026-10-01.json` ~ `train_load_2026-10-07.json`)이 순차적으로 생성됩니다.
 
 ### ④ 출력 경로 및 모델 경로 커스텀 지정
+
 ```powershell
 python extract_train_loads.py --date 2026-11-15 --output-dir ./my_outputs --model ./outputs/load_predictor.joblib
 ```
@@ -85,14 +92,14 @@ python extract_train_loads.py --date 2026-11-15 --output-dir ./my_outputs --mode
 
 ## 5. CLI 인자 목록 (Arguments)
 
-| 옵션명 | 단축형 | 기본값 | 설명 |
-| :--- | :---: | :---: | :--- |
-| `--date` | - | `None` | 추출할 단일 날짜 (`YYYY-MM-DD`). 미지정 시 오늘 날짜 |
-| `--start-date` | - | `None` | 기간 추출 시작 날짜 (`YYYY-MM-DD`) |
-| `--end-date` | - | `None` | 기간 추출 종료 날짜 (`YYYY-MM-DD`) |
-| `--model` | - | `./outputs/load_predictor.joblib` | 사용할 학습 모델 경로 |
-| `--output-dir` | - | `./outputs/train_loads` | 결과 파일이 저장될 디렉토리 |
-| `--save-csv` | - | `False` | 플래그 설정 시 테이블 형태의 CSV 파일도 함께 생성 |
+| 옵션명         | 단축형 |              기본값               | 설명                                                 |
+| :------------- | :----: | :-------------------------------: | :--------------------------------------------------- |
+| `--date`       |   -    |              `None`               | 추출할 단일 날짜 (`YYYY-MM-DD`). 미지정 시 오늘 날짜 |
+| `--start-date` |   -    |              `None`               | 기간 추출 시작 날짜 (`YYYY-MM-DD`)                   |
+| `--end-date`   |   -    |              `None`               | 기간 추출 종료 날짜 (`YYYY-MM-DD`)                   |
+| `--model`      |   -    | `./outputs/load_predictor.joblib` | 사용할 학습 모델 경로                                |
+| `--output-dir` |   -    |      `./outputs/train_loads`      | 결과 파일이 저장될 디렉토리                          |
+| `--save-csv`   |   -    |              `False`              | 플래그 설정 시 테이블 형태의 CSV 파일도 함께 생성    |
 
 ---
 
@@ -158,23 +165,24 @@ python extract_train_loads.py --date 2026-11-15 --output-dir ./my_outputs --mode
 ```
 
 ### 6.2 CSV 파일 구조 (`train_load_{date}.csv`, `--save-csv` 사용 시)
+
 데이터 분석 및 시각화(Pandas, Tableau, Excel)에 적합한 2차원 테이블 형식입니다:
 
-| 칼럼명 | 데이터 타입 | 설명 |
-| :--- | :---: | :--- |
-| `date` | 문자열 | 운행 일자 (`2025-11-04`) |
-| `day_type` | 문자열 | 요일 구분 (`평일` 또는 `휴일`) |
-| `train_id` | 문자열 | 열차 고유 식별자 (예: `평일-상행-001`) |
-| `direction` | 문자열 | 운행 방향 (`상행` 또는 `하행`) |
-| `station` | 문자열 | 정차역 이름 (예: `시청`, `대전`) |
-| `time` | 문자열 | 정차 시각 (`05:30`) |
-| `hour` | 정수 | 시간대 버킷 (`5` ~ `24`) |
-| `load` | 실수 | **예측된 열차 내 재차인원 (명)** |
-| `congestion` | 문자열 | 혼잡도 등급 (`여유`, `보통`, `약간 혼잡`, `혼잡`, `매우 혼잡`) |
-| `is_origin` | 불리언 | 출발역 여부 |
-| `is_destination`| 불리언 | 종착역 여부 |
-| `temp` | 실수 | 해당 시간대 기온 ($^\circ\text{C}$) |
-| `precip` | 실수 | 해당 시간대 강수량 ($\text{mm}$) |
+| 칼럼명           | 데이터 타입 | 설명                                                           |
+| :--------------- | :---------: | :------------------------------------------------------------- |
+| `date`           |   문자열    | 운행 일자 (`2025-11-04`)                                       |
+| `day_type`       |   문자열    | 요일 구분 (`평일` 또는 `휴일`)                                 |
+| `train_id`       |   문자열    | 열차 고유 식별자 (예: `평일-상행-001`)                         |
+| `direction`      |   문자열    | 운행 방향 (`상행` 또는 `하행`)                                 |
+| `station`        |   문자열    | 정차역 이름 (예: `시청`, `대전`)                               |
+| `time`           |   문자열    | 정차 시각 (`05:30`)                                            |
+| `hour`           |    정수     | 시간대 버킷 (`5` ~ `24`)                                       |
+| `load`           |    실수     | **예측된 열차 내 재차인원 (명)**                               |
+| `congestion`     |   문자열    | 혼잡도 등급 (`여유`, `보통`, `약간 혼잡`, `혼잡`, `매우 혼잡`) |
+| `is_origin`      |   불리언    | 출발역 여부                                                    |
+| `is_destination` |   불리언    | 종착역 여부                                                    |
+| `temp`           |    실수     | 해당 시간대 기온 ($^\circ\text{C}$)                            |
+| `precip`         |    실수     | 해당 시간대 강수량 ($\text{mm}$)                               |
 
 ---
 
