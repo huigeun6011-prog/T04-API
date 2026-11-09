@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>잔잔한 D — 대전 한적 이동 추천</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <!--
+    ▼ 카카오 지도 API
+    카카오 개발자 콘솔(https://developers.kakao.com) -> 내 애플리케이션 -> 앱 키의 'JavaScript 키'를 사용합니다.
+    autoload=false를 추가하여 kakao.maps.load 콜백으로 안전하게 초기화합니다.
+  -->
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=401352859f590a8a7818b92891294664&autoload=false&libraries=services"></script>
+
+  <!-- Chart.js (혼잡도 시각화) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-leaf">🌿</span>
+      <div>
+        <div class="logo-title">잔잔한 D</div>
+        <div class="logo-sub">대전의 한적한 이동, 조용한 하루</div>
+      </div>
+    </div>
+    <nav class="tab-nav">
+      <button class="tab-nav-btn active" data-tab="recommend">🗺 추천 경로</button>
+      <button class="tab-nav-btn" data-tab="visualize">📊 혼잡도 분석</button>
+      <button class="tab-nav-btn" data-tab="about">🧠 모델 소개</button>
+    </nav>
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════════════
+     TAB 1 : 추천 경로
+══════════════════════════════════════ -->
+<div id="tab-recommend" class="tab-content active">
+  <div class="main-layout">
+
+    <!-- 좌측: 컨트롤 패널 -->
+    <aside class="control-panel">
+
+      <!-- Step 1 -->
+      <div class="panel-step">
+        <div class="step-label">
+          <span class="step-num">1</span>
+          <span class="step-title">출발 위치 선택</span>
+        </div>
+        <div class="location-box" id="locationBox">
+          <span class="placeholder-text">지도를 클릭해 출발지를 지정하세요</span>
+        </div>
+        <div class="station-dist-list" id="stationDistList"></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="panel-step">
+        <div class="step-label">
+          <span class="step-num">2</span>
+          <span class="step-title">방문 날짜</span>
+        </div>
+        <input type="date" id="dateInput" class="date-input" />
+        <div class="weather-box" id="weatherBox">
+          <span class="placeholder-text">날짜를 선택하면 날씨 예보를 불러옵니다.</span>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="panel-step">
+        <div class="step-label">
+          <span class="step-num">3</span>
+          <span class="step-title">목적지 테마</span>
+        </div>
+        <div class="filter-grid">
+          <button class="filter-btn active" data-cat="all">전체</button>
+          <button class="filter-btn" data-cat="library">📚 도서관</button>
+          <button class="filter-btn" data-cat="park">🌳 공원</button>
+          <button class="filter-btn" data-cat="bookstore">📖 서점</button>
+          <button class="filter-btn" data-cat="museum">🖼 전시관</button>
+          <button class="filter-btn" data-cat="trail">👟 산책로</button>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="panel-step">
+        <div class="step-label">
+          <span class="step-num">4</span>
+          <span class="step-title">추천 기준 가중치</span>
+        </div>
+        <div class="slider-wrap">
+          <div class="slider-endpoints">
+            <span>🚶 가까운 역</span>
+            <span>🌿 한적함</span>
+          </div>
+          <input type="range" id="weightSlider" class="slider" min="0" max="100" value="50" />
+          <div class="slider-chips">
+            <span class="chip">거리 <strong id="distPct">50</strong>%</span>
+            <span class="chip">한적함 <strong id="quietPct">50</strong>%</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="search-btn" id="searchBtn">🔍 추천 경로 찾기</button>
+
+      <div class="mock-notice">
+        ⚠️ 현재 더미 데이터로 동작합니다.<br>
+        ONNX 모델 추론 및 날씨 API 연동은 개발 예정입니다.
+      </div>
+    </aside>
+
+    <!-- 우측: 지도 + 결과 -->
+    <div class="right-col">
+
+      <!-- 카카오 지도 -->
+      <div class="map-area">
+        <div id="kakaoMap" class="naver-map"></div>
+        <!-- API 키 미설정 또는 도메인 미등록 시 대체 화면 -->
+        <div class="map-fallback" id="mapFallback">
+          <div class="fallback-card">
+            <div class="fallback-icon">🗺️</div>
+            <div class="fallback-title">카카오 지도 로딩 중 또는 도메인 확인 필요</div>
+            <p class="fallback-desc">
+              카카오 개발자 콘솔에서 <strong>Web 플랫폼 등록</strong>이 필요할 수 있습니다.<br>
+              <code>http://localhost:5500</code> 또는 <code>http://127.0.0.1:5500</code>
+            </p>
+            <a href="https://developers.kakao.com/console/app"
+               target="_blank" class="fallback-link">카카오 개발자 콘솔 바로가기 ↗</a>
+            <div class="metro-schematic" id="metroSchematic"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 추천 결과 -->
+      <section class="results-section" id="resultsSection">
+        <div class="results-header">
+          <h2 class="results-title">📋 추천 결과</h2>
+          <span class="results-meta" id="resultsMeta"></span>
+        </div>
+        <div class="results-cards" id="resultsCards"></div>
+      </section>
+
+    </div><!-- .right-col -->
+  </div><!-- .main-layout -->
+</div><!-- #tab-recommend -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 2 : 혼잡도 분석
+══════════════════════════════════════ -->
+<div id="tab-visualize" class="tab-content">
+  <div class="viz-layout">
+
+    <aside class="viz-controls">
+      <div class="panel-step">
+        <div class="step-label"><span class="step-title">역 선택</span></div>
+        <select id="stationSelect" class="station-select"></select>
+      </div>
+      <div class="panel-step">
+        <div class="step-label"><span class="step-title">운행 방향</span></div>
+        <div class="toggle-group">
+          <button class="toggle-btn active" data-dir="up">⬆ 상행 (반석 → 판암)</button>
+          <button class="toggle-btn" data-dir="down">⬇ 하행 (판암 → 반석)</button>
+        </div>
+      </div>
+      <div class="panel-step">
+        <div class="step-label"><span class="step-title">날짜 유형</span></div>
+        <div class="toggle-group">
+          <button class="toggle-btn active" data-dtype="weekday">💼 평일</button>
+          <button class="toggle-btn" data-dtype="weekend">🏖 주말/공휴일</button>
+        </div>
+      </div>
+
+      <div class="cong-legend">
+        <div class="legend-title">혼잡도 기준 (4량, 정원 450명)</div>
+        <div class="legend-row"><span class="dot quiet"></span>여유 &mdash; 80명 미만</div>
+        <div class="legend-row"><span class="dot normal"></span>보통 &mdash; 80~180명</div>
+        <div class="legend-row"><span class="dot busy"></span>약간 혼잡 &mdash; 180~300명</div>
+        <div class="legend-row"><span class="dot crowded"></span>혼잡 &mdash; 300명 이상</div>
+      </div>
+    </aside>
+
+    <div class="viz-charts">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>시간대별 열차 재차인원 (명)</h3>
+          <span class="mock-badge">⚠ 더미 데이터</span>
+        </div>
+        <div class="chart-wrap"><canvas id="loadChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3>전체 역 혼잡도 히트맵</h3>
+          <span class="mock-badge">⚠ 더미 데이터</span>
+        </div>
+        <div id="heatmapWrap" class="heatmap-wrap"></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- #tab-visualize -->
+
+
+<!-- ══════════════════════════════════════
+     TAB 3 : 모델 소개
+══════════════════════════════════════ -->
+<div id="tab-about" class="tab-content">
+  <div class="about-layout">
+
+    <div class="about-hero">
+      <h1>어떻게 "한적함"을 예측하나요?</h1>
+      <p>대전 도시철도 1호선에는 열차 내 센서 실측 데이터가 없습니다.<br>
+         그래서 물리 보존 법칙과 머신러닝으로 직접 만들었습니다.</p>
+    </div>
+
+    <div class="pipeline">
+
+      <div class="pipeline-card">
+        <div class="p-icon">⚙️</div>
+        <div class="p-step">1단계</div>
+        <h3>물리 제약 수치 최적화</h3>
+        <p>개찰구의 역별 승하차 카운트를 바탕으로, <strong>출발역 잔류 0 · 종점 잔류 0 · 재차인원 ≥ 0</strong>의 물리 보존 법칙을 손실함수로 삼아 PyTorch Adam Optimizer로 열차별 탑승 인원을 역산 복원합니다.</p>
+        <div class="formula-box">
+          𝓛 = 𝓛<sub>종점오차</sub> + 1.0 × 𝓛<sub>음수방지</sub> + 2.0 × 𝓛<sub>지리사전</sub>
+        </div>
+        <div class="p-status done">✅ 완료</div>
+      </div>
+
+      <div class="pipeline-arrow">→</div>
+
+      <div class="pipeline-card">
+        <div class="p-icon">🌳</div>
+        <div class="p-step">2단계</div>
+        <h3>GBDT 머신러닝 예측 모델</h3>
+        <p>복원된 정답 데이터로 <strong>HistGradientBoostingRegressor</strong>(의사결정 나무 앙상블)를 학습합니다.<br>
+           입력: 역, 시간, 방향, 주말 여부, 기온/강수/적설.</p>
+        <div class="metrics-row">
+          <span class="metric">MAE 25.6명</span>
+          <span class="metric">R² 0.84</span>
+          <span class="metric">추론 0.05초/일</span>
+        </div>
+        <div class="p-status done">✅ 완료</div>
+      </div>
+
+      <div class="pipeline-arrow">→</div>
+
+      <div class="pipeline-card">
+        <div class="p-icon">🌐</div>
+        <div class="p-step">3단계</div>
+        <h3>브라우저 실시간 추론</h3>
+        <p>Python 모델을 <strong>ONNX Runtime Web</strong> 포맷으로 변환해 별도 서버 없이 사용자 브라우저에서 직접 추론합니다. 모델 ~1MB, 추론 ~1ms, 서버 비용 0원.</p>
+        <div class="p-status todo">🔧 개발 예정</div>
+      </div>
+
+    </div><!-- .pipeline -->
+
+    <div class="about-data-flow">
+      <h3>전체 데이터 흐름</h3>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <span class="flow-num">①</span>
+          <div>지도 클릭<br><small>출발 좌표 획득</small></div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <span class="flow-num">②</span>
+          <div>날씨 API<br><small>기온·강수·적설</small></div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <span class="flow-num">③</span>
+          <div>ONNX 추론<br><small>역×시간×방향 재차인원</small></div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <span class="flow-num">④</span>
+          <div>복합 스코어링<br><small>한적함 × 거리 가중치</small></div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <span class="flow-num">⑤</span>
+          <div>목적지 매핑<br><small>공원·도서관·산책로</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-link-box">
+      <a href="../docs/AI/METHODOLOGY.md" class="about-link">
+        📄 전체 수식·방법론 문서 보기 (METHODOLOGY.md)
+      </a>
+      <a href="../docs/AI/EXTRACT_TRAIN_LOADS.md" class="about-link">
+        📄 열차 궤적 추출기 매뉴얼 (EXTRACT_TRAIN_LOADS.md)
+      </a>
+    </div>
+
+  </div>
+</div><!-- #tab-about -->
+
+
+<script src="app.js"></script>
+</body>
+</html>
