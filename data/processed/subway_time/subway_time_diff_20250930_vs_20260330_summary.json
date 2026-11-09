@@ -1,0 +1,15 @@
+{
+  "comparison": {
+    "base": "subway_time_20250930.json",
+    "target": "subway_time_20260330.json"
+  },
+  "criteria": "holiday excluded (day_type != 휴일); trains matched as same when (direction, [(station,time)...]) identical; multiplicity-aware",
+  "counts": {
+    "20250930_non_holiday": 243,
+    "20260330_non_holiday": 242,
+    "same_trains": 225,
+    "only_in_20250930_removed_in_20260330": 18,
+    "only_in_20260330_added_in_20260330": 17
+  },
+  "output_csv": "subway_time_diff_20250930_vs_20260330.csv"
+}

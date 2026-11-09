@@ -1,0 +1,2229 @@
+{
+  "평일": {
+    "반석": {
+      "5": {
+        "departures": 2,
+        "passes": 0,
+        "arrivals": 2
+      },
+      "6": {
+        "departures": 5,
+        "passes": 0,
+        "arrivals": 4
+      },
+      "7": {
+        "departures": 8,
+        "passes": 0,
+        "arrivals": 8
+      },
+      "8": {
+        "departures": 10,
+        "passes": 0,
+        "arrivals": 11
+      },
+      "9": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "10": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "11": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "12": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "13": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "14": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "15": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "16": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "17": {
+        "departures": 8,
+        "passes": 0,
+        "arrivals": 7
+      },
+      "18": {
+        "departures": 10,
+        "passes": 0,
+        "arrivals": 10
+      },
+      "19": {
+        "departures": 7,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "20": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "21": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "22": {
+        "departures": 5,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "23": {
+        "departures": 4,
+        "passes": 0,
+        "arrivals": 5
+      },
+      "24": {
+        "departures": 0,
+        "passes": 0,
+        "arrivals": 2
+      }
+    },
+    "지족": {
+      "5": {
+        "departures": 0,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 19,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 2,
+        "arrivals": 0
+      }
+    },
+    "노은": {
+      "5": {
+        "departures": 0,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 2,
+        "arrivals": 0
+      }
+    },
+    "월드컵경기장": {
+      "5": {
+        "departures": 0,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 2,
+        "arrivals": 0
+      }
+    },
+    "현충원": {
+      "5": {
+        "departures": 0,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 22,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 2,
+        "arrivals": 0
+      }
+    },
+    "구암": {
+      "5": {
+        "departures": 1,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 11,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 11,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "유성온천": {
+      "5": {
+        "departures": 0,
+        "passes": 6,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 8,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 17,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "갑천": {
+      "5": {
+        "departures": 0,
+        "passes": 6,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 8,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 22,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 19,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "월평": {
+      "5": {
+        "departures": 0,
+        "passes": 5,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 17,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "갈마": {
+      "5": {
+        "departures": 0,
+        "passes": 5,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "정부청사": {
+      "5": {
+        "departures": 2,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 19,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 1
+      }
+    },
+    "시청": {
+      "5": {
+        "departures": 0,
+        "passes": 5,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      }
+    },
+    "탄방": {
+      "5": {
+        "departures": 0,
+        "passes": 5,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 17,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 21,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      }
+    },
+    "용문": {
+      "5": {
+        "departures": 0,
+        "passes": 5,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 17,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 19,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      }
+    },
+    "오룡": {
+      "5": {
+        "departures": 0,
+        "passes": 6,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 19,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      }
+    },
+    "서대전네거리": {
+      "5": {
+        "departures": 1,
+        "passes": 5,
+        "arrivals": 0
+      },
+      "6": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 19,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "중구청": {
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "5": {
+        "departures": 0,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 19,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 11,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 11,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "중앙로": {
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "5": {
+        "departures": 0,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 19,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 11,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "대전": {
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "5": {
+        "departures": 0,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 20,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 19,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "대동": {
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "5": {
+        "departures": 0,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 17,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 18,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 15,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 17,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "신흥": {
+      "6": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "5": {
+        "departures": 0,
+        "passes": 4,
+        "arrivals": 0
+      },
+      "7": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "8": {
+        "departures": 0,
+        "passes": 19,
+        "arrivals": 0
+      },
+      "9": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "10": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "11": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "12": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "13": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "14": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "15": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "16": {
+        "departures": 0,
+        "passes": 13,
+        "arrivals": 0
+      },
+      "17": {
+        "departures": 0,
+        "passes": 14,
+        "arrivals": 0
+      },
+      "18": {
+        "departures": 0,
+        "passes": 17,
+        "arrivals": 0
+      },
+      "19": {
+        "departures": 0,
+        "passes": 16,
+        "arrivals": 0
+      },
+      "20": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "21": {
+        "departures": 0,
+        "passes": 12,
+        "arrivals": 0
+      },
+      "22": {
+        "departures": 0,
+        "passes": 10,
+        "arrivals": 0
+      },
+      "23": {
+        "departures": 0,
+        "passes": 9,
+        "arrivals": 0
+      },
+      "24": {
+        "departures": 0,
+        "passes": 1,
+        "arrivals": 0
+      }
+    },
+    "판암": {
+      "6": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 5
+      },
+      "5": {
+        "departures": 2,
+        "passes": 0,
+        "arrivals": 1
+      },
+      "7": {
+        "departures": 11,
+        "passes": 0,
+        "arrivals": 5
+      },
+      "8": {
+        "departures": 8,
+        "passes": 0,
+        "arrivals": 10
+      },
+      "9": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 8
+      },
+      "10": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "11": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "12": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "13": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "14": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "15": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "16": {
+        "departures": 7,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "17": {
+        "departures": 8,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "18": {
+        "departures": 8,
+        "passes": 0,
+        "arrivals": 10
+      },
+      "19": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 9
+      },
+      "20": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "21": {
+        "departures": 6,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "22": {
+        "departures": 5,
+        "passes": 0,
+        "arrivals": 6
+      },
+      "23": {
+        "departures": 4,
+        "passes": 0,
+        "arrivals": 4
+      },
+      "24": {
+        "departures": 0,
+        "passes": 0,
+        "arrivals": 2
+      }
+    }
+  },
+  "휴일": {}
+}

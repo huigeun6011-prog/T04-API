@@ -1,0 +1,19 @@
+{
+  "train_mae": 10.735552851791867,
+  "train_rmse": 16.074370190180325,
+  "train_r2": 0.9653181502837206,
+  "val_mae": 25.61557292665317,
+  "val_rmse": 36.738109155409745,
+  "val_r2": 0.8395898837481252,
+  "features": [
+    "station_idx",
+    "hour",
+    "dir_code",
+    "is_weekend",
+    "temp",
+    "precip",
+    "snow",
+    "plan_version"
+  ],
+  "n_samples": 61788
+}
