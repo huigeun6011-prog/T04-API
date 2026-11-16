@@ -1,77 +1,17 @@
-📋 Open-Meteo 1시간 단위 날씨 데이터 순차 수집 메뉴얼 (2026년 10월)
+# 시간별 날씨 자료
 
-1. 작업 목표
-   Open-Meteo Archive API를 사용하여, 2026년 10월 1일부터 2026년 10월 31일까지 대전 지역의 1시간 단위 날씨 데이터를 수집하고, ./data/weather/ 디렉토리에 날짜별 JSON 파일로 저장합니다.
+## 저장 자료와 학습 날짜
 
-2. API 정보
-   Base URL: https://archive-api.open-meteo.com/v1/archive
+`data/raw/weather/YYYY-MM-DD.json`에 `date`, `hourly.time`, `temperature_2m`, `precipitation`, `snowfall` 배열을 보관한다.현재파일범위는2024-11-01~2026-11-02,732일이다.수집코드 `scripts/utils/collect_weather.py`는 Open-Meteo Archive,대전36.35/127.38,Asia/Seoul을 사용한다.기존스크립트 기본기간은2024-11-01~2025-10-31이므로 보유전기간을한번실행으로수집했다고추정하지않는다.
 
-응답 포맷: JSON
+GT최적화손실에는날씨를넣지않고,라벨생성후HGB의temp/precip/snow피처로결합한다.운행일24시에는익일00시날씨를붙인다.기존당일00시매칭오류는수정됐고재생성한18,035개24시행에서확인했다.달력D일00시추론도날씨는D일00시,요일/시간표는D−1운행일기준이다.
 
-인증 방식: 불필요 (Open-Meteo는 무료이며 API 키가 필요 없습니다.)
+## 실제 웹/API 조회
 
-3. 요청 파라미터
-   파라미터 값 설명
-   latitude 36.35 대전 중심부 위도
-   longitude 127.38 대전 중심부 경도
-   start_date 2026-10-01 ~ 2026-10-31 조회 날짜 (일별로 변경)
-   end_date 2026-10-01 ~ 2026-10-31 조회 날짜 (start_date와 동일)
-   hourly precipitation,snowfall,temperature_2m 1시간 단위 데이터 항목 (강수량, 적설량, 기온)
-   timezone Asia/Seoul 한국 시간대 설정
-4. 요청 URL 예시
-   text
-   https://archive-api.open-meteo.com/v1/archive?latitude=36.35&longitude=127.38&start_date=2026-10-01&end_date=2026-10-01&hourly=precipitation,snowfall,temperature_2m&timezone=Asia/Seoul
-5. 순차 수집 절차 (Step-by-Step)
-   Step 1: 저장 디렉토리 생성
-   스크립트 실행 시 ./data/weather/ 디렉토리가 없으면 자동으로 생성(os.makedirs)하도록 합니다.
+- `web/weather-client.js`: 무키Open-Meteo예보/과거자료,선택일과익일00시표시용다음날조회.
+- 예보캐시1시간/과거캐시7일,500ms합치기,같은날중복요청제거,localStorage및최소10초간격.
+- 예보범위는코드상오늘~15일후이며범위밖·결측·오류를더미로대체하지않는다.
+- `prediction_api.py`는로컬과거파일을먼저읽고없으면Open-Meteo를조회한다.서버별캐시와10초간격을적용한다.브라우저와서버캐시는별도다.
+- `extract_train_loads.py`도24시에는익일파일을읽고필요날씨가없으면오류를낸다.CLI `predict_load.py`는자동날씨조회기가아니므로temp/precip/snow는호출자가제공한다.
 
-Step 2: 날짜 범위 설정 및 반복
-시작일: 2026-10-01
-
-종료일: 2026-10-31
-
-하루씩 증가하는 반복문(Loop)을 구성합니다.
-
-Step 3: 일별 요청 (Loop)
-반복문 내에서 start_date와 end_date를 동일한 날짜로 설정하여 요청합니다.
-
-예: 1회차 요청 시 start_date=2026-10-01, end_date=2026-10-01
-
-예: 2회차 요청 시 start_date=2026-10-02, end_date=2026-10-02
-
-Step 4: 응답 처리 및 저장
-응답받은 JSON 데이터를 파싱합니다.
-
-응답의 hourly 객체 안에 있는 time, precipitation, snowfall, temperature_2m 배열을 추출합니다.
-
-time 배열은 ["2026-10-01T00:00", "2026-10-01T01:00", ..., "2026-10-01T23:00"] 형태입니다. (24개)
-
-추출한 데이터를 ./data/weather/ 디렉토리에 날짜별 JSON 파일로 저장합니다.
-
-저장 경로: ./data/weather/2026-10-01.json
-
-파일 내용 예시:
-
-json
-{
-"date": "2026-10-01",
-"hourly": {
-"time": ["2026-10-01T00:00", ..., "2026-10-01T23:00"],
-"precipitation": [0.0, 0.0, ..., 2.4],
-"snowfall": [0.0, 0.0, ..., 0.0],
-"temperature_2m": [18.0, 17.8, ..., 19.5]
-}
-}
-Step 5: 대기 시간 (Rate Limit 준수)
-Open-Meteo는 무료이지만, 과도한 요청을 방지하기 위해 요청 간 0.5~1초의 대기 시간(sleep) 을 두는 것을 권장합니다.
-
-6. 주의사항
-   날짜 형식: API 요청 시 날짜는 반드시 YYYY-MM-DD 형식이어야 합니다.
-
-타임존: timezone=Asia/Seoul을 반드시 포함하여 한국 시간 기준으로 데이터를 받으세요.
-
-에러 처리: 응답 상태 코드가 200이 아닐 경우, 로그를 남기고 해당 날짜는 건너뛰거나 재시도하도록 로직을 구성하세요.
-
-디렉토리 권한: ./data/weather/ 생성 시 쓰기 권한이 있는지 확인하세요.
-
-변수명 주의: 1시간 단위 데이터는 precipitation_sum이 아니라 precipitation (해당 시간 강수량)을 사용합니다.
+Open-Meteo사용은사용자가명시승인했다.POI수집의국내배포처제한을날씨전체에확대적용하지않는다.추가한날씨흐름과실행한계는[HANDOFF](../HANDOFF.md),웹연결은[통합설계](WEB_INTEGRATION_DESIGN.md)를참고한다.

@@ -1,12 +1,15 @@
 """
 train_predict_model.py
-1단계에서 물리적으로 복원된 열차 재차인원 정답 데이터(ground_truth_train_loads.csv)를 학습하여,
+1단계에서 생성된 열차 재차인원 추정 라벨(ground_truth_train_loads.csv)을 학습하여,
 미래 임의의 조건(날짜, 역, 시간대, 상/하행, 날씨 등)에서
-열차 재차인원(Load)을 초고속으로 정확하게 예측하는 모델을 훈련합니다.
+열차 재차인원(Load) 추정치를 예측하는 모델을 훈련합니다.
+검증 지표는 추정 라벨 재현 성능이며 실측 승객 정확도를 의미하지 않습니다.
 """
 
 import sys
 import json
+import hashlib
+import argparse
 from pathlib import Path
 
 if sys.stdout.encoding != 'utf-8':
@@ -21,6 +24,14 @@ from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import joblib
 
+
+def file_sha256(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
 DATASET_PATH = Path("./outputs/ground_truth_train_loads.csv")
 MODEL_OUT_PATH = Path("./outputs/load_predictor.joblib")
 METRICS_OUT_PATH = Path("./outputs/model_metrics.json")
@@ -31,12 +42,21 @@ STATION_NAMES = [
     "구암","현충원","월드컵경기장","노은","지족","반석"
 ]
 
-def train_model():
+def train_model(dataset_path=DATASET_PATH, model_path=MODEL_OUT_PATH, metrics_path=METRICS_OUT_PATH):
+    DATASET_PATH = Path(dataset_path)
+    MODEL_OUT_PATH = Path(model_path)
+    METRICS_OUT_PATH = Path(metrics_path)
+    MODEL_OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    METRICS_OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     if not DATASET_PATH.exists():
         raise FileNotFoundError(f"학습용 정답 데이터셋이 없습니다: {DATASET_PATH}\n먼저 generate_ground_truth.py를 실행하세요.")
 
     print(f"데이터셋 로딩 중: {DATASET_PATH}")
-    df = pd.read_csv(DATASET_PATH)
+    input_features = ["station_idx", "hour", "dir_code", "is_weekend", "temp", "precip", "snow", "plan_version"]
+    diagnostic_path = DATASET_PATH.with_suffix(".diagnostics.jsonl")
+    has_raw_labels = "raw_load" in pd.read_csv(DATASET_PATH, nrows=0).columns
+    df = pd.read_csv(DATASET_PATH, usecols=["date", "load"] + input_features,
+                     dtype={key: "float32" for key in input_features + ["load"]})
     print(f"  총 샘플 수: {len(df):,}건, 기간: {df['date'].min()} ~ {df['date'].max()}")
 
     # 피처 정의
@@ -80,7 +100,8 @@ def train_model():
         learning_rate=0.08,
         max_leaf_nodes=31,
         min_samples_leaf=20,
-        random_state=42
+        random_state=42,
+        early_stopping=False
     )
 
     model.fit(X_train, y_train)
@@ -119,7 +140,18 @@ def train_model():
             print(f"{s_name:<10} {sdf['load'].mean():>12.1f}명 {sdf['pred_load'].mean():>12.1f}명 {sdf['abs_err'].mean():>10.2f}명")
 
     # 모델 및 메타데이터 저장
-    joblib.dump(model, MODEL_OUT_PATH)
+    validation_by_hour = {}
+    for hour, group in val_df.groupby("hour"):
+        validation_by_hour[str(int(hour))] = {"rows": len(group), "mae": float(group["abs_err"].mean())}
+    validation_by_plan = {}
+    for version, group in val_df.groupby("plan_version"):
+        validation_by_plan[str(int(version))] = {"rows": len(group), "mae": float(group["abs_err"].mean())}
+    # Report honest future-date holdout metrics above; deployment uses all days.
+    print("검증 완료. 전체 기간으로 배포 모델을 다시 학습합니다.", flush=True)
+    model.fit(X, y)
+    temporary_model = MODEL_OUT_PATH.with_suffix(".partial.joblib")
+    joblib.dump(model, temporary_model)
+    temporary_model.replace(MODEL_OUT_PATH)
     metrics = {
         "train_mae": float(tr_mae),
         "train_rmse": float(tr_rmse),
@@ -129,6 +161,22 @@ def train_model():
         "val_r2": float(val_r2),
         "features": feature_cols,
         "n_samples": len(df),
+        "service_date_start": min(dates),
+        "service_date_end": max(dates),
+        "n_service_days": len(dates),
+        "train_date_end": max(train_dates),
+        "validation_date_start": min(val_dates),
+        "validation_date_end": max(val_dates),
+        "validation_by_hour": validation_by_hour,
+        "validation_by_plan": validation_by_plan,
+        "deployment_refit_all_dates": True,
+        "target_kind": "estimated_post_stop_onboard_passengers",
+        "midnight_rule": "service_date hour=24 uses next calendar date 00:00 weather and gate counts",
+        "label_policy": ("load=max(raw_load,0), each raw_load is unmodified cumulative board-alight; terminal residual not overwritten; correction retained in CSV" if has_raw_labels else "legacy per-stop nonnegative clamp and terminal zero overwrite"),
+        "has_raw_load_and_correction": has_raw_labels,
+        "solver_diagnostics_path": str(diagnostic_path) if diagnostic_path.exists() else None,
+        "ground_truth_train_loads.csv_sha256": file_sha256(DATASET_PATH),
+        "load_predictor.joblib_sha256": file_sha256(MODEL_OUT_PATH),
     }
     with open(METRICS_OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(metrics, f, ensure_ascii=False, indent=2)
@@ -136,4 +184,9 @@ def train_model():
     print(f"\n모델 저장 완료: {MODEL_OUT_PATH}")
 
 if __name__ == "__main__":
-    train_model()
+    parser = argparse.ArgumentParser(description="추정 재차인원 모델 학습 및 날짜 holdout 평가")
+    parser.add_argument("--dataset", type=Path, default=DATASET_PATH)
+    parser.add_argument("--model-output", type=Path, default=MODEL_OUT_PATH)
+    parser.add_argument("--metrics-output", type=Path, default=METRICS_OUT_PATH)
+    args = parser.parse_args()
+    train_model(args.dataset, args.model_output, args.metrics_output)

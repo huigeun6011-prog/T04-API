@@ -10,7 +10,7 @@ predict_load.py
 
 import sys
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 if sys.stdout.encoding != 'utf-8':
@@ -87,6 +87,13 @@ def predict_train_load(
     if date_str is None:
         date_str = datetime.now().strftime("%Y-%m-%d")
 
+    calendar_date = date_str
+    if hour == 0:
+        date_str = (datetime.fromisoformat(date_str) - timedelta(days=1)).date().isoformat()
+        hour = 24
+    elif not 5 <= hour <= 24:
+        raise ValueError('운행 시간은 05~24시 또는 달력 날짜의 00시여야 합니다.')
+
     dt = datetime.strptime(date_str, "%Y-%m-%d")
     is_weekend = 1 if (dt.weekday() >= 5 or date_str in HOLIDAYS) else 0
     plan_version = 1 if date_str >= "2026-03-30" else 0
@@ -112,6 +119,8 @@ def predict_train_load(
 
     return {
         "date": date_str,
+        "requested_date": calendar_date,
+        "service_date": date_str,
         "day_type": "휴일" if is_weekend else "평일",
         "station": station,
         "hour": f"{hour:02d}:00",

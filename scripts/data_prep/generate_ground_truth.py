@@ -1,9 +1,9 @@
 """
 generate_ground_truth.py
 과거 승하차 데이터와 시각표, 날씨 데이터를 결합하고,
-물리 제약(종점 잔류 인원 최소화, 음수 재차 방지, 개찰구 총량 보존)을 유도하는
-탄력적 벡터화 최적화(Soft-constrained Optimization)를 수행하여
-열차별/역별 물리적 재차인원 정답 데이터셋(Ground Truth)을 생성합니다.
+종점 잔여 및 음수 누적 재차인원에 soft penalty를 주는 최적화를 수행하여
+열차별/역별 추정 재차인원 라벨을 생성합니다. 물리 제약 충족을 보장하지
+않으며, raw_load/보정량 및 배분 불가능한 관측 총량을 별도로 보존합니다.
 """
 
 import os
@@ -11,6 +11,9 @@ import sys
 import json
 import argparse
 import time
+import csv
+from functools import partial
+from concurrent.futures import ProcessPoolExecutor
 
 if sys.stdout.encoding != 'utf-8':
     try:
@@ -25,15 +28,20 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 import torch
+try:
+    from .gt_assumptions import AssumptionConfig, boarding_exposures, WeekdayTemplates
+except ImportError:
+    from gt_assumptions import AssumptionConfig, boarding_exposures, WeekdayTemplates
 
 # ==========================================
 # 1. 상수 정의
 # ==========================================
-SUBWAY_DIR = Path("./data/processed/subway")
-WEATHER_DIR = Path("./data/raw/weather")
-SUBWAY_TIME_BEFORE = Path("./data/processed/subway_time/subway_time_20250930.json")
-SUBWAY_TIME_AFTER = Path("./data/processed/subway_time/subway_time_20260330.json")
-OUTPUT_DIR = Path("./outputs")
+ROOT = Path(__file__).resolve().parents[2]
+SUBWAY_DIR = ROOT / "data/processed/subway"
+WEATHER_DIR = ROOT / "data/raw/weather"
+SUBWAY_TIME_BEFORE = ROOT / "data/processed/subway_time/subway_time_20250930.json"
+SUBWAY_TIME_AFTER = ROOT / "data/processed/subway_time/subway_time_20260330.json"
+OUTPUT_DIR = ROOT / "outputs"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 PLAN_CHANGE_DATE = "2026-03-30"
@@ -68,8 +76,10 @@ HOLIDAYS = {
 # 2. 유틸리티 함수
 # ==========================================
 def normalize_hour(h):
-    if h == 24 or 0 <= h <= 4:
+    if h in (0, 24):
         return 24
+    if not 5 <= h <= 23:
+        raise ValueError(f"운행 시간대가 아닙니다: {h}")
     return h
 
 def get_day_type(date_str):
@@ -77,6 +87,18 @@ def get_day_type(date_str):
         return "휴일"
     dt = datetime.strptime(date_str, "%Y-%m-%d")
     return "휴일" if dt.weekday() >= 5 else "평일"
+
+
+def feasible_shares(up_share, up_count, down_count):
+    """Keep the learned split only where both directions can carry passengers.
+
+    A single feasible direction receives the full observation. If neither is
+    feasible, both shares are zero and the observation stays explicit slack.
+    """
+    up_ok, down_ok = up_count > 0, down_count > 0
+    up_weight = torch.where(up_ok, torch.where(down_ok, up_share, 1.0), 0.0)
+    down_weight = torch.where(down_ok, torch.where(up_ok, 1.0-up_share, 1.0), 0.0)
+    return up_weight, down_weight
 
 _TIME_SCHEDULE_CACHE = {}
 
@@ -102,7 +124,13 @@ def get_subway_trains(date_str, day_type):
 # ==========================================
 # 3. 1일치 최적화 및 시뮬레이션
 # ==========================================
-def process_single_date(date_str, subway_file, next_subway_file, weather_file, device):
+def process_single_date(date_str, subway_file, next_subway_file, weather_file, device,
+                        epochs=1000, patience=100, min_epochs=200, init_seed=None,
+                        diagnostics=None, assumptions=None, weekday_template=None,
+                        capture_ratios=False):
+    assumptions = assumptions or AssumptionConfig()
+    if assumptions.pooling_weight and weekday_template is None:
+        raise ValueError("요일 pooling에는 과거 날짜로 fit한 template snapshot이 필요합니다.")
     with open(subway_file, encoding="utf-8") as f:
         curr_subway = json.load(f)
     
@@ -113,6 +141,13 @@ def process_single_date(date_str, subway_file, next_subway_file, weather_file, d
             
     with open(weather_file, encoding="utf-8") as f:
         weather_raw = json.load(f)["hourly"]
+    next_date = (datetime.strptime(date_str, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    with open(WEATHER_DIR / f"{next_date}.json", encoding="utf-8") as f:
+        next_weather = json.load(f)["hourly"]
+    weather_lookup = {}
+    for hourly in (weather_raw, next_weather):
+        for i, stamp in enumerate(hourly["time"]):
+            weather_lookup[stamp] = tuple(hourly[key][i] for key in ("precipitation", "snowfall", "temperature_2m"))
 
     day_type = get_day_type(date_str)
     plan_version = 1 if date_str >= PLAN_CHANGE_DATE else 0
@@ -220,16 +255,38 @@ def process_single_date(date_str, subway_file, next_subway_file, weather_file, d
     # 3) PyTorch 텐서 변환
     B_t = torch.tensor(B_obs, device=device)
     A_t = torch.tensor(A_obs, device=device)
-    n_up_b_t = torch.tensor(n_up_board, device=device).clamp(min=1e-5)
-    n_up_a_t = torch.tensor(n_up_alight, device=device).clamp(min=1e-5)
-    n_dn_b_t = torch.tensor(n_down_board, device=device).clamp(min=1e-5)
-    n_dn_a_t = torch.tensor(n_down_alight, device=device).clamp(min=1e-5)
+    n_up_b_t = torch.tensor(n_up_board, device=device)
+    n_up_a_t = torch.tensor(n_up_alight, device=device)
+    n_dn_b_t = torch.tensor(n_down_board, device=device)
+    n_dn_a_t = torch.tensor(n_down_alight, device=device)
 
     idx_s = torch.tensor(all_s_idx, dtype=torch.long, device=device)
     idx_h = torch.tensor(all_h_idx, dtype=torch.long, device=device)
     t_dir = torch.tensor(all_dir, dtype=torch.float32, device=device)
     m_dest = torch.tensor(all_is_dest, dtype=torch.float32, device=device)
     m_orig = torch.tensor(all_is_orig, dtype=torch.float32, device=device)
+    exposure_edges = []
+    boarding_coverage = None
+    both_coverage = None
+    if assumptions.boarding_headway:
+        exposure_edges, boarding_coverage, both_coverage = boarding_exposures(stop_meta)
+        edge_array = np.asarray(exposure_edges, dtype=np.float64)
+        edge_stop = torch.tensor(edge_array[:,0], dtype=torch.long, device=device)
+        edge_station = torch.tensor(edge_array[:,1], dtype=torch.long, device=device)
+        edge_hour = torch.tensor(edge_array[:,2], dtype=torch.long, device=device)
+        edge_direction = torch.tensor(edge_array[:,3], dtype=torch.float32, device=device)
+        edge_both = torch.tensor(edge_array[:,4], dtype=torch.float32, device=device)
+        edge_only = torch.tensor(edge_array[:,5], dtype=torch.float32, device=device)
+
+    def boardings_at_stops(p, b_up_grid, b_dn_grid):
+        if assumptions.boarding_headway:
+            edge_up_share = p[edge_station,edge_hour]
+            edge_share = (1-edge_direction)*edge_up_share+edge_direction*(1-edge_up_share)
+            amounts = B_t[edge_station,edge_hour]*(edge_share*edge_both+edge_only)
+            return torch.zeros_like(t_dir).scatter_add(0,edge_stop,amounts), amounts
+        up = b_up_grid[idx_s,idx_h]*(1-m_dest)
+        down = b_dn_grid[idx_s,idx_h]*(1-m_dest)
+        return (1-t_dir)*up+t_dir*down, None
 
     # 지리적 사전 확률(Prior)
     p_prior = np.zeros((N_STATIONS, N_HOURS), dtype=np.float32)
@@ -242,6 +299,10 @@ def process_single_date(date_str, subway_file, next_subway_file, weather_file, d
 
     p_logit_init = np.log(p_prior[1:-1, :] / (1.0 - p_prior[1:-1, :]))
     q_logit_init = np.log(q_prior[1:-1, :] / (1.0 - q_prior[1:-1, :]))
+    if init_seed is not None:
+        rng = np.random.default_rng(init_seed)
+        p_logit_init += rng.normal(0, .25, p_logit_init.shape).astype(np.float32)
+        q_logit_init += rng.normal(0, .25, q_logit_init.shape).astype(np.float32)
 
     p_logits = torch.nn.Parameter(torch.tensor(p_logit_init, device=device))
     q_logits = torch.nn.Parameter(torch.tensor(q_logit_init, device=device))
@@ -250,6 +311,14 @@ def process_single_date(date_str, subway_file, next_subway_file, weather_file, d
     prior_q_t = torch.tensor(q_prior[1:-1, :], device=device)
 
     optimizer = torch.optim.Adam([p_logits, q_logits], lr=0.1)
+
+    # Each row is one train. Padding avoids hundreds of tiny autograd operations
+    # per epoch while keeping exactly the same terminal/negative-load objective.
+    lengths = torch.tensor([en - st for st, en, _ in train_slices], device=device)
+    offsets = torch.arange(int(lengths.max()), device=device)[None, :]
+    starts = torch.tensor([st for st, _, _ in train_slices], device=device)[:, None]
+    valid = offsets < lengths[:, None]
+    gather_idx = (starts + offsets).clamp(max=len(all_s_idx) - 1)
 
     def get_full_pq():
         p_mid = torch.sigmoid(p_logits)
@@ -262,58 +331,160 @@ def process_single_date(date_str, subway_file, next_subway_file, weather_file, d
         q = torch.cat([q_1, q_mid, q_0], dim=0)
         return p, q
 
-    # 4) 빠른 최적화 (200 에포크)
-    for _ in range(200):
+    def split_grids(p, q):
+        p_up, p_down = feasible_shares(p, n_up_b_t, n_dn_b_t)
+        q_up, q_down = feasible_shares(q, n_up_a_t, n_dn_a_t)
+        return (p_up*B_t/n_up_b_t.clamp(min=1),
+                p_down*B_t/n_dn_b_t.clamp(min=1),
+                q_up*A_t/n_up_a_t.clamp(min=1),
+                q_down*A_t/n_dn_a_t.clamp(min=1))
+
+    # Unidentifiable split parameters (only one/no direction) must not pull the
+    # solver toward an arbitrary geography split that cannot allocate counts.
+    p_identified = (torch.tensor(both_coverage > 0,device=device)[1:-1]
+                    if assumptions.boarding_headway else ((n_up_b_t > 0) & (n_dn_b_t > 0))[1:-1])
+    q_identified = ((n_up_a_t > 0) & (n_dn_a_t > 0))[1:-1]
+
+    def prior_loss():
+        p_delta = (torch.sigmoid(p_logits)-prior_p_t)**2
+        q_delta = (torch.sigmoid(q_logits)-prior_q_t)**2
+        return ((p_delta*p_identified).sum()/p_identified.sum().clamp(min=1)
+                +(q_delta*q_identified).sum()/q_identified.sum().clamp(min=1))
+
+    p_reg_mask = p_identified & (B_t[1:-1]>0)
+    q_reg_mask = q_identified & (A_t[1:-1]>0)
+    if weekday_template is not None:
+        p_target = torch.tensor(weekday_template["p"][1:-1],device=device)
+        q_target = torch.tensor(weekday_template["q"][1:-1],device=device)
+        p_confidence = torch.tensor(weekday_template["p_confidence"][1:-1],device=device)*p_reg_mask
+        q_confidence = torch.tensor(weekday_template["q_confidence"][1:-1],device=device)*q_reg_mask
+
+    def structural_losses(p,q):
+        smooth = p.sum()*0
+        if assumptions.temporal_weight:
+            for value,mask in ((p[1:-1],p_reg_mask),(q[1:-1],q_reg_mask)):
+                difference=value[:,1:]-value[:,:-1]
+                neighbors=mask[:,1:]&mask[:,:-1]
+                penalty=torch.nn.functional.huber_loss(difference,torch.zeros_like(difference),delta=assumptions.temporal_huber_delta,reduction="none")
+                smooth=smooth+(penalty*neighbors).sum()/neighbors.sum().clamp(min=1)
+        pooled = p.sum()*0
+        if assumptions.pooling_weight:
+            for value,target,confidence in ((p[1:-1],p_target,p_confidence),(q[1:-1],q_target,q_confidence)):
+                # Divide by identified cells; low-data templates receive less
+                # weight via confidence rather than forcing a shared ratio.
+                pooled=pooled+(((value-target)**2)*confidence).sum()/(confidence>0).sum().clamp(min=1)
+        return smooth*assumptions.temporal_weight, pooled*assumptions.pooling_weight
+
+    # Terminal zero and nonnegative trajectories remain soft penalties.
+    # Save the best iterate instead of publishing a later Adam oscillation.
+    best_loss = float("inf")
+    significant_best = float("inf")
+    last_significant_epoch = 0
+    best_epoch = 0
+    best_parameters = None
+    loss_history = []
+    for epoch in range(epochs):
         optimizer.zero_grad()
         p, q = get_full_pq()
 
-        b_up_grid = (p * B_t) / n_up_b_t
-        b_dn_grid = ((1.0 - p) * B_t) / n_dn_b_t
-        a_up_grid = (q * A_t) / n_up_a_t
-        a_dn_grid = ((1.0 - q) * A_t) / n_dn_a_t
+        b_up_grid, b_dn_grid, a_up_grid, a_dn_grid = split_grids(p, q)
 
-        b_up_stops = b_up_grid[idx_s, idx_h] * (1.0 - m_dest)
-        b_dn_stops = b_dn_grid[idx_s, idx_h] * (1.0 - m_dest)
         a_up_stops = a_up_grid[idx_s, idx_h] * (1.0 - m_orig)
         a_dn_stops = a_dn_grid[idx_s, idx_h] * (1.0 - m_orig)
 
-        b_stops = (1.0 - t_dir) * b_up_stops + t_dir * b_dn_stops
+        b_stops, _ = boardings_at_stops(p,b_up_grid,b_dn_grid)
         a_stops = (1.0 - t_dir) * a_up_stops + t_dir * a_dn_stops
         net_stops = b_stops - a_stops
 
-        term_loads = []
-        neg_penalties = []
-        for st, en, _ in train_slices:
-            train_net = net_stops[st:en]
-            train_load = torch.cumsum(train_net, dim=0)
-            term_loads.append(train_load[-1])
-            neg_penalties.append(torch.relu(-train_load))
+        train_load = torch.cumsum(net_stops[gather_idx] * valid, dim=1)
+        term_tensor = train_load.gather(1, (lengths - 1)[:, None]).squeeze(1)
+        all_neg = torch.relu(-train_load[valid])
 
-        term_tensor = torch.stack(term_loads)
-        all_neg = torch.cat(neg_penalties)
-
-        loss = torch.mean(term_tensor ** 2) + 1.0 * torch.mean(all_neg ** 2) + \
-               2.0 * (torch.mean((torch.sigmoid(p_logits) - prior_p_t)**2) + \
-                      torch.mean((torch.sigmoid(q_logits) - prior_q_t)**2))
+        smooth_loss, pooled_loss = structural_losses(p,q)
+        loss = torch.mean(term_tensor ** 2) + torch.mean(all_neg ** 2) + 2.0*prior_loss()+smooth_loss+pooled_loss
+        current_loss = float(loss.detach())
+        loss_history.append(current_loss)
+        if current_loss < best_loss:
+            best_loss = current_loss
+            best_epoch = epoch+1
+            best_parameters = (p_logits.detach().clone(), q_logits.detach().clone())
+        if significant_best-current_loss > max(1e-5, abs(significant_best)*1e-5) or epoch == 0:
+            significant_best = current_loss
+            last_significant_epoch = epoch
+        if patience and epoch+1 >= min_epochs and epoch-last_significant_epoch >= patience:
+            break
         loss.backward()
         optimizer.step()
 
     # 5) 최종 재차인원 산출
     with torch.no_grad():
+        p_logits.copy_(best_parameters[0])
+        q_logits.copy_(best_parameters[1])
         p, q = get_full_pq()
-        b_up_grid = (p * B_t) / n_up_b_t
-        b_dn_grid = ((1.0 - p) * B_t) / n_dn_b_t
-        a_up_grid = (q * A_t) / n_up_a_t
-        a_dn_grid = ((1.0 - q) * A_t) / n_dn_a_t
+        b_up_grid, b_dn_grid, a_up_grid, a_dn_grid = split_grids(p, q)
 
-        b_up_stops = (b_up_grid[idx_s, idx_h] * (1.0 - m_dest)).cpu().numpy()
-        b_dn_stops = (b_dn_grid[idx_s, idx_h] * (1.0 - m_dest)).cpu().numpy()
         a_up_stops = (a_up_grid[idx_s, idx_h] * (1.0 - m_orig)).cpu().numpy()
         a_dn_stops = (a_dn_grid[idx_s, idx_h] * (1.0 - m_orig)).cpu().numpy()
 
         t_dir_np = t_dir.cpu().numpy()
-        b_stops = (1.0 - t_dir_np) * b_up_stops + t_dir_np * b_dn_stops
+        b_tensor, edge_amounts = boardings_at_stops(p,b_up_grid,b_dn_grid)
+        b_stops = b_tensor.cpu().numpy()
         a_stops = (1.0 - t_dir_np) * a_up_stops + t_dir_np * a_dn_stops
+
+    board_sources = None
+    if assumptions.boarding_headway:
+        board_sources = [[] for _ in stop_meta]
+        # Accumulate final provenance in float64 so the emitted boarding amount
+        # agrees with its source-hour components, not float32 scatter rounding.
+        b_stops = np.zeros(len(stop_meta),dtype=np.float64)
+        np.add.at(b_stops,np.asarray(exposure_edges)[:,0].astype(int),edge_amounts.cpu().numpy().astype(np.float64))
+        for edge,amount in zip(exposure_edges,edge_amounts.cpu().numpy()):
+            if amount:
+                board_sources[edge[0]].append([HOURS[edge[2]],round(float(amount),6)])
+
+    raw_paths = [np.cumsum(b_stops[st:en].astype(np.float64)-a_stops[st:en].astype(np.float64))
+                 for st, en, _ in train_slices]
+    terminal_raw = np.array([path[-1] for path in raw_paths])
+    all_raw = np.concatenate(raw_paths)
+    slack_rows = []
+    for kind, observed, up_count, down_count in (
+            ("board", B_obs, n_up_board, n_down_board),
+            ("alight", A_obs, n_up_alight, n_down_alight)):
+        unallocated = (observed*(1-boarding_coverage) if kind=="board" and assumptions.boarding_headway
+                       else observed*((up_count+down_count)==0))
+        for s_idx, h_idx in np.argwhere(unallocated > 0):
+            slack_rows.append({"date": date_str, "station_idx": int(s_idx),
+                               "station": STATION_NAMES[s_idx], "hour": HOURS[h_idx],
+                               "kind": kind, "observed": float(observed[s_idx, h_idx]),
+                               "unallocated": float(unallocated[s_idx,h_idx]),
+                               "reason": ("uniform_arrival_after_last_eligible_departure" if kind=="board" and assumptions.boarding_headway else "no_eligible_train_stop_in_either_direction")})
+    if diagnostics is not None:
+        diagnostics.update({
+            "date": date_str, "epochs_run": len(loss_history), "best_epoch": best_epoch,
+            "best_loss": best_loss, "last_loss": loss_history[-1],
+            "terminal_loss": float(np.mean(terminal_raw**2)),
+            "negative_loss": float(np.mean(np.minimum(all_raw, 0)**2)),
+            "prior_loss_weighted": float(2*prior_loss().detach()),
+            "temporal_loss_weighted": float(structural_losses(p,q)[0].detach()),
+            "pooling_loss_weighted": float(structural_losses(p,q)[1].detach()),
+            "assumptions": {"temporal_weight": assumptions.temporal_weight,"temporal_huber_delta": assumptions.temporal_huber_delta,"pooling_weight":assumptions.pooling_weight,"boarding_headway":assumptions.boarding_headway},
+            "template": ({key:weekday_template[key] for key in ("n_dates","last_training_date","group","window_days","source_sha256")} if weekday_template is not None else None),
+            "n_date_parameters": int(p_logits.numel()+q_logits.numel()),
+            "terminal_abs_quantiles": {str(q): float(np.quantile(np.abs(terminal_raw), q)) for q in (.5,.9,.95,.99,1)},
+            "negative_raw_stops": int((all_raw < -.015).sum()),
+            "raw_load_min": float(all_raw.min()),
+            "nonnegative_projection_count": int((all_raw < 0).sum()),
+            "nonnegative_projection_total": float(-np.minimum(all_raw, 0).sum()),
+            "board_observed_total": float(B_obs.sum()),
+            "alight_observed_total": float(A_obs.sum()),
+            "board_allocated_total": float(b_stops.astype(np.float64).sum()),
+            "alight_allocated_total": float(a_stops.astype(np.float64).sum()),
+            "unallocated": slack_rows,
+            "label_policy": "load=max(raw cumulative board-alight,0); origin preboarding=0; no terminal overwrite; raw_load and load_correction retained",
+        })
+        if capture_ratios:
+            diagnostics["p_values"] = p.detach().cpu().numpy().tolist()
+            diagnostics["q_values"] = q.detach().cpu().numpy().tolist()
 
     # 날씨 파싱
     weather_time_list = weather_raw["time"]
@@ -323,28 +494,23 @@ def process_single_date(date_str, subway_file, next_subway_file, weather_file, d
         train_b = b_stops[st:en]
         train_a = a_stops[st:en]
         
-        # 물리적 누적 재차인원 계산 (음수 클램핑)
-        current_load = 0.0
+        # Preserve the optimizer trajectory; projection is explicit per row.
+        # Terminal zero is a soft objective, never a hidden overwrite.
+        raw_load = 0.0
         for i, stop_idx in enumerate(range(st, en)):
             meta = stop_meta[stop_idx]
             b_val = float(train_b[i])
             a_val = float(train_a[i])
-            current_load = max(0.0, current_load + b_val - a_val)
-
-            # 종점에서는 승객이 모두 하차하므로 0으로 수렴
-            if meta["is_destination"]:
-                current_load = 0.0
+            raw_load += b_val-a_val
+            current_load = max(0.0, raw_load)
 
             # 날씨 매칭
             w_h = 0 if meta["hour"] == 24 else meta["hour"]
-            w_key = f"{date_str}T{w_h:02d}:00"
-            try:
-                w_idx = weather_time_list.index(w_key)
-                precip = weather_raw["precipitation"][w_idx]
-                snow = weather_raw["snowfall"][w_idx]
-                temp = weather_raw["temperature_2m"][w_idx]
-            except (ValueError, IndexError):
-                precip, snow, temp = 0.0, 0.0, 15.0
+            weather_date = next_date if meta["hour"] == 24 else date_str
+            w_key = f"{weather_date}T{w_h:02d}:00"
+            if w_key not in weather_lookup:
+                raise ValueError(f"날씨 자료가 없습니다: {w_key}")
+            precip, snow, temp = weather_lookup[w_key]
 
             records.append({
                 "date": date_str,
@@ -360,28 +526,69 @@ def process_single_date(date_str, subway_file, next_subway_file, weather_file, d
                 "hour_idx": meta["hour_idx"],
                 "is_origin": meta["is_origin"],
                 "is_destination": meta["is_destination"],
-                "board": round(b_val, 2),
-                "alight": round(a_val, 2),
-                "load": round(current_load, 2),
+                "board": round(b_val, 6),
+                "alight": round(a_val, 6),
+                "raw_load": round(raw_load, 6),
+                "load_correction": round(current_load-raw_load, 6),
+                "terminal_raw_residual": round(raw_load, 6) if meta["is_destination"] else None,
+                "load": round(current_load, 6),
                 "precip": precip,
                 "snow": snow,
                 "temp": temp,
                 "plan_version": plan_version,
             })
+            if board_sources is not None:
+                records[-1]["boarding_sources"] = json.dumps(board_sources[stop_idx],separators=(",",":"))
 
     return records
 
 # ==========================================
 # 4. 메인 파이프라인
 # ==========================================
+_TEMPLATE_BANKS = {}
+
+
+def process_service_day(date_str, epochs=1000, patience=100, assumptions=None,
+                        template_bank=None, template_fit_through=None):
+    torch.set_num_threads(1)
+    next_date = (datetime.strptime(date_str, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+    diagnostics = {}
+    snapshot = None
+    if assumptions is not None and assumptions.pooling_weight:
+        bank_key = str(template_bank)
+        if bank_key not in _TEMPLATE_BANKS:
+            _TEMPLATE_BANKS[bank_key] = WeekdayTemplates.load(template_bank)
+        snapshot = _TEMPLATE_BANKS[bank_key].snapshot(date_str,HOLIDAYS,fit_through=template_fit_through)
+    records = process_single_date(date_str, SUBWAY_DIR / f"{date_str}.json", SUBWAY_DIR / f"{next_date}.json", WEATHER_DIR / f"{date_str}.json", torch.device("cpu"), epochs=epochs, patience=patience, diagnostics=diagnostics, assumptions=assumptions, weekday_template=snapshot)
+    return records, diagnostics
+
 def main():
     parser = argparse.ArgumentParser(description="열차 재차인원 정답 데이터셋 생성기")
-    parser.add_argument("--start-date", type=str, default="2026-08-01", help="시작 날짜 (YYYY-MM-DD)")
-    parser.add_argument("--end-date", type=str, default="2026-10-31", help="종료 날짜 (YYYY-MM-DD)")
+    parser.add_argument("--start-date", type=str, default="2024-11-01", help="시작 운행일 (YYYY-MM-DD)")
+    parser.add_argument("--end-date", type=str, default="2026-11-01", help="종료 운행일 (익일 00시 포함)")
     parser.add_argument("--output", type=str, default="./outputs/ground_truth_train_loads.csv", help="출력 CSV 경로")
+    parser.add_argument("--workers", type=int, default=4, help="독립 운행일을 처리할 CPU 프로세스 수")
+    parser.add_argument("--epochs", type=int, default=1000, help="최대 Adam 반복 수")
+    parser.add_argument("--patience", type=int, default=100, help="개선 정체시 중단할 반복 수 (0=비활성)")
+    parser.add_argument("--temporal-weight",type=float,default=0,help="인접시간 p/q Huber soft penalty 가중치")
+    parser.add_argument("--temporal-huber-delta",type=float,default=.15)
+    parser.add_argument("--pooling-weight",type=float,default=0,help="과거 동요일 template partial-pooling 가중치")
+    parser.add_argument("--boarding-headway",action="store_true",help="시간 내 균등입장 가정과 시간표 이전출발간격을 이용한 승차 배분")
+    parser.add_argument("--template-bank",type=Path,help="과거 독립일자 분배율 관측 npz")
+    parser.add_argument("--template-fit-through",help="template에 허용할 마지막 학습일 (검증일 누수 방지)")
     args = parser.parse_args()
+    if args.epochs < 1 or args.patience < 0 or args.workers < 1:
+        parser.error("epochs/workers는 양수, patience는 0 이상이어야 합니다.")
+    if args.temporal_weight<0 or args.pooling_weight<0 or args.temporal_huber_delta<=0:
+        parser.error("soft penalty 가중치는 0 이상, Huber delta는 양수여야 합니다.")
+    if args.pooling_weight and not args.template_bank:
+        parser.error("pooling에는 --template-bank가 필요합니다.")
+    assumptions=AssumptionConfig(args.temporal_weight,args.temporal_huber_delta,args.pooling_weight,args.boarding_headway)
+    if args.epochs < 1 or args.patience < 0 or args.workers < 1:
+        parser.error("epochs/workers는 1 이상, patience는 0 이상이어야 합니다.")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    torch.set_num_threads(1)
     print(f"==================================================")
     print(f" [Ground Truth 생성기] Device: {device}")
     print(f" 기간: {args.start_date} ~ {args.end_date}")
@@ -391,7 +598,7 @@ def main():
     start_dt = datetime.strptime(args.start_date, "%Y-%m-%d")
     end_dt = datetime.strptime(args.end_date, "%Y-%m-%d")
 
-    all_records = []
+    dates = []
     curr = start_dt
     t0 = time.time()
     day_count = 0
@@ -404,23 +611,42 @@ def main():
         next_subway_file = SUBWAY_DIR / f"{next_date_str}.json"
         weather_file = WEATHER_DIR / f"{date_str}.json"
 
-        if not subway_file.exists() or not weather_file.exists():
-            curr += timedelta(days=1)
-            continue
+        for required in (subway_file, next_subway_file, weather_file, WEATHER_DIR / f"{next_date_str}.json"):
+            if not required.exists():
+                raise FileNotFoundError(f"운행일 {date_str} 생성에 필요한 파일이 없습니다: {required}")
 
-        records = process_single_date(date_str, subway_file, next_subway_file, weather_file, device)
-        all_records.extend(records)
-        day_count += 1
-
-        if day_count % 10 == 0 or curr == end_dt:
-            elapsed = time.time() - t0
-            print(f"진행: {date_str} ({day_count}일 완료, 누적 레코드: {len(all_records):,}건, 경과: {elapsed:.1f}초)")
-
+        dates.append(date_str)
         curr += timedelta(days=1)
-
-    df = pd.DataFrame(all_records)
-    df.to_csv(args.output, index=False, encoding="utf-8-sig")
-    print(f"\n✅ 완료! 총 {day_count}일간 {len(df):,}개 정차역 레코드 생성됨.")
+    if not dates:
+        raise ValueError("시작 운행일은 종료 운행일보다 늦을 수 없습니다.")
+    output = Path(args.output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output.with_suffix(".partial.csv")
+    total = 0
+    diagnostic_path = output.with_suffix(".diagnostics.jsonl")
+    slack_path = output.with_suffix(".unallocated.csv")
+    with ProcessPoolExecutor(max_workers=max(1, args.workers)) as executor, temporary.open("w", encoding="utf-8-sig", newline="") as stream, diagnostic_path.open("w", encoding="utf-8") as diagnostic_stream, slack_path.open("w", encoding="utf-8-sig", newline="") as slack_stream:
+        writer = None
+        slack_writer = csv.DictWriter(slack_stream, fieldnames=["date","station_idx","station","hour","kind","observed","unallocated","reason"])
+        slack_writer.writeheader()
+        worker = partial(process_service_day, epochs=args.epochs, patience=args.patience,assumptions=assumptions,template_bank=args.template_bank,template_fit_through=args.template_fit_through)
+        for date_str, (records, diagnostics) in zip(dates, executor.map(worker, dates)):
+            if not records:
+                raise ValueError(f"열차 표본이 없습니다: {date_str}")
+            if writer is None:
+                writer = csv.DictWriter(stream, fieldnames=list(records[0]))
+                writer.writeheader()
+            writer.writerows(records)
+            slack_writer.writerows(diagnostics.pop("unallocated"))
+            diagnostic_stream.write(json.dumps(diagnostics, ensure_ascii=False)+"\n")
+            total += len(records)
+            day_count += 1
+            if day_count % 10 == 0 or day_count == len(dates):
+                stream.flush()
+                elapsed = time.time() - t0
+                print(f"진행: {date_str} ({day_count}/{len(dates)}일, {total:,}행, {elapsed:.1f}초)", flush=True)
+    temporary.replace(output)
+    print(f"\n✅ 완료! 총 {day_count}일간 {total:,}개 정차역 레코드 생성됨.")
     print(f"저장 경로: {args.output}")
 
 if __name__ == "__main__":

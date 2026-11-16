@@ -1,23 +1,29 @@
-## 문제 정의
-대전도시철도 1호선은 단일 노선, 양방향(상행/하행), 22개 역으로 구성됩니다. 우리가 가진 원본 데이터는 다음과 같습니다.
-- 역·시간대별 총승차/총하차 인원 (1시간 단위, 방향 구분 없음, 2024-11-01 ~ 2026-11-01)
-- 열차 운행 시각표 (열차별 정차역과 시각, 상·하행 구분)
-- 시간대별 열차 수 (역·시간대별 departures, passes, arrivals)
-- 날씨 (시간대별 강수량, 적설량, 기온)
-- 없는 것: 개별 승객의 OD(기종점) 정보, 열차별 실제 승차/하차 인원, 열차별 재차인원.
+# 모델과 학습 단계 개요
 
-## 목표
-"특정 날짜·역·시간대·방향·날씨 조건에서, 열차에 탔을 때 그 열차 안에 몇 명이 있는가(재차인원)" 를 예측하는 모델을 만드는 것입니다. 궁극적으로는 "미래 시점의 조건을 입력하면 그 열차의 재차인원이 나오는" 범용 모델입니다.
+[인수인계](../HANDOFF.md)와 [방법론](METHODOLOGY.md)이 현재상태의 기준이다.
 
-## 왜 어려운가
-원본 데이터에는 "그 역·시간대에 탄 사람 총수" 만 있고, "그중 몇 명이 어느 열차를 탔는지" 는 없습니다. 따라서 "열차별 재차" 를 직접 학습할 정답이 없습니다. 이 문제를 풀기 위해 물리적 제약(모든 승객은 종점에서 내리므로 종점 재차는 0이어야 함)을 손실함수에 넣어, "종점 재차가 0에 가까운 그럴듯한 배분" 을 학습시키는 접근을 씁니다.
+## 두 단계
 
-## 입력 파일과 추출 내용
-./data/processed/subway/{날짜}.json: 역·시간대별 총승차(boardings), 총하차(alightings)
-./data/raw/weather/{날짜}.json: 시간대별 강수량, 적설량, 기온
-./data/processed/subway_time/station_hourly_20250930.json, station_hourly_20260330.json: 날짜에 따라 분기: 역·시간대별 열차 수(departures, passes, arrivals)
-./data/processed/subway_time/subway_time_20250930.json, subway_time_20260330.json: 열차별 정차역·시각 (종점 재차 시뮬레이션용)
+1. `generate_ground_truth.py`: 방향없는 역별 승하차와 열차시간표로 일별p/q 분배율을 Adam으로 추정한다. 라벨은 실측정답이 아니며 물리적soft penalty를 쓴다.
+2. `train_predict_model.py`: 추정라벨을 HistGradientBoostingRegressor로 학습해 역·시간·방향·요일binary·날씨·시간표버전 조건부 재차인원을 예측한다.
 
-## 주의사항
-- 하루의 열차는 05시부터 익일 00시까지 운행함. ./data/processed/subway/{날짜}.json 파일은 당일 05 ~ 23시 데이터와 익일 00시 데이터를 읽어야 함
-- ./data/processed/subway_time/station_hourly_YYYYMMDD.json에서, depatures는 해당 역이 시작점인 열차 수, passes는 해당 역을 통과하는 열차 수, arrivals는 해당 역이 종점인 열차 수를 의미함. 시간대별 총 승차인원은 depatures+passes로 나누고, 총 하차인원은 passes+arrivals노 나눠야 함.
+출력은 정차 후 재차인원으로 해석하는 작업가정이다. 실제피크 CSV의 측정시점은 아직 공식확인하지 못했다. 열차번호·출발분·월~일은 현모델 입력에 없으므로 같은역·시간·방향·날씨면 같은예측이다.
+
+## 파일 상태
+
+- API가 읽는 production은 `outputs/load_predictor.joblib`이다.731일·3,733,691행, 이전200회solver라벨,24시날씨수정후전체refit이다.
+- `outputs/diagnostics/candidate_training/`은 feasible배분·1000회·raw잔차보존 후보다.production에 미적용이다.
+- `gt_assumptions.py`의 시간/요일/headway옵션은 구현·검증했지만 기본비활성이고 전체all모델도 만들지 않았다.
+- `train_load_model.py`와 `outputs/best_model.pt`는 이전PyTorch 예측모델이다. 현재HGB와혼용하지 않는다.
+- `scripts/data_prep/gen_station_hourly.py` 산출물은 이전경로용이다. 현재GT는 열차별시간표JSON에서 분모를 직접센다.
+
+## 입력과 날짜
+
+- `data/processed/subway/{운행일}.json`의05~23시와 `{익일}.json`의00시를 사용한다.
+- 시간표는2026-03-30이후평일에20260330,그외에는20250930이다. 이후휴일도이전휴일표폴백이다.
+- 24시날씨는익일00시이며 달력D일00시단일요청은D−1운행일24시로변환한다.
+- 원본 OD·개별승하차·전체열차실측재차는없다. 일부실제피크20사례(매칭19)는사후검증전용이다.
+
+## 성능 해석
+
+production 날짜holdout MAE20.14/R²0.8766과 실제피크MAE375.99는 서로다른평가다. 전자는추정라벨재현성이고 후자는선택된실제극단사례비교다. 실제정확도와추천순위는확보되지않았다. 후보별수치·hash·한계는[HANDOFF](../HANDOFF.md)를참고한다.

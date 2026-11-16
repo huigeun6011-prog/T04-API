@@ -11,12 +11,11 @@
   <!--
     ▼ 카카오 지도 API
     카카오 개발자 콘솔(https://developers.kakao.com) -> 내 애플리케이션 -> 앱 키의 'JavaScript 키'를 사용합니다.
-    autoload=false를 추가하여 kakao.maps.load 콜백으로 안전하게 초기화합니다.
+    키는 config.local.js(gitignore)에서 읽고 kakao-loader.js 가 SDK를 불러옵니다. autoload=false + kakao.maps.load 콜백으로 초기화합니다.
   -->
-  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=401352859f590a8a7818b92891294664&autoload=false&libraries=services"></script>
+  <script src="config.local.js" onerror="console.warn('web/config.local.js 없음: config.example.js 를 복사해 키를 넣으세요')"></script>
+  <script src="kakao-loader.js"></script>
 
-  <!-- Chart.js (혼잡도 시각화) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 </head>
 <body>
 
@@ -83,36 +82,23 @@
           <button class="filter-btn" data-cat="library">📚 도서관</button>
           <button class="filter-btn" data-cat="park">🌳 공원</button>
           <button class="filter-btn" data-cat="bookstore">📖 서점</button>
-          <button class="filter-btn" data-cat="museum">🖼 전시관</button>
-          <button class="filter-btn" data-cat="trail">👟 산책로</button>
         </div>
       </div>
 
-      <!-- Step 4 -->
       <div class="panel-step">
-        <div class="step-label">
-          <span class="step-num">4</span>
-          <span class="step-title">추천 기준 가중치</span>
-        </div>
-        <div class="slider-wrap">
-          <div class="slider-endpoints">
-            <span>🚶 가까운 역</span>
-            <span>🌿 한적함</span>
-          </div>
-          <input type="range" id="weightSlider" class="slider" min="0" max="100" value="50" />
-          <div class="slider-chips">
-            <span class="chip">거리 <strong id="distPct">50</strong>%</span>
-            <span class="chip">한적함 <strong id="quietPct">50</strong>%</span>
-          </div>
-        </div>
+        <div class="step-label"><span class="step-num">4</span><span class="step-title">이용할 시간 범위</span></div>
+        <div class="hour-range"><label>시작<select id="startHour" class="date-input"></select></label><span>~</span><label>마지막 시간대<select id="endHour" class="date-input"></select></label></div>
+        <p class="control-help">각 시간은 그 시각부터 1시간 구간입니다. 24시는 선택 날짜의 다음 날 00~01시입니다.</p>
       </div>
-
+      <div class="panel-step">
+        <div class="step-label"><span class="step-num">5</span><span class="step-title">추천에서 중요하게 볼 것</span></div>
+        <label class="weight-label" for="quietWeight"><span id="distanceWeightLabel">거리 50%</span><span id="quietWeightLabel">한산함 50%</span></label>
+        <input id="quietWeight" type="range" min="0" max="100" step="10" value="50" aria-label="열차 한산함 비중" />
+        <p class="control-help">한산함은 이동 구간의 예상 열차 재차인원으로 계산합니다. 거리는 출발지와 장소 사이 직선거리입니다.</p>
+      </div>
       <button class="search-btn" id="searchBtn">🔍 추천 경로 찾기</button>
 
-      <div class="mock-notice">
-        ⚠️ 현재 더미 데이터로 동작합니다.<br>
-        ONNX 모델 추론 및 날씨 API 연동은 개발 예정입니다.
-      </div>
+      <div class="mock-notice">장소는 수집 데이터에서 불러오며, 날씨는 선택한 날짜에 Open-Meteo로 조회합니다.</div>
     </aside>
 
     <!-- 우측: 지도 + 결과 -->
@@ -155,55 +141,7 @@
      TAB 2 : 혼잡도 분석
 ══════════════════════════════════════ -->
 <div id="tab-visualize" class="tab-content">
-  <div class="viz-layout">
-
-    <aside class="viz-controls">
-      <div class="panel-step">
-        <div class="step-label"><span class="step-title">역 선택</span></div>
-        <select id="stationSelect" class="station-select"></select>
-      </div>
-      <div class="panel-step">
-        <div class="step-label"><span class="step-title">운행 방향</span></div>
-        <div class="toggle-group">
-          <button class="toggle-btn active" data-dir="up">⬆ 상행 (반석 → 판암)</button>
-          <button class="toggle-btn" data-dir="down">⬇ 하행 (판암 → 반석)</button>
-        </div>
-      </div>
-      <div class="panel-step">
-        <div class="step-label"><span class="step-title">날짜 유형</span></div>
-        <div class="toggle-group">
-          <button class="toggle-btn active" data-dtype="weekday">💼 평일</button>
-          <button class="toggle-btn" data-dtype="weekend">🏖 주말/공휴일</button>
-        </div>
-      </div>
-
-      <div class="cong-legend">
-        <div class="legend-title">혼잡도 기준 (4량, 정원 450명)</div>
-        <div class="legend-row"><span class="dot quiet"></span>여유 &mdash; 80명 미만</div>
-        <div class="legend-row"><span class="dot normal"></span>보통 &mdash; 80~180명</div>
-        <div class="legend-row"><span class="dot busy"></span>약간 혼잡 &mdash; 180~300명</div>
-        <div class="legend-row"><span class="dot crowded"></span>혼잡 &mdash; 300명 이상</div>
-      </div>
-    </aside>
-
-    <div class="viz-charts">
-      <div class="chart-card">
-        <div class="chart-card-header">
-          <h3>시간대별 열차 재차인원 (명)</h3>
-          <span class="mock-badge">⚠ 더미 데이터</span>
-        </div>
-        <div class="chart-wrap"><canvas id="loadChart"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-card-header">
-          <h3>전체 역 혼잡도 히트맵</h3>
-          <span class="mock-badge">⚠ 더미 데이터</span>
-        </div>
-        <div id="heatmapWrap" class="heatmap-wrap"></div>
-      </div>
-    </div>
-
-  </div>
+  <div class="viz-layout"><div class="chart-card model-pending-card"><h2>시간대별 이동 구간 예측</h2><p>추천을 실행하면 각 후보의 예상 평균·최대 재차인원을 여기서 비교합니다. 추정 자료로 학습한 예측이며 실제 측정값은 아닙니다.</p><div id="predictionAnalysis">먼저 출발 위치와 조건을 선택해 추천을 실행하세요.</div></div></div>
 </div><!-- #tab-visualize -->
 
 
@@ -213,83 +151,15 @@
 <div id="tab-about" class="tab-content">
   <div class="about-layout">
 
-    <div class="about-hero">
-      <h1>어떻게 "한적함"을 예측하나요?</h1>
-      <p>대전 도시철도 1호선에는 열차 내 센서 실측 데이터가 없습니다.<br>
-         그래서 물리 보존 법칙과 머신러닝으로 직접 만들었습니다.</p>
-    </div>
-
+    <div class="about-hero"><h1>열차 안의 한산함을 어떻게 예측하나요?</h1><p>역별 승하차 집계와 열차 시간표로 추정한 재차인원을 바탕으로 이동 구간을 비교합니다. 장소 자체의 혼잡도와 영업시간은 알 수 없습니다.</p></div>
     <div class="pipeline">
-
-      <div class="pipeline-card">
-        <div class="p-icon">⚙️</div>
-        <div class="p-step">1단계</div>
-        <h3>물리 제약 수치 최적화</h3>
-        <p>개찰구의 역별 승하차 카운트를 바탕으로, <strong>출발역 잔류 0 · 종점 잔류 0 · 재차인원 ≥ 0</strong>의 물리 보존 법칙을 손실함수로 삼아 PyTorch Adam Optimizer로 열차별 탑승 인원을 역산 복원합니다.</p>
-        <div class="formula-box">
-          𝓛 = 𝓛<sub>종점오차</sub> + 1.0 × 𝓛<sub>음수방지</sub> + 2.0 × 𝓛<sub>지리사전</sub>
-        </div>
-        <div class="p-status done">✅ 완료</div>
-      </div>
-
+      <div class="pipeline-card"><div class="p-step">1단계</div><h3>재차인원 라벨 추정</h3><p>승하차 총계와 열차 시간표를 결합하고 출발 전·종점 도착 후 인원과 음수 방지 등의 제약을 적용해 열차별 재차인원을 추정합니다.</p></div>
       <div class="pipeline-arrow">→</div>
-
-      <div class="pipeline-card">
-        <div class="p-icon">🌳</div>
-        <div class="p-step">2단계</div>
-        <h3>GBDT 머신러닝 예측 모델</h3>
-        <p>복원된 정답 데이터로 <strong>HistGradientBoostingRegressor</strong>(의사결정 나무 앙상블)를 학습합니다.<br>
-           입력: 역, 시간, 방향, 주말 여부, 기온/강수/적설.</p>
-        <div class="metrics-row">
-          <span class="metric">MAE 25.6명</span>
-          <span class="metric">R² 0.84</span>
-          <span class="metric">추론 0.05초/일</span>
-        </div>
-        <div class="p-status done">✅ 완료</div>
-      </div>
-
+      <div class="pipeline-card"><div class="p-step">2단계</div><h3>조건별 재차인원 예측</h3><p>HistGradientBoosting 모델이 역·시간·방향·평일/휴일·날씨·시간표 버전을 입력받아 예상 재차인원을 출력합니다. 예측 정확도는 학습 자료와 평가 범위에 따라 달라집니다.</p></div>
       <div class="pipeline-arrow">→</div>
-
-      <div class="pipeline-card">
-        <div class="p-icon">🌐</div>
-        <div class="p-step">3단계</div>
-        <h3>브라우저 실시간 추론</h3>
-        <p>Python 모델을 <strong>ONNX Runtime Web</strong> 포맷으로 변환해 별도 서버 없이 사용자 브라우저에서 직접 추론합니다. 모델 ~1MB, 추론 ~1ms, 서버 비용 0원.</p>
-        <div class="p-status todo">🔧 개발 예정</div>
-      </div>
-
-    </div><!-- .pipeline -->
-
-    <div class="about-data-flow">
-      <h3>전체 데이터 흐름</h3>
-      <div class="flow-steps">
-        <div class="flow-step">
-          <span class="flow-num">①</span>
-          <div>지도 클릭<br><small>출발 좌표 획득</small></div>
-        </div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-step">
-          <span class="flow-num">②</span>
-          <div>날씨 API<br><small>기온·강수·적설</small></div>
-        </div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-step">
-          <span class="flow-num">③</span>
-          <div>ONNX 추론<br><small>역×시간×방향 재차인원</small></div>
-        </div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-step">
-          <span class="flow-num">④</span>
-          <div>복합 스코어링<br><small>한적함 × 거리 가중치</small></div>
-        </div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-step">
-          <span class="flow-num">⑤</span>
-          <div>목적지 매핑<br><small>공원·도서관·산책로</small></div>
-        </div>
-      </div>
+      <div class="pipeline-card"><div class="p-step">3단계</div><h3>시간·역·장소 추천</h3><p>Python 예측 서비스가 실제 운행 시간표에서 이동 가능한 후보를 계산합니다. 선택 시간 안에서 이동 구간의 한산함과 직선거리의 비중을 합쳐 순위를 매깁니다.</p></div>
     </div>
-
+    <div class="about-data-flow"><h3>자정을 넘는 운행</h3><p>방문 날짜의 24시는 다음 날 00시입니다. 막차의 재차인원은 전날 운행일과 연결하고, 날씨는 실제 시각을 사용합니다. 출발지와 목적지에 같은 역이 연결되면 열차를 타지 않는 후보로 구분합니다.</p></div>
     <div class="about-link-box">
       <a href="../docs/AI/METHODOLOGY.md" class="about-link">
         📄 전체 수식·방법론 문서 보기 (METHODOLOGY.md)
@@ -303,6 +173,7 @@
 </div><!-- #tab-about -->
 
 
+<script src="weather-client.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

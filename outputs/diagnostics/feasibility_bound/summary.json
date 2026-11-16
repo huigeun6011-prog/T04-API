@@ -1,0 +1,75 @@
+{
+  "n_cases": 19,
+  "n_with_data": 19,
+  "actual_gt_loose": 0,
+  "actual_gt_loose_incl_own": 0,
+  "actual_gt_tight": 8,
+  "actual_gt_tight_incl_own": 0,
+  "n_straddle_hour": 8,
+  "actual_gt_tight_any_adjacent_hour_max": 3,
+  "conc_factor_dir": {
+    "count": 19.0,
+    "mean": 65.523,
+    "std": 207.243,
+    "min": -86.178,
+    "25%": 4.867,
+    "50%": 7.533,
+    "75%": 10.696,
+    "max": 725.625
+  },
+  "conc_factor_both_dirs": {
+    "count": 19.0,
+    "mean": 138.381,
+    "std": 437.516,
+    "min": -181.932,
+    "25%": 10.153,
+    "50%": 14.382,
+    "75%": 23.77,
+    "max": 1531.875
+  },
+  "conc_factor_board_half": {
+    "count": 19.0,
+    "mean": 1.875,
+    "std": 0.44,
+    "min": 1.198,
+    "25%": 1.637,
+    "50%": 1.805,
+    "75%": 2.217,
+    "max": 2.579
+  },
+  "conc_board_half_le_2": 10,
+  "conc_board_half_gt_3": 0,
+  "conc_dir_gt_3": 17,
+  "conc_dir_gt_2": 17,
+  "conc_dir_le_2": 2,
+  "conc_both_gt_3": 17,
+  "actual_over_loose": {
+    "count": 19.0,
+    "mean": 0.105,
+    "std": 0.017,
+    "min": 0.079,
+    "25%": 0.093,
+    "50%": 0.1,
+    "75%": 0.123,
+    "max": 0.135
+  },
+  "actual_over_tight": {
+    "count": 19.0,
+    "mean": 7.291,
+    "std": 23.024,
+    "min": -9.575,
+    "25%": 0.568,
+    "50%": 0.815,
+    "75%": 1.188,
+    "max": 80.625
+  },
+  "label_over_actual_mean": 0.5306681889675348,
+  "label_over_mean_share_dir_mean": 33.37548066078375,
+  "assumptions": [
+    "tap counts are per station, both directions combined (no direction split)",
+    "each upstream station uses the hour of the train's own stop there; adjacent-hour variants shift all by +-1h",
+    "mean-share = tight net / trains of that direction stopping at the peak station in the peak stop hour",
+    "mean_share_board_half = 0.5*loose boardings / trains(dir) (even direction split, no alighting)",
+    "diagnostic only; no calibration"
+  ]
+}

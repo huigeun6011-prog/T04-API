@@ -1,3 +1,5 @@
+[이전 경로용 문서] 현재 GT 생성은 이 파일을 쓰지 않고 열차별 시간표 JSON에서 방향별 정차 수를 직접 센다. 아래 사양은 방향을 무시하는 이전 방식이며, 예시의 열차 수(462)는 당시 값이다. 현재 시간표는 20250930 460대, 20260330 242대다. 변환기는 `scripts/data_prep/gen_station_hourly.py`다.
+
 subway_time.json → station_hourly.json 변환 매뉴얼
 
 1. 목적

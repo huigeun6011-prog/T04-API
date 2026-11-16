@@ -1,0 +1,8 @@
+{
+  "purpose": "Reproduction recipe source versions after adding non-numerical cache guards and metadata; result numerical rows unchanged",
+  "source_sha256": {
+    "generate_ground_truth.py": "cf1e3911679862aded356f972c5a46399a5eaf0566a71470cfd063a4bb3f8530",
+    "gt_assumptions.py": "54c99a9c2bb9b344462616963156c9a08d11b915df36cbf28b67b3de89cadff7",
+    "experiment_gt_assumptions.py": "fff8df4f29f59d7d983626cf359724391a72095461046aa95e83328f98741cc6"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "purpose": "Queue+capacity boarding experiment; peak cases not read",
+  "cases": {
+    "2025-01-16": "before_weekday",
+    "2025-01-18": "before_saturday",
+    "2026-05-13": "after_weekday_with_past_same_weekday",
+    "2026-05-16": "after_saturday_with_past_same_weekday",
+    "2026-10-21": "ordinary_after_weekday",
+    "2025-08-14": "midnight_gate_schedule_mismatch_possible"
+  },
+  "seeds": [
+    null,
+    11
+  ],
+  "epochs": 1000,
+  "patience": 0,
+  "optimizer": "Adam lr .1, logit noise std .25 for seed 11 (as ablation)",
+  "capacities": {
+    "queue_C1.0x_475": 475.0,
+    "queue_C1.5x_713": 712,
+    "queue_C2.0x_950": 950.0
+  },
+  "seated_capacity_basis": "constant ratio of 재차인원/혼잡도% in the official congestion file (~4.746/%), frozen constant 475",
+  "softmin_eps_persons": 0.1,
+  "arms": [
+    "baseline",
+    "boarding_headway",
+    "queue_C1.0x_475",
+    "queue_C1.5x_713",
+    "queue_C2.0x_950"
+  ],
+  "source_sha256": {
+    "generate_ground_truth.py": "cf1e3911679862aded356f972c5a46399a5eaf0566a71470cfd063a4bb3f8530",
+    "gt_assumptions.py": "54c99a9c2bb9b344462616963156c9a08d11b915df36cbf28b67b3de89cadff7",
+    "gt_queue_model.py": "9818b9dea17f8a4ce7a3282da22352adbad16c9519b6df0e4979ceecf7299b3d",
+    "experiment_queue_model.py": "f703835f76ecea937485133a3b53b9ce22b11149c3f1e6a9c0d8a01607a4792b"
+  }
+}

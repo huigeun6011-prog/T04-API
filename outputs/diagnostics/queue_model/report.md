@@ -1,0 +1,5 @@
+# Queue + capacity boarding experiment (opt-in, experiment only)
+Same 6 days, seeds (none, 11), 1000 Adam iterations as assumption_ablation. Config/hashes: config.json. Results: results.csv, summary_normal5.csv, summary_midnight_day.csv. Post-hoc peak step: peak_posthoc.csv / peak_posthoc_summary.json.
+Capacity: 정원 not in docs; implied ~475 by the congestion definition (재차인원/혼잡도% ~4.746 constant in the congestion file); crush C = 1.0x/1.5x/2.0x = 475/713/950, declared before any output.
+Findings: queue with C>=713 is numerically identical to headway (capacity never binds in GT estimates; max train board ~200). Only C=475 changes anything, and only slightly. Terminal/negative MSE stays at the headway level (~2x baseline); the midnight-day gain at C=475 is slack-dominated. Queue cannot raise any train load above headway, it can only cap/delay. Peak post-hoc: no arm closes the gap.
+Limits: capacity basis derived from the peak file's constant; peak cases evaluated once, no iteration; 2 inits only; equal-time departures = 0 (checked).

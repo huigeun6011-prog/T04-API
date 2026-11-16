@@ -830,3 +830,17 @@ code {
   .pipeline { flex-direction: column; }
   .pipeline-arrow { align-self: center; transform: rotate(90deg); padding: 6px 0; margin: 0; }
 }
+.station-dot{width:12px;height:12px;border-radius:50%;background:#5C6E4A;border:2px solid #fff;box-shadow:0 1px 4px #0006;cursor:pointer;transition:transform .15s}
+.station-dot:hover{transform:scale(1.3)}
+.departure-dot{width:18px;height:18px;border-radius:50%;background:#A07845;border:3px solid #fff;box-shadow:0 2px 8px #0006;cursor:pointer}
+.poi-map-dot{width:10px;height:10px;padding:0;border-radius:50%;border:1.5px solid #fff;background:#bc784c;box-shadow:0 1px 3px #0005;cursor:pointer;transition:transform .15s}
+.poi-map-dot:hover{transform:scale(1.4);background:#A07845}
+.result-card.selected{border:2px solid var(--primary)!important;background:#FAF7F0!important;box-shadow:0 6px 18px rgba(92,110,74,.25)!important;transform:translateY(-3px)}
+.poi-info-card{padding:10px 13px;min-width:210px;max-width:270px;background:#fff;border:1.5px solid var(--primary);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.18);color:#333;font-size:12px;line-height:1.5}
+.poi-info-title{font-weight:700;font-size:13px;color:var(--primary-dk);margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+.poi-info-desc{color:#666;font-size:11.5px;margin-bottom:5px;word-break:keep-all}
+.poi-info-route{margin-top:5px;padding-top:5px;border-top:1px dashed var(--border);font-size:11px;color:var(--primary);font-weight:600}
+.route-station-node{width:8px;height:8px;border-radius:50%;background:#fff;border:2.5px solid #007448;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.route-station-badge{padding:3px 7px;background:#007448;color:#fff;font-size:10.5px;font-weight:700;border-radius:12px;border:1.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);white-space:nowrap}
+.route-station-badge.alight{background:#A07845}
+.hour-range{display:flex;gap:8px;align-items:center}.hour-range label{flex:1;font-size:12px}.hour-range select{margin-top:6px;padding:9px 6px;width:100%}.control-help{font-size:12px;line-height:1.65;color:var(--text-3);margin-top:9px}.weight-label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:10px}#quietWeight{width:100%;accent-color:var(--primary)}.weather-hourly{max-height:190px;overflow:auto;margin-top:8px}.weather-hourly table,.analysis-scroll table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}.weather-hourly th,.weather-hourly td,.analysis-scroll th,.analysis-scroll td{padding:7px 5px;border-bottom:1px solid var(--border);text-align:left}.weather-hourly caption{text-align:left;font-size:11px;color:var(--text-3);padding:5px}.weather-hourly thead{position:sticky;top:0;background:var(--bg-card)}.recommendation-time{font-size:14px;font-weight:700;color:var(--primary);margin:12px 0}.analysis-scroll{overflow:auto;max-height:65vh}.search-btn:disabled{opacity:.65;cursor:wait}.results-cards>.control-help{grid-column:1/-1}.weather-box{display:block}

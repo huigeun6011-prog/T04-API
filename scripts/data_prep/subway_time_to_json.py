@@ -2,11 +2,18 @@ import pandas as pd
 import json
 from datetime import timedelta
 from collections import Counter
+import argparse
+from pathlib import Path
 
 # ==========================================
 # 1. 파일 로드
 # ==========================================
-FILE_PATH = "../../data/raw/subway_time/대전교통공사_열차운행 상황 및 시각표_20250930.csv"
+ROOT = Path(__file__).resolve().parents[2]
+parser = argparse.ArgumentParser(description="역별 시간표 CSV를 열차별 정차 JSON으로 변환")
+parser.add_argument("--input", type=Path, default=ROOT / "data/raw/subway_time/대전교통공사_열차운행 상황 및 시각표_20250930.csv")
+parser.add_argument("--output", type=Path, default=ROOT / "data/processed/subway_time/subway_time.json")
+args = parser.parse_args()
+FILE_PATH = args.input
 
 for enc in ['cp949', 'euc-kr', 'utf-8-sig']:
     try:
@@ -201,7 +208,8 @@ print(f"\n종착역 보간 적용: {interpolated_count}대")
 # ==========================================
 # 8. 저장
 # ==========================================
-with open("../../data/processed/subway_time/subway_time.json", "w", encoding="utf-8") as f:
+args.output.parent.mkdir(parents=True, exist_ok=True)
+with open(args.output, "w", encoding="utf-8") as f:
     json.dump(output, f, ensure_ascii=False, indent=2)
 print("subway_time.json 저장 완료")
 

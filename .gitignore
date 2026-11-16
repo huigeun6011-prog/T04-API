@@ -1,2 +1,18 @@
-.env
+﻿.env
 .kilo
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# 대용량 생성물 (GitHub 100MB 제한). 재생성 방법은 docs/HANDOFF.md 참고
+outputs/ground_truth_train_loads.csv
+outputs/diagnostics/candidate_training/*.csv
+outputs/backup_before_rebuild_*/
+
+# 이전 PyTorch 모델 (현재 공식 추론 파일은 load_predictor.joblib)
+outputs/best_model.pt
+
+# 로컬 전용 키 설정
+web/config.local.js

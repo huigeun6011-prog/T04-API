@@ -112,7 +112,7 @@ def load_subway_schedule(date_str, day_type):
     return [t for t in trains if t["day_type"] == day_type]
 
 def load_weather_hourly(date_str):
-    """날씨 파일 로드 (없을 경우 기본 평년값 반환)"""
+    """날씨 파일 로드 (없거나 읽기 실패 시 None. 필요한 시각이 없으면 호출부에서 오류를 낸다)"""
     wpath = WEATHER_DIR / f"{date_str}.json"
     if not wpath.exists():
         return None
@@ -137,6 +137,12 @@ def extract_single_day(date_str, model, output_dir, save_csv=False):
 
     weather = load_weather_hourly(date_str)
     weather_times = weather.get("time", []) if weather else []
+    next_date = (datetime.fromisoformat(date_str) + timedelta(days=1)).date().isoformat()
+    next_weather = load_weather_hourly(next_date)
+    next_weather = load_weather_hourly(next_date)
+    if next_weather:
+        weather = {key: list(weather.get(key, [])) + list(next_weather.get(key, [])) for key in ('time', 'temperature_2m', 'precipitation', 'snowfall')} if weather else next_weather
+        weather_times = weather.get('time', [])
 
     # 전체 열차 정차역에 대해 일괄 배치 예측(Batch Predict) 준비
     batch_rows = []
@@ -165,13 +171,15 @@ def extract_single_day(date_str, model, output_dir, save_csv=False):
 
             # 날씨 매칭
             w_h = 0 if norm_h == 24 else norm_h
-            w_key = f"{date_str}T{w_h:02d}:00"
-            temp, precip, snow = 15.0, 0.0, 0.0
-            if weather_times and w_key in weather_times:
-                w_idx = weather_times.index(w_key)
-                temp = float(weather.get("temperature_2m", [15.0])[w_idx])
-                precip = float(weather.get("precipitation", [0.0])[w_idx])
-                snow = float(weather.get("snowfall", [0.0])[w_idx])
+            w_day = next_date if norm_h == 24 else date_str
+            w_key = f"{w_day}T{w_h:02d}:00"
+            selected_weather = next_weather if norm_h == 24 else weather
+            if not selected_weather or w_key not in selected_weather.get('time', []):
+                raise ValueError(f'{w_key} 날씨 자료가 없어 추정값으로 대체하지 않습니다.')
+            w_idx = selected_weather['time'].index(w_key)
+            temp = float(selected_weather['temperature_2m'][w_idx])
+            precip = float(selected_weather['precipitation'][w_idx])
+            snow = float(selected_weather['snowfall'][w_idx])
 
             batch_rows.append({
                 "station_idx": station_id,

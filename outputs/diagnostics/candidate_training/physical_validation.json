@@ -1,0 +1,72 @@
+{
+  "rows": 3733691,
+  "trains": 171142,
+  "service_days": 731,
+  "raw_conservation_tolerance": 1.6e-06,
+  "raw_conservation_error_max": 1.000000097450826e-06,
+  "raw_conservation_violations": 0,
+  "projection_identity_violations": 0,
+  "nonfinite_counts": {
+    "board": 0,
+    "alight": 0,
+    "raw_load": 0,
+    "load_correction": 0,
+    "load": 0
+  },
+  "negative_board": 0,
+  "negative_alight": 0,
+  "negative_load": 0,
+  "raw_negative_stops": 105609,
+  "raw_load_min": -775.310614,
+  "load_correction_count": 105704,
+  "load_correction_total": 1522835.3193739997,
+  "first_not_origin": 0,
+  "last_not_terminal": 0,
+  "first_preboarding_nonzero": 0,
+  "origin_alight_nonzero": 0,
+  "terminal_board_nonzero": 0,
+  "nonincreasing_time_steps": 0,
+  "terminal_abs_quantiles": {
+    "0.5": 10.3921675,
+    "0.9": 33.866229399999995,
+    "0.95": 44.877032,
+    "0.99": 74.7357677,
+    "1": 3127.189386
+  },
+  "terminal_positive_load_count": 88088,
+  "label_policy": "load=max(raw cumulative board-alight,0); no terminal overwrite; correction retained; residual constraints soft",
+  "board_budget": {
+    "cells": 321640,
+    "observed_total": 73500080.0,
+    "allocated_total": 73497363.997673,
+    "explicit_unallocated_total": 2716.0,
+    "unallocated_cells": 538,
+    "unexplained_error_abs_max": 0.00030500000048050424,
+    "unexplained_error_abs_quantiles": {
+      "0.5": 3.999999989900971e-06,
+      "0.9": 1.500000001897206e-05,
+      "0.95": 2.1000000003823516e-05,
+      "0.99": 4.0000000012696546e-05,
+      "1": 0.00030500000048050424
+    },
+    "unexplained_over_0_001_count": 0,
+    "tolerance": 0.001
+  },
+  "alight_budget": {
+    "cells": 321640,
+    "observed_total": 73217641.0,
+    "allocated_total": 73202457.009877,
+    "explicit_unallocated_total": 15184.0,
+    "unallocated_cells": 1375,
+    "unexplained_error_abs_max": 0.00018100000011145312,
+    "unexplained_error_abs_quantiles": {
+      "0.5": 3.999999989900971e-06,
+      "0.9": 1.4000000021496817e-05,
+      "0.95": 2.0000000006348273e-05,
+      "0.99": 3.90000000152213e-05,
+      "1": 0.00018100000011145312
+    },
+    "unexplained_over_0_001_count": 0,
+    "tolerance": 0.001
+  }
+}

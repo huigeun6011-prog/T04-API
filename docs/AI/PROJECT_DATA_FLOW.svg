@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="2610" viewBox="0 0 1920 2610" role="img" aria-labelledby="title desc">
+  <title id="title">프로젝트 데이터와 웹 페이지 연결 구조</title>
+  <desc id="desc">장소 데이터와 날씨가 현재 웹 페이지에서 쓰이는 방식, 지하철 데이터를 사용해 혼잡도 모델을 학습하는 흐름, 모델을 웹 추천에 연결하기 위해 남은 일을 구분한 구조도</desc>
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2878b8"/></marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#25845a"/></marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7952a3"/></marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#d07822"/></marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b42318"/></marker>
+    <style>
+      text { font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; fill: #172033; }
+      .title { font-size: 38px; font-weight: 800; }
+      .subtitle { font-size: 19px; fill: #566176; }
+      .lane-title { font-size: 24px; font-weight: 800; }
+      .node-title { font-size: 20px; font-weight: 750; }
+      .body { font-size: 16px; fill: #334155; }
+      .small { font-size: 14px; fill: #475569; }
+      .tiny { font-size: 12px; fill: #475569; }
+      .pill { font-size: 13px; font-weight: 750; }
+      .card { fill: #fff; stroke-width: 2; rx: 16; }
+      .file { font-family: Consolas, "Cascadia Code", monospace; font-size: 13px; fill: #1e3a5f; }
+      .arrow-label { font-size: 12px; font-weight: 700; fill: #475569; }
+    </style>
+  </defs>
+
+  <rect width="1920" height="2210" fill="#f5f7fb"/>
+  <text x="60" y="70" class="title">이 프로젝트에서 데이터가 흘러가는 길</text>
+  <text x="60" y="108" class="subtitle">현재 페이지가 실제로 쓰는 데이터, 모델을 만드는 데이터, 아직 웹에 연결되지 않은 모델을 한 장에 구분했습니다.</text>
+
+  <g transform="translate(1320 44)">
+    <rect width="155" height="34" rx="17" fill="#e5f3eb"/><circle cx="18" cy="17" r="6" fill="#25845a"/><text x="32" y="22" class="pill" fill="#17633f">현재 페이지 사용</text>
+    <rect x="168" width="155" height="34" rx="17" fill="#f0eafa"/><circle cx="186" cy="17" r="6" fill="#7952a3"/><text x="200" y="22" class="pill" fill="#62408b">학습 산출물</text>
+    <rect x="336" width="190" height="34" rx="17" fill="#fff0df"/><circle cx="354" cy="17" r="6" fill="#d07822"/><text x="368" y="22" class="pill" fill="#9a5315">아직 연결 안 됨</text>
+  </g>
+  <g transform="translate(900 118)">
+    <path d="M0 0 H45" stroke="#7952a3" stroke-width="3" marker-end="url(#arrow-purple)"/><text x="55" y="5" class="tiny">코드/파일로 확인</text>
+    <path d="M190 0 H235" stroke="#d07822" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arrow-orange)"/><text x="245" y="5" class="tiny">수동 확인 또는 미구현 제안</text>
+    <path d="M490 0 H535" stroke="#b42318" stroke-width="3" stroke-dasharray="3 6" marker-end="url(#arrow-red)"/><text x="545" y="5" class="tiny">저장소에서 절차 미확인</text>
+  </g>
+
+  <!-- Lane 1: Live page data -->
+  <rect x="42" y="142" width="1836" height="410" rx="24" fill="#edf7f1" stroke="#cbe7d5" stroke-width="2"/>
+  <text x="70" y="183" class="lane-title" fill="#17633f">1. 지금 사용자가 페이지에서 보는 데이터</text>
+  <text x="70" y="210" class="small">이 흐름은 연결되어 있습니다. 장소 목록·지도·날씨를 표시하지만, 날씨나 혼잡도 모델로 장소 순위를 매기지는 않습니다.</text>
+
+  <rect x="72" y="250" width="245" height="112" class="card" stroke="#6eb58b"/>
+  <text x="94" y="282" class="node-title">공공 장소 자료</text>
+  <text x="94" y="310" class="body">data.go.kr · 대전시 자료</text>
+  <text x="94" y="338" class="small">도서관 · 서점 · 공원 등</text>
+
+  <rect x="72" y="390" width="245" height="112" class="card" stroke="#6eb58b"/>
+  <text x="94" y="422" class="node-title">주소 좌표 변환</text>
+  <text x="94" y="450" class="body">VWorld 주소 API</text>
+  <text x="94" y="478" class="small">주소 → 위도·경도 (x·y)</text>
+
+  <rect x="365" y="315" width="275" height="137" class="card" stroke="#6eb58b"/>
+  <text x="388" y="348" class="node-title">수집·정리 스크립트</text>
+  <text x="388" y="378" class="file">scripts/collect_poi_once.py</text>
+  <text x="388" y="404" class="small">키는 로컬 .env에서 읽음</text>
+  <text x="388" y="429" class="small">원본/정리 CSV 저장</text>
+
+  <rect x="690" y="315" width="275" height="137" class="card" stroke="#6eb58b"/>
+  <text x="713" y="348" class="node-title">웹용 데이터 만들기</text>
+  <text x="713" y="378" class="file">scripts/build_web_poi.py</text>
+  <text x="713" y="404" class="small">CSV를 브라우저용 JSON으로 변환</text>
+  <text x="713" y="429" class="file">web/data/pois.json</text>
+
+  <rect x="1020" y="315" width="310" height="137" class="card" stroke="#6eb58b"/>
+  <text x="1043" y="348" class="node-title">현재 웹 페이지</text>
+  <text x="1043" y="378" class="file">web/index.html + app.js</text>
+  <text x="1043" y="404" class="small">JSON 장소 목록·마커 표시</text>
+  <text x="1043" y="429" class="small">현재는 출발점 직선거리순 정렬</text>
+
+  <rect x="1390" y="250" width="420" height="112" class="card" stroke="#6eb58b"/>
+  <text x="1414" y="282" class="node-title">Kakao Maps SDK</text>
+  <text x="1414" y="310" class="body">지도 화면을 그리는 서비스</text>
+  <text x="1414" y="338" class="small">페이지에 표시되는 지도·마커 기반</text>
+
+  <rect x="1390" y="390" width="420" height="112" class="card" stroke="#6eb58b"/>
+  <text x="1414" y="422" class="node-title">Open-Meteo 날씨 API</text>
+  <text x="1414" y="450" class="body">날짜 선택 때 시간별 예보/과거 날씨</text>
+  <text x="1414" y="478" class="small">키 없음 · 캐시/호출 간격 제한 있음</text>
+
+  <rect x="1020" y="468" width="310" height="58" rx="12" fill="#fff" stroke="#6eb58b" stroke-width="2"/>
+  <text x="1043" y="493" class="file">web/weather-client.js</text>
+  <text x="1043" y="515" class="tiny">날씨를 가져와 페이지에 전달</text>
+
+  <path d="M317 305 H350 V350 H365" fill="none" stroke="#25845a" stroke-width="3" marker-end="url(#arrow-green)"/>
+  <text x="319" y="292" class="arrow-label">자료 다운로드</text>
+  <path d="M317 446 H340 V418 H365" fill="none" stroke="#25845a" stroke-width="3" marker-end="url(#arrow-green)"/>
+  <text x="319" y="469" class="arrow-label">주소 좌표 조회</text>
+  <path d="M640 383 H690" fill="none" stroke="#25845a" stroke-width="3" marker-end="url(#arrow-green)"/>
+  <path d="M965 383 H1020" fill="none" stroke="#25845a" stroke-width="3" marker-end="url(#arrow-green)"/>
+  <path d="M1390 307 H1360 V330 H1330" fill="none" stroke="#25845a" stroke-width="3" marker-end="url(#arrow-green)"/>
+  <path d="M1600 502 V538 H1175 V526" fill="none" stroke="#25845a" stroke-width="3" marker-end="url(#arrow-green)"/>
+  <path d="M1175 468 V452" fill="none" stroke="#25845a" stroke-width="3" marker-end="url(#arrow-green)"/>
+
+<!-- Lane 2: Training pipeline -->
+<rect x="42" y="580" width="1836" height="1410" rx="24" fill="#f3effa" stroke="#ddcfee" stroke-width="2"/>
+<text x="70" y="622" class="lane-title">2. 혼잡도 모델을 만드는 학습 흐름</text>
+<text x="70" y="649" class="small">운행일별 승하차 + 버전별 시간표로 재차인원을 추정하고, 과거 날씨를 붙여 학습 CSV를 만듭니다.</text>
+<rect x="72" y="710" width="240" height="150" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="92" y="742" class="node-title">원본 승하차 XML</text><text x="92" y="772" class="file">data/raw/subway/*.xml</text><text x="92" y="796" class="small">collect_data.py로 API 수집</text>
+<rect x="382" y="710" width="260" height="150" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="402" y="742" class="node-title">시간 자료 정제</text><text x="402" y="772" class="file">process_subway.py</text><text x="402" y="796" class="small">01~04시 제외</text><text x="402" y="820" class="small">00시와 05~23시 보존</text>
+<rect x="712" y="710" width="250" height="150" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="732" y="742" class="node-title">정제된 승하차 JSON</text><text x="732" y="772" class="file">data/processed/subway/</text><text x="732" y="796" class="small">달력 날짜별 역·시간 집계</text>
+<rect x="1032" y="1450" width="300" height="150" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="1052" y="1482" class="node-title">재차인원 추정·입력 결합</text><text x="1052" y="1512" class="file">generate_ground_truth.py</text><text x="1052" y="1536" class="small">당일 05~23시 + 익일 00시</text><text x="1052" y="1560" class="small">물리 제약으로 load 라벨 생성</text>
+<rect x="1402" y="1450" width="405" height="150" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="1422" y="1482" class="node-title">학습 CSV → 모델</text><text x="1422" y="1512" class="file">ground_truth_train_loads.csv</text><text x="1422" y="1536" class="small">train_predict_model.py</text><text x="1422" y="1560" class="small">→ outputs/load_predictor.joblib</text>
+<path d="M312 785 H382" fill="none" stroke="#7952a3" stroke-width="3"  marker-end="url(#arrow-purple)"/><path d="M642 785 H712" fill="none" stroke="#7952a3" stroke-width="3"  marker-end="url(#arrow-purple)"/><path d="M837 860 V1390 H1100 V1438" fill="none" stroke="#7952a3" stroke-width="3" marker-end="url(#arrow-purple)"/><path d="M1332 1525 H1402" fill="none" stroke="#7952a3" stroke-width="3" marker-end="url(#arrow-purple)"/>
+<text x="72" y="914" class="node-title">시간표 입력은 아래 두 줄로 나눴습니다. 같은 변환기를 사용하고, 결과 이름에 날짜를 붙여 구분합니다.</text>
+<rect x="72" y="955" width="340" height="144" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="92" y="987" class="node-title">(b) 기존 시간표 CSV</text><text x="92" y="1017" class="file">...시각표_20250930.csv</text><text x="92" y="1041" class="small">data.go.kr 자료에 누락 시각 추가</text><text x="92" y="1065" class="small">근거: docs/ASSUMPTIONS.md</text>
+<rect x="532" y="955" width="340" height="144" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="552" y="987" class="node-title">열차 경로 복원</text><text x="552" y="1017" class="file">subway_time_to_json.py</text><text x="552" y="1041" class="small">입력을 (b) CSV로 지정</text><text x="552" y="1065" class="small">→ subway_time.json</text>
+<rect x="992" y="955" width="340" height="144" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="1012" y="987" class="node-title">날짜로 이름 구분</text><text x="1012" y="1017" class="file">subway_time_20250930.json</text><text x="1012" y="1041" class="small">변환 결과를 사용자가 이름 변경</text><text x="1012" y="1065" class="small">2026-03-30 전 + 개편 후 휴일</text>
+<rect x="1452" y="955" width="355" height="144" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="1472" y="987" class="node-title">운행일별 시간표 선택</text><text x="1472" y="1017" class="file">generate_ground_truth.py</text><text x="1472" y="1041" class="small">개편일·평일/휴일로 선택</text><text x="1472" y="1065" class="small">열차별 정차역·방향·시각 제공</text>
+<path d="M412 1027 H532" fill="none" stroke="#7952a3" stroke-width="3"  marker-end="url(#arrow-purple)"/><path d="M872 1027 H992" fill="none" stroke="#7952a3" stroke-width="3" marker-end="url(#arrow-purple)"/><path d="M1332 1027 H1452" fill="none" stroke="#7952a3" stroke-width="3"  marker-end="url(#arrow-purple)"/>
+<text x="878" y="947" class="tiny">사용자 설명: 날짜를 붙여 저장</text>
+<rect x="72" y="1160" width="340" height="168" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="92" y="1192" class="node-title">(a) 공식 평일 운행계획</text><text x="92" y="1222" class="file">260330_대전1호선_...xlsx</text><text x="92" y="1246" class="small">공식 홈페이지에서 추출</text><text x="92" y="1270" class="small">역·방향별 열차 운행 시각</text><text x="92" y="1294" class="small">time_xlsx_to_csv.py로 변환</text>
+<rect x="532" y="1160" width="340" height="168" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="552" y="1192" class="node-title">(c) 개편 시간표 CSV</text><text x="552" y="1222" class="file">...시각표_20260330.csv</text><text x="552" y="1246" class="small">(a)를 (b)와 같은 형식으로 변환</text><text x="552" y="1270" class="small">기존 처리 코드 재사용 목적</text>
+<rect x="992" y="1160" width="340" height="168" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="1012" y="1192" class="node-title">같은 변환기 재사용</text><text x="1012" y="1222" class="file">subway_time_to_json.py</text><text x="1012" y="1246" class="small">입력을 (c)로 바꾸어 실행</text><text x="1012" y="1270" class="small">→ subway_time.json</text><text x="1012" y="1294" class="small">날짜를 붙여 20260330 JSON 저장</text>
+<rect x="1452" y="1160" width="355" height="168" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="1472" y="1192" class="node-title">개편 후 시간표 JSON</text><text x="1472" y="1222" class="file">subway_time_20260330.json</text><text x="1472" y="1246" class="small">2026-03-30 이후 평일에 선택</text><text x="1472" y="1270" class="small">미래 예측도 개편 후 운행계획</text><text x="1472" y="1294" class="small">휴일은 기존 휴일표 유지</text>
+<path d="M412 1244 H532" fill="none" stroke="#7952a3" stroke-width="3"  marker-end="url(#arrow-purple)"/><path d="M872 1244 H992" fill="none" stroke="#7952a3" stroke-width="3" marker-end="url(#arrow-purple)"/><path d="M1332 1244 H1452" fill="none" stroke="#7952a3" stroke-width="3" marker-end="url(#arrow-purple)"/>
+
+<path d="M1005 1099 H950 V1388 H1100 V1438" fill="none" stroke="#7952a3" stroke-width="3" marker-end="url(#arrow-purple)"/><path d="M1629 1328 V1378 H1270 V1438" fill="none" stroke="#7952a3" stroke-width="3" marker-end="url(#arrow-purple)"/>
+<text x="1285" y="677" class="tiny">선택한 시간표 → 재차인원 생성</text>
+<g transform="translate(0 300)">
+<rect x="72" y="1390" width="430" height="130" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="92" y="1422" class="node-title">과거 날씨 자료</text><text x="92" y="1452" class="file">collect_weather.py → raw/weather/</text><text x="92" y="1476" class="small">Open-Meteo의 시간별 기온·강수·적설</text>
+<rect x="622" y="1390" width="400" height="130" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="642" y="1422" class="node-title">운행일과 실제 날씨 시각</text><text x="642" y="1452" class="file">서비스일 24시 = 익일 00시</text><text x="642" y="1476" class="small">예: 24일 00시 요청 → 23일 hour=24</text><text x="642" y="1500" class="small">날씨는 실제 시각인 24일 00시</text>
+<rect x="1142" y="1390" width="665" height="130" rx="16" fill="#fff" stroke="#a48ac2" stroke-width="2"/><text x="1162" y="1422" class="node-title">(d) 실제 피크 재차인원과 모델 산출 비교</text><text x="1162" y="1452" class="file">...열차 혼잡도 분석_20261031.csv</text><text x="1162" y="1476" class="small">일부 피크 사례를 수동 비교하는 검증 자료 · 학습 입력 아님</text><text x="1162" y="1500" class="small">predict_load.py / extract_train_loads.py의 산출과 비교</text>
+<path d="M502 1455 H622" fill="none" stroke="#7952a3" stroke-width="3"  marker-end="url(#arrow-purple)"/>
+<path d="M1022 1455 H1060 V1618 H1182 V1600" fill="none" stroke="#7952a3" stroke-width="3" marker-end="url(#arrow-purple)"/>
+<path d="M1605 1390 V1360 H1870 V825 H1807" fill="none" stroke="#d07822" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arrow-orange)"/>
+<rect x="72" y="1560" width="1735" height="95" rx="14" fill="#fff0df" stroke="#d07822" stroke-width="2"/>
+<text x="92" y="1590" class="node-title">수정 필요: 현재 24시 학습 표본은 운행일 당일 00시 날씨를 붙임 → 익일 00시로 고쳐야 함</text>
+<text x="92" y="1618" class="small">확정한 학습 범위: 2024-11-01 05시 ~ 2026-11-02 00시 시간대 (운행일 2024-11-01 ~ 2026-11-01)</text>
+<text x="92" y="1641" class="small">실선 = 코드 확인 / 주황 점선 = 사용자 설명으로 확인한 수동 절차 또는 수동 비교. 원본·모델은 이번 SVG 수정에서 변경하지 않았습니다.</text>
+</g>
+
+<g transform="translate(0 1070)">
+  <!-- Lane 3: Unconnected inference -->
+  <rect x="42" y="1052" width="1836" height="410" rx="24" fill="#fff7ed" stroke="#f1d2ae" stroke-width="2"/>
+  <text x="70" y="1094" class="lane-title" fill="#9a5315">3. 아직 이어지지 않은 부분: 모델 예측을 추천 결과로 만들기</text>
+  <text x="70" y="1121" class="small">모델 파일은 있지만, 브라우저는 아직 모델을 호출하지 않습니다. 아래는 연결되어야 할 흐름입니다.</text>
+
+  <rect x="75" y="1170" width="330" height="145" class="card" stroke="#d99a58" stroke-dasharray="8 6"/>
+  <text x="98" y="1205" class="node-title">사용자가 고르는 조건</text>
+  <text x="98" y="1235" class="body">출발 위치 · 날짜 · 05~24시 범위</text>
+  <text x="98" y="1263" class="body">거리/한산함 비중 (10% 단위)</text>
+  <text x="98" y="1291" class="small">방향과 시간은 열차 경로에 필요</text>
+
+  <rect x="480" y="1170" width="365" height="145" class="card" stroke="#d99a58" stroke-dasharray="8 6"/>
+  <text x="503" y="1205" class="node-title">필요한 예측 API (미구현)</text>
+  <text x="503" y="1235" class="body">페이지 요청을 받아 입력을 만들고</text>
+  <text x="503" y="1263" class="body">모델을 불러 역별 예상 재차 인원 반환</text>
+  <text x="503" y="1291" class="small">예: Python/FastAPI 로컬 서버</text>
+
+  <rect x="920" y="1170" width="330" height="145" class="card" stroke="#d99a58" stroke-dasharray="8 6"/>
+  <text x="943" y="1205" class="node-title">현재 CLI 예측 도구</text>
+  <text x="943" y="1235" class="file">predict_load.py</text>
+  <text x="943" y="1263" class="small">모델을 읽어 한 역·시각·방향 예측</text>
+  <text x="943" y="1291" class="small">웹 페이지에서 호출되지는 않음</text>
+
+  <rect x="1325" y="1170" width="480" height="145" class="card" stroke="#d99a58" stroke-dasharray="8 6"/>
+  <text x="1348" y="1205" class="node-title">최종 추천 결과 (미구현)</text>
+  <text x="1348" y="1235" class="body">“몇 시에 · 어느 역을 이용해 · 어디로”</text>
+  <text x="1348" y="1263" class="body">경로 예상 혼잡 + 장소까지 거리로 순위</text>
+  <text x="1348" y="1291" class="small">혼잡도는 장소 자체가 아닌 이동 구간 기준</text>
+
+  <path d="M405 1242 H480" fill="none" stroke="#d07822" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arrow-orange)"/>
+  <path d="M845 1242 H920" fill="none" stroke="#d07822" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arrow-orange)"/>
+  <path d="M1250 1242 H1325" fill="none" stroke="#d07822" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arrow-orange)"/>
+
+  <rect x="75" y="1360" width="1730" height="64" rx="14" fill="#fff" stroke="#efc693" stroke-width="1.5"/>
+  <text x="98" y="1388" class="node-title" fill="#9a5315">현재 상태 한 줄 요약</text>
+  <text x="98" y="1412" class="small">장소·날씨는 페이지에 표시됨  |  모델은 CSV로 학습되어 파일로 저장됨  |  모델 → 웹 API → 시간·역·장소 추천 연결은 남아 있음</text>
+
+  <text x="60" y="1505" class="tiny">파일 위치는 프로젝트 기준 상대 경로입니다. 이 그림은 현재 코드/산출물의 연결 상태를 설명하며, 점선은 아직 구현되지 않은 제안 흐름입니다.</text>
+</g>
+</svg>
