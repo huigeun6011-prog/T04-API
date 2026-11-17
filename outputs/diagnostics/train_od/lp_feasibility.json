@@ -1,0 +1,714 @@
+{
+ "feasibility": [
+  {
+   "date": "2026-01-16",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-01-16",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-01-16",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-01-06",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-01-06",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-01-06",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-02-06",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-02-06",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-02-06",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-02-23",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-02-23",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-02-23",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-03-06",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-03-06",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-03-06",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-03-09",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-03-09",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-03-09",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-04-24",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-04-24",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-04-24",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-04-01",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-04-01",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-04-01",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-05-08",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-05-08",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-05-08",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-05-06",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-05-06",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-05-06",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-06-04",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-06-04",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-06-04",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-06-15",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-06-15",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-06-15",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-07-24",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-07-24",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-07-24",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-07-13",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-07-13",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-07-13",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-08-21",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-08-21",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-08-21",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-09-23",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-09-23",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-09-23",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-09-15",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-09-15",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-09-15",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-10-16",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-10-16",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-10-16",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-10-27",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-10-27",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-10-27",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-05-13",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-05-13",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-05-13",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2025-08-14",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2025-08-14",
+   "eps": 0.02,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2025-08-14",
+   "eps": 0.05,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-10-21",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-10-21",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-10-21",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2025-01-18",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2025-01-18",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2025-01-18",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-05-16",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2026-05-16",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2026-05-16",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2025-01-16",
+   "eps": 0.0,
+   "feasible": false,
+   "status": 2
+  },
+  {
+   "date": "2025-01-16",
+   "eps": 0.02,
+   "feasible": true,
+   "status": 0
+  },
+  {
+   "date": "2025-01-16",
+   "eps": 0.05,
+   "feasible": true,
+   "status": 0
+  }
+ ],
+ "min_feasible_eps": [
+  {
+   "date": "2025-01-16",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 105401.0,
+   "eligible_A": 105074.0,
+   "slack_B": 1.0,
+   "slack_A": 14.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2025-01-18",
+   "min_feasible_eps_approx": 0.00390625,
+   "eligible_B": 88971.0,
+   "eligible_A": 88412.0,
+   "slack_B": 6.0,
+   "slack_A": 18.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2025-08-14",
+   "min_feasible_eps_approx": 0.5,
+   "eligible_B": 138779.0,
+   "eligible_A": 135053.0,
+   "slack_B": 98.0,
+   "slack_A": 844.0,
+   "cells_B_nocell": 6,
+   "cells_A_nocell": 4
+  },
+  {
+   "date": "2026-01-06",
+   "min_feasible_eps_approx": 0.0029296875,
+   "eligible_B": 105999.0,
+   "eligible_A": 105505.0,
+   "slack_B": 1.0,
+   "slack_A": 8.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-01-16",
+   "min_feasible_eps_approx": 0.0029296875,
+   "eligible_B": 120376.0,
+   "eligible_A": 119871.0,
+   "slack_B": 4.0,
+   "slack_A": 20.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 1
+  },
+  {
+   "date": "2026-02-06",
+   "min_feasible_eps_approx": 0.0029296875,
+   "eligible_B": 116223.0,
+   "eligible_A": 115744.0,
+   "slack_B": 0.0,
+   "slack_A": 17.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 1
+  },
+  {
+   "date": "2026-02-23",
+   "min_feasible_eps_approx": 0.0029296875,
+   "eligible_B": 113392.0,
+   "eligible_A": 112941.0,
+   "slack_B": 1.0,
+   "slack_A": 7.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-03-06",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 120052.0,
+   "eligible_A": 119626.0,
+   "slack_B": 6.0,
+   "slack_A": 27.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 3
+  },
+  {
+   "date": "2026-03-09",
+   "min_feasible_eps_approx": 0.0029296875,
+   "eligible_B": 111613.0,
+   "eligible_A": 111146.0,
+   "slack_B": 0.0,
+   "slack_A": 10.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-04-01",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 118547.0,
+   "eligible_A": 118160.0,
+   "slack_B": 0.0,
+   "slack_A": 10.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-04-24",
+   "min_feasible_eps_approx": 0.0029296875,
+   "eligible_B": 132679.0,
+   "eligible_A": 132107.0,
+   "slack_B": 0.0,
+   "slack_A": 14.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-05-06",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 119416.0,
+   "eligible_A": 119009.0,
+   "slack_B": 7.0,
+   "slack_A": 13.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 4
+  },
+  {
+   "date": "2026-05-08",
+   "min_feasible_eps_approx": 0.0029296875,
+   "eligible_B": 131673.0,
+   "eligible_A": 131064.0,
+   "slack_B": 7.0,
+   "slack_A": 25.0,
+   "cells_B_nocell": 2,
+   "cells_A_nocell": 3
+  },
+  {
+   "date": "2026-05-13",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 119398.0,
+   "eligible_A": 119040.0,
+   "slack_B": 0.0,
+   "slack_A": 10.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-05-16",
+   "min_feasible_eps_approx": 0.0029296875,
+   "eligible_B": 106997.0,
+   "eligible_A": 106403.0,
+   "slack_B": 0.0,
+   "slack_A": 22.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 3
+  },
+  {
+   "date": "2026-06-04",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 111624.0,
+   "eligible_A": 111333.0,
+   "slack_B": 0.0,
+   "slack_A": 13.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-06-15",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 111953.0,
+   "eligible_A": 111615.0,
+   "slack_B": 7.0,
+   "slack_A": 9.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-07-13",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 109216.0,
+   "eligible_A": 108805.0,
+   "slack_B": 0.0,
+   "slack_A": 12.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-07-24",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 118742.0,
+   "eligible_A": 118379.0,
+   "slack_B": 2.0,
+   "slack_A": 14.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 1
+  },
+  {
+   "date": "2026-08-21",
+   "min_feasible_eps_approx": 0.0029296875,
+   "eligible_B": 116576.0,
+   "eligible_A": 116014.0,
+   "slack_B": 7.0,
+   "slack_A": 33.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-09-15",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 116866.0,
+   "eligible_A": 116476.0,
+   "slack_B": 0.0,
+   "slack_A": 12.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-09-23",
+   "min_feasible_eps_approx": 0.0029296875,
+   "eligible_B": 122536.0,
+   "eligible_A": 122017.0,
+   "slack_B": 5.0,
+   "slack_A": 6.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 1
+  },
+  {
+   "date": "2026-10-16",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 124458.0,
+   "eligible_A": 124110.0,
+   "slack_B": 0.0,
+   "slack_A": 20.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-10-21",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 113724.0,
+   "eligible_A": 113369.0,
+   "slack_B": 0.0,
+   "slack_A": 3.0,
+   "cells_B_nocell": 0,
+   "cells_A_nocell": 2
+  },
+  {
+   "date": "2026-10-27",
+   "min_feasible_eps_approx": 0.001953125,
+   "eligible_B": 115102.0,
+   "eligible_A": 114675.0,
+   "slack_B": 2.0,
+   "slack_A": 7.0,
+   "cells_B_nocell": 1,
+   "cells_A_nocell": 1
+  }
+ ],
+ "seed": 20261117,
+ "eps": [
+  0.0,
+  0.02,
+  0.05
+ ],
+ "n_sample": 200,
+ "seconds": 66.80712059998768
+}

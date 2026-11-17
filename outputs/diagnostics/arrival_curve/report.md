@@ -1,0 +1,4 @@
+# Arrival-curve experiment (phase A; experiment only, see config.json for frozen arms and hashes)
+Step 1 files: diag_headway_days.csv, diag_headway_hours.csv, diag_headway_spill_matrix.npy, diag_headway_transplant.csv.
+Step 2 files: results.csv, summary_normal5.csv, summary_midnight_day.csv, peak_posthoc.csv/.json.
+Key points: (1) uniform headway conserves mass (slack 0.07%), but shifts hour-end mass into the next hour's first trains (9% spill), cutting cumulative boardings of hour-8 trains by 12%; (2) with identical p,q it makes terminal MSE ~8x worse on weekdays because boarding varies with train gap while alighting stays uniform per train; (3) the optimizer's re-fit then lowers the load level ~30%. Smooth curves reduce but do not remove these effects: terminal MSE 540 -> 560-600 (uniform 1108), mean load 141 -> 106-108, peak est/actual 0.51 -> 0.37-0.39 (uniform 0.30). Baseline remains best on peaks. Not an accuracy improvement.

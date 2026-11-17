@@ -15,7 +15,7 @@ from datetime import date, datetime, timedelta
 from functools import lru_cache
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from urllib.error import URLError
@@ -245,7 +245,81 @@ def recommend(payload):
         c['calendar_departure'] = actual_time(day,c['hour'],int(c['departure_time'].split(':')[1])).isoformat(timespec='minutes') if c['hour'] is not None else None
     candidates.sort(key=lambda c:(-c['score'],c['distance_km'],c['hour'] or 0,c['poi']['name']))
     limit = max(1,min(200,int(payload.get('limit',30))))
-    return dict(results=candidates[:limit],total=len(candidates),meta=dict(service_date=day,boarding_station=board,quiet_weight=weight,weather_source=weather_sources,model_updated_at=datetime.fromtimestamp(MODEL_PATH.stat().st_mtime).isoformat(),distance_basis='출발 위치에서 장소까지 직선거리',load_basis='승차 후부터 하차 전까지 구간별 예상 재차인원 평균',limitations=['장소 자체의 방문객 혼잡도를 예측하지 않습니다.','운영시간 자료가 없어 장소 개방 여부는 확인되지 않았습니다.','같은 역 주변 장소는 열차 이동이 없어 한산함 점수를 중립값으로 표시합니다.','시간별 순위는 해당 시간대에 운행하는 열차 중 예상 구간 평균이 가장 낮은 열차 기준입니다.']))
+    # 장소별로 묶어 가장 점수가 높은 후보만 결과로 두고, 같은 장소의 다른 선택지는 alt_times(최대 3개)로 붙인다.
+    # 점수·정규화는 위에서 전체 후보 기준으로 이미 계산했으므로 바뀌지 않는다. limit 은 묶은 뒤(장소 수)에 적용한다.
+    grouped = {}
+    for c in candidates:
+        poi = c['poi']
+        key = poi.get('id') if poi.get('id') not in (None, '') else (poi.get('name'), poi.get('address'))
+        grouped.setdefault(key, []).append(c)
+    places = []
+    place_keys = []
+    for key, options in grouped.items():
+        place_keys.append(key)
+        best = dict(options[0])
+        best['alt_times'] = [dict(departure_time=o['departure_time'],arrival_time=o['arrival_time'],boarding_station=o['boarding_station']['name'],alighting_station=o['alighting_station']['name'],mean_load=o['mean_load'],score=o['score']) for o in options[1:4] if not o['no_train']]
+        places.append(best)
+    matrix = None
+    if payload.get('include_matrix') is True:
+        # 상위 장소(최대 15곳)의 시간대별 최선 후보를 이미 계산된 후보에서 그대로 꺼낸다(점수·정렬은 그대로).
+        rows = []
+        for key, best in list(zip(place_keys, places))[:min(limit, 15)]:
+            by_hour = {}
+            for c in grouped[key]:
+                if c['hour'] is not None:
+                    by_hour.setdefault(c['hour'], c)  # grouped 는 점수 내림차순이므로 첫 항목이 그 시간의 최선
+            cells = [dict(hour=h, departure_time=by_hour[h]['departure_time'], mean_load=by_hour[h]['mean_load'], score=by_hour[h]['score']) if h in by_hour else dict(hour=h, departure_time=None, mean_load=None, score=None) for h in range(start, end+1)]
+            rows.append(dict(poi_id=best['poi'].get('id'), name=best['poi'].get('name'), no_train=best['no_train'], cells=cells))
+        matrix = dict(hours=list(range(start, end+1)), rows=rows)
+    response = dict(results=places[:limit],total=len(candidates),place_total=len(places),meta=dict(service_date=day,boarding_station=board,quiet_weight=weight,weather_source=weather_sources,model_updated_at=datetime.fromtimestamp(MODEL_PATH.stat().st_mtime).isoformat(),distance_basis='출발 위치에서 장소까지 직선거리',load_basis='승차 후부터 하차 전까지 구간별 예상 재차인원 평균',limitations=['장소 자체의 방문객 혼잡도를 예측하지 않습니다.','운영시간 자료가 없어 장소 개방 여부는 확인되지 않았습니다.','같은 역 주변 장소는 열차 이동이 없어 한산함 점수를 중립값으로 표시합니다.','시간별 순위는 해당 시간대에 운행하는 열차 중 예상 구간 평균이 가장 낮은 열차 기준입니다.']))
+    if matrix is not None:
+        response['matrix'] = matrix
+    return response
+
+
+@lru_cache(maxsize=32)
+def _profile_cached(day, boarding, alighting):
+    names = list(STATION_NAMES)
+    trains, loads, sources = predict_profile(day, range(5, 25), boarding)
+    by_hour = {h: [] for h in range(5, 25)}
+    for train in trains:
+        stops = train['stops']
+        stop_names = [x['station'] for x in stops]
+        if alighting not in stop_names or stop_names.index(boarding) >= stop_names.index(alighting):
+            continue
+        i, j = stop_names.index(boarding), stop_names.index(alighting)
+        segment = []
+        for stop in stops[i:j]:
+            sh = int(stop['time'].split(':')[0]) or 24
+            segment.append(loads[(stop['station'], sh, train['direction'])])
+        hour = int(stops[i]['time'].split(':')[0]) or 24
+        if 5 <= hour <= 24:
+            by_hour[hour].append(dict(departure_time=stops[i]['time'], arrival_time=stops[j]['time'], direction=train['direction'], train_id=train['train_id'], mean_load=round(sum(segment)/len(segment), 1), max_load=round(max(segment), 1)))
+    hours = []
+    for h in range(5, 25):
+        rows = sorted(by_hour[h], key=lambda t: t['departure_time'])
+        means = sorted(t['mean_load'] for t in rows)
+        n = len(means)
+        median = None if not n else round(means[n//2] if n % 2 else (means[n//2-1] + means[n//2]) / 2, 1)
+        hours.append(dict(hour=h, count=n, min=means[0] if n else None, median=median, max=means[-1] if n else None, trains=rows))
+    return dict(service_date=day, boarding=boarding, alighting=alighting, holiday=holiday(day), weather_source=sources, hours=hours)
+
+
+def profile(query):
+    day = date.fromisoformat(query['date'][0]).isoformat()
+    boarding, alighting = query['boarding'][0], query['alighting'][0]
+    if boarding not in STATION_NAMES or alighting not in STATION_NAMES or boarding == alighting:
+        raise ValueError('승차·하차 역이 올바르지 않습니다.')
+    return _profile_cached(day, boarding, alighting)
+
+
+WEB_ROOT = (ROOT / 'web').resolve()
+STATIC_TYPES = {
+    '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
+    '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
+    '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon',
+    '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.txt': 'text/plain; charset=utf-8',
+}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -271,14 +345,50 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers','Content-Type')
         self.end_headers()
 
+    def send_static(self, url_path, head=False):
+        # 정적 파일은 web/ 아래에서만 제공한다. 경로를 resolve 해 심볼릭 링크/.. 우회를 막는다.
+        if url_path in ('/', '/web', '/web/'):
+            url_path = '/web/index.html'
+        if not url_path.startswith('/web/'):
+            return self.send_json(dict(error='없는 경로입니다.'),404)
+        try:
+            rel = unquote(url_path[len('/web/'):])
+            if '\x00' in rel:
+                raise ValueError
+            target = (WEB_ROOT / rel).resolve()
+            target.relative_to(WEB_ROOT)
+            if not target.is_file():
+                raise FileNotFoundError
+            data = target.read_bytes()
+        except (ValueError, OSError):
+            return self.send_json(dict(error='없는 경로입니다.'),404)
+        self.send_response(200)
+        self.send_header('Content-Type',STATIC_TYPES.get(target.suffix.lower(),'application/octet-stream'))
+        self.send_header('Content-Length',str(len(data)))
+        self.send_header('Cache-Control','no-cache')
+        self.send_header('X-Content-Type-Options','nosniff')
+        self.end_headers()
+        if not head:
+            self.wfile.write(data)
+
+    def do_HEAD(self):
+        path=urlparse(self.path)
+        if path.path.startswith('/api/'):
+            return self.send_json(dict(error='HEAD는 지원하지 않습니다.'),405)
+        self.send_static(path.path,head=True)
+
     def do_GET(self):
         path=urlparse(self.path)
+        if not path.path.startswith('/api/'):
+            return self.send_static(path.path)
         try:
             if path.path == '/api/health':
                 get_model()
                 return self.send_json(dict(ok=True,model='load_predictor.joblib'))
             if path.path == '/api/stations':
                 return self.send_json(dict(stations=stations()))
+            if path.path == '/api/profile':
+                return self.send_json(profile(parse_qs(path.query)))
             if path.path == '/api/predict':
                 q=parse_qs(path.query)
                 service_date,hour=service_time(q['date'][0],int(q['hour'][0]))
@@ -313,7 +423,7 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--port',type=int,default=8000)
+    parser.add_argument('--port',type=int,default=5500)
     args=parser.parse_args()
     stations()
     get_model()

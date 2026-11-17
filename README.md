@@ -23,26 +23,22 @@ Adam으로 GT분배율을 추정하는 단계와 HistGradientBoosting으로 미�
 
 **Kakao 키 설정:** `web/config.example.js`를 `web/config.local.js`로 복사하고 JavaScript 키를 넣습니다. `config.local.js`는 gitignore 대상이라 커밋되지 않습니다. 키가 없으면 지도 대신 노선도 대체 화면이 표시됩니다.
 
-프로젝트루트에서 Python3.12 환경 `.venv/Scripts/python.exe`를 사용합니다. 먼저8000/5500의 기존서버를 확인하고 중복기동하지 마세요.
+프로젝트 루트에서 Python3.12 환경 `.venv/Scripts/python.exe`를 사용합니다. 웹 페이지와 API는 **하나의 프로세스, 5500 포트**로 함께 제공됩니다(Live Server 불필요). 먼저 5500의 기존 서버를 확인하고 중복 기동하지 마세요.
 
 ```powershell
-Get-NetTCPConnection -LocalPort 8000,5500 -State Listen -ErrorAction SilentlyContinue
-.venv/Scripts/python.exe prediction_api.py --port 8000
+Get-NetTCPConnection -LocalPort 5500 -State Listen -ErrorAction SilentlyContinue
+.venv/Scripts/python.exe prediction_api.py --port 5500
 ```
 
-별도터미널의 정적서버가 필요할 때만 실행합니다(VS Code Live Server5500 사용중이면 불필요).
+페이지: [127.0.0.1:5500/web/index.html](http://127.0.0.1:5500/web/index.html). API(`/api/*`)는 같은 주소·같은 출처로 동작해 CORS가 필요 없습니다. `web/` 폴더의 파일만 정적으로 제공하며(127.0.0.1 바인딩, GET/HEAD만, 폴더 목록 없음) `.env`, `outputs/`, `data/`는 제공하지 않습니다. 소스를 고친 뒤에는 브라우저를 직접 새로고침하세요(Live Server 자동 새로고침 없음). 공개배포·ONNX·브라우저 직접 joblib 추론은 구현하지 않았습니다.
 
-```powershell
-.venv/Scripts/python.exe -m http.server 5500 --bind 127.0.0.1
-```
-
-페이지: [127.0.0.1:5500/web/index.html](http://127.0.0.1:5500/web/index.html).8000은예측API입니다. 공개배포·ONNX·브라우저직접joblib추론은 구현하지 않았습니다.
+정적 파일 `web/data/station_profile.json`(실제 평균 승하차)은 `.venv/Scripts/python.exe scripts/build_web_station_profile.py`로 다시 만들 수 있습니다(원본 `data/processed/subway/`는 읽기만 합니다).
 
 ## 문서
 
 - [인수인계·확정요구·백업·남은일](docs/HANDOFF.md), [로드맵](ROADMAP.md)
 - [방법론](docs/AI/METHODOLOGY.md), [모델 개요](docs/AI/MODEL.md), [웹 연결](docs/AI/WEB_INTEGRATION_DESIGN.md)
 - [추출기](docs/AI/EXTRACT_TRAIN_LOADS.md), [승하차](docs/AI/SUBWAY.md), [날씨](docs/AI/WEATHER.md), [POI](docs/AI/POI_COLLECTION_TASK.md)
-- [가정](docs/ASSUMPTIONS.md), [결정](docs/DECISIONS.md), [실패 기록](docs/FAILURES.md)
+- [가정](docs/ASSUMPTIONS.md), [결정](docs/DECISIONS.md), [실패 기록](docs/FAILURES.md), [시도·실험 기록](docs/EXPERIMENTS.md)
 
 지도는Kakao이고 `best_model.pt`는 이전모델입니다. `.env`의 키값을 출력하거나 문서·로그에 복사하지 마세요.

@@ -1,0 +1,143 @@
+{
+  "purpose": "OD-derived direction prior in baseline optimizer; peak cases not read",
+  "cases": {
+    "2025-01-16": "before_weekday",
+    "2025-01-18": "before_saturday",
+    "2026-05-13": "after_weekday_with_past_same_weekday",
+    "2026-05-16": "after_saturday_with_past_same_weekday",
+    "2026-10-21": "ordinary_after_weekday",
+    "2025-08-14": "midnight_gate_schedule_mismatch_possible"
+  },
+  "seeds": [
+    null,
+    11
+  ],
+  "epochs": 1000,
+  "patience": 0,
+  "optimizer": "Adam lr .1; logit noise std .25 for seed 11 (as ablation); prior and init = p_hat/q_hat",
+  "grid": {
+    "betas": [
+      0.1,
+      0.25
+    ],
+    "gammas": [
+      1.0,
+      0.3
+    ],
+    "lams": [
+      0.1,
+      1.0
+    ]
+  },
+  "arms": {
+    "baseline": null,
+    "soft_grav_b0.1_g1.0_l0.1": {
+      "kind": "soft",
+      "base": "gravity",
+      "beta": 0.1,
+      "gamma": 1.0,
+      "lam": 0.1
+    },
+    "soft_grav_b0.1_g1.0_l1.0": {
+      "kind": "soft",
+      "base": "gravity",
+      "beta": 0.1,
+      "gamma": 1.0,
+      "lam": 1.0
+    },
+    "ipf_grav_b0.1_g1.0": {
+      "kind": "ipf",
+      "base": "gravity",
+      "beta": 0.1,
+      "gamma": 1.0
+    },
+    "soft_grav_b0.1_g0.3_l0.1": {
+      "kind": "soft",
+      "base": "gravity",
+      "beta": 0.1,
+      "gamma": 0.3,
+      "lam": 0.1
+    },
+    "soft_grav_b0.1_g0.3_l1.0": {
+      "kind": "soft",
+      "base": "gravity",
+      "beta": 0.1,
+      "gamma": 0.3,
+      "lam": 1.0
+    },
+    "ipf_grav_b0.1_g0.3": {
+      "kind": "ipf",
+      "base": "gravity",
+      "beta": 0.1,
+      "gamma": 0.3
+    },
+    "soft_grav_b0.25_g1.0_l0.1": {
+      "kind": "soft",
+      "base": "gravity",
+      "beta": 0.25,
+      "gamma": 1.0,
+      "lam": 0.1
+    },
+    "soft_grav_b0.25_g1.0_l1.0": {
+      "kind": "soft",
+      "base": "gravity",
+      "beta": 0.25,
+      "gamma": 1.0,
+      "lam": 1.0
+    },
+    "ipf_grav_b0.25_g1.0": {
+      "kind": "ipf",
+      "base": "gravity",
+      "beta": 0.25,
+      "gamma": 1.0
+    },
+    "soft_grav_b0.25_g0.3_l0.1": {
+      "kind": "soft",
+      "base": "gravity",
+      "beta": 0.25,
+      "gamma": 0.3,
+      "lam": 0.1
+    },
+    "soft_grav_b0.25_g0.3_l1.0": {
+      "kind": "soft",
+      "base": "gravity",
+      "beta": 0.25,
+      "gamma": 0.3,
+      "lam": 1.0
+    },
+    "ipf_grav_b0.25_g0.3": {
+      "kind": "ipf",
+      "base": "gravity",
+      "beta": 0.25,
+      "gamma": 0.3
+    },
+    "soft_unif_l0.1": {
+      "kind": "soft",
+      "base": "uniform",
+      "beta": 0,
+      "gamma": 1,
+      "lam": 0.1
+    },
+    "soft_unif_l1.0": {
+      "kind": "soft",
+      "base": "uniform",
+      "beta": 0,
+      "gamma": 1,
+      "lam": 1.0
+    },
+    "ipf_unif": {
+      "kind": "ipf",
+      "base": "uniform",
+      "beta": 0,
+      "gamma": 1
+    }
+  },
+  "base": "gravity q_ij=exp(-beta*d)*(gamma if d==1)*B_i*A_j ; uniform control q_ij=B_i*A_j ; d=|i-j| stops",
+  "scaling": "B,A divided by mean marginal (sum B + sum A)/(2*22); q rescaled to marginal mass; soft objective sum squared marginal residuals + lam*generalized KL(x||q)",
+  "direction": "dir_code0=up toward index0; p_hat=sum_{j<i}x_ij/rowsum; q_hat=sum_{i>j}x_ij/colsum; fallback to static prior if flow<0.05 scaled units",
+  "source_sha256": {
+    "generate_ground_truth.py": "cf1e3911679862aded356f972c5a46399a5eaf0566a71470cfd063a4bb3f8530",
+    "gt_od_prior.py": "fbac6ae4601534f2291448d10edb4378a06aff55c2a1eb0bf928354bf4c628af",
+    "experiment_od_prior.py": "1e2d9fb806a6793e4cbfea26e22741cb7f9822a9bee92b94ce34ec7737ee7cf5"
+  }
+}

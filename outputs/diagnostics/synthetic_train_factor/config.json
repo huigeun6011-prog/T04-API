@@ -1,0 +1,63 @@
+{
+  "purpose": "Synthetic recovery of per-train factor w_k from hourly cell marginals; real peak cases never read",
+  "date": "2025-11-04",
+  "model": "x[k,a,b] = w_k * beta[cell(a)] * pi[a->b]; cell = station x stop-hour (gt_train_od convention)",
+  "pi_true": "proportional to (A_obs[cell(b)]+1)*exp(-0.1*(b-a stops)), row normalized",
+  "beta_true": "B_obs[cell] / sum of w over the cell's non-terminal events",
+  "scenarios": {
+    "a_rush": "w=1+1.0*exp(-((t-495)/45)^2)+1.0*exp(-((t-1095)/45)^2), t=origin departure minute (08:15=495, 18:15=1095)",
+    "b_lognormal": "w=exp(0.3*z), z~N(0,1), seed 1",
+    "c_null": "w=1",
+    "d_alternate": "per direction, trains sorted by origin departure alternate 0.7/1.3 (even index 0.7, odd 1.3)",
+    "all": "w normalized to mean 1"
+  },
+  "noise": "none or 2% multiplicative Gaussian per cell (seed 7), clipped at 0.5",
+  "estimators": {
+    "E1": "pi = true, estimate w and beta (L-BFGS on log params, maxiter 6000)",
+    "E2": "pi free (per-event softmax logits) with lam*KL(pi||uniform) weighted by boarding mass; joint L-BFGS maxiter 3000; main off=10 lam=0.01",
+    "E3": "exploratory: shared kernel pi proportional to alpha[cell(b)]*exp(-delta*d), alpha/delta free, flat init, no KL; maxiter 3000"
+  },
+  "fit_weights": "(fit-obs)^2/(obs+off) per eligible cell",
+  "sensitivity_E2": [
+    [
+      1.0,
+      0.01
+    ],
+    [
+      100.0,
+      0.01
+    ],
+    [
+      1.0,
+      0.1
+    ],
+    [
+      10.0,
+      0.1
+    ],
+    [
+      100.0,
+      0.1
+    ]
+  ],
+  "sensitivity_scenarios": [
+    "a_rush",
+    "b_lognormal"
+  ],
+  "sensitivity_noise": 0.02,
+  "metrics": {
+    "within_hour_corr": "subtract mean w within each origin-departure-hour group (both directions pooled) from w_hat and w_true, correlate",
+    "peak_time_error": "time of max 3-train moving average (same direction) of w_hat in [06:00,10:30] vs 08:15 and [16:00,20:30] vs 18:15"
+  },
+  "decision_rules": {
+    "success": "within-hour corr >= 0.9 in E2 at 2% noise for scenarios a, b, d (all three) => SUCCESS",
+    "failure": "all three < 0.5 => FAILURE; anything else PARTIAL (report which scenarios)",
+    "null": "scenario c at 2% noise: std(w_hat)/mean(w_hat) <= 0.05 else the method invents patterns (FAIL regardless)",
+    "verdict_basis": "E2 (declared realistic estimator); E1 and E3 are reported but do not decide"
+  },
+  "resources": "<=3 workers, OMP/MKL threads 1, BELOW_NORMAL priority, per-stage limit 15 min",
+  "source_sha256": {
+    "gt_train_factor.py": "fe4110193a24f00ccde0de6527f521ae376626c974de7e44c17eb400e0aa430a",
+    "experiment_train_factor_synth.py": "e6f3536dabf74d9b9622084282b1cccd1aa33850254ba0278c3e3e9277d15cfb"
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "purpose": "Train-level OD with soft hourly marginals, hard conservation; peak cases not read",
+  "cases": {
+    "2025-01-16": "before_weekday",
+    "2025-01-18": "before_saturday",
+    "2026-05-13": "after_weekday_with_past_same_weekday",
+    "2026-05-16": "after_saturday_with_past_same_weekday",
+    "2026-10-21": "ordinary_after_weekday",
+    "2025-08-14": "midnight_gate_schedule_mismatch_possible"
+  },
+  "baseline_seeds": [
+    null,
+    11
+  ],
+  "baseline_epochs": 1000,
+  "lambdas": [
+    0.01,
+    0.1
+  ],
+  "betas": [
+    0.1,
+    0.25
+  ],
+  "gammas": [
+    1.0,
+    0.3
+  ],
+  "arms": {
+    "baseline": null,
+    "od_uniform_l0.01": {
+      "weight": "uniform",
+      "beta": null,
+      "gamma": 1.0,
+      "lam": 0.01
+    },
+    "od_headway_l0.01": {
+      "weight": "headway",
+      "beta": null,
+      "gamma": 1.0,
+      "lam": 0.01
+    },
+    "od_gravity_b0.1_g1.0_l0.01": {
+      "weight": "uniform",
+      "beta": 0.1,
+      "gamma": 1.0,
+      "lam": 0.01
+    },
+    "od_gravity_b0.1_g0.3_l0.01": {
+      "weight": "uniform",
+      "beta": 0.1,
+      "gamma": 0.3,
+      "lam": 0.01
+    },
+    "od_gravity_b0.25_g1.0_l0.01": {
+      "weight": "uniform",
+      "beta": 0.25,
+      "gamma": 1.0,
+      "lam": 0.01
+    },
+    "od_gravity_b0.25_g0.3_l0.01": {
+      "weight": "uniform",
+      "beta": 0.25,
+      "gamma": 0.3,
+      "lam": 0.01
+    },
+    "od_uniform_l0.1": {
+      "weight": "uniform",
+      "beta": null,
+      "gamma": 1.0,
+      "lam": 0.1
+    },
+    "od_headway_l0.1": {
+      "weight": "headway",
+      "beta": null,
+      "gamma": 1.0,
+      "lam": 0.1
+    },
+    "od_gravity_b0.1_g1.0_l0.1": {
+      "weight": "uniform",
+      "beta": 0.1,
+      "gamma": 1.0,
+      "lam": 0.1
+    },
+    "od_gravity_b0.1_g0.3_l0.1": {
+      "weight": "uniform",
+      "beta": 0.1,
+      "gamma": 0.3,
+      "lam": 0.1
+    },
+    "od_gravity_b0.25_g1.0_l0.1": {
+      "weight": "uniform",
+      "beta": 0.25,
+      "gamma": 1.0,
+      "lam": 0.1
+    },
+    "od_gravity_b0.25_g0.3_l0.1": {
+      "weight": "uniform",
+      "beta": 0.25,
+      "gamma": 0.3,
+      "lam": 0.1
+    }
+  },
+  "objective": "sum_cells (fit-obs)^2/(obs+10) + lam * generalized KL(x||q); L-BFGS-B on x>=1e-12, maxiter 20000",
+  "base_q": "boarding cell mass = B(s,h) split by train weight (uniform | headway gap minutes) over events of the cell, then over later stops by exp(-beta*d)*(gamma if d==1) (uniform when beta None)",
+  "combined_score": "TNV = (L1 marginal misfit incl. no-train slack cells + L1 terminal residual + L1 negative load) / (sum B + sum A)",
+  "source_sha256": {
+    "generate_ground_truth.py": "cf1e3911679862aded356f972c5a46399a5eaf0566a71470cfd063a4bb3f8530",
+    "gt_arrival_curve.py": "86a0c6395e06024adcb685a9faf205200c064f7bd9b7796a9d4d92ad82788b57",
+    "gt_train_od.py": "75c93f7788060224461393e0ad2c349f88cc119f0af3cac3813632df68d1b0bb",
+    "experiment_train_od.py": "67bb3ec087ba2ac53962e26af5c9648d06868d7fac485dab58f68c8f86bd6b71"
+  }
+}

@@ -7,7 +7,7 @@
 - `scripts/build_web_poi.py`가통합CSV→`web/data/pois.json`을만든다.548행/좌표532개다.
 - `web/index.html`+`app.js`는실제POI,출발점,운행일,시간범위,카테고리,10%단위비중을사용한다.추천전은직선거리장소미리보기이며추천버튼으로API를호출한다.
 - `web/weather-client.js`는Open-Meteo시간별날씨를조회한다.500ms합치기,최소10초간격,예보1시간/과거7일캐시를쓴다.24시는익일00시다.
-- `prediction_api.py`는Python표준ThreadingHTTPServer이다.FastAPI/ONNX가아니다.8000포트에시작하며`outputs/load_predictor.joblib`mtime이바뀌면다시읽는다.
+- `prediction_api.py`는Python표준ThreadingHTTPServer이다.FastAPI/ONNX가아니다.기본 5500포트(`--port`)에서 시작하며`outputs/load_predictor.joblib`mtime이바뀌면다시읽는다.
 - 지도제공자는Kakao이며예측은브라우저직접joblib실행이아닌Python이다.
 
 ## API계약
@@ -31,8 +31,18 @@ API는과거날씨로컬파일을우선사용하고없으면무키Open-Meteo를�
 
 ## 실행/검증/남은일
 
-웹은5500의 `/web/index.html`,API는8000이다.CORS는localhost/127.0.0.1:5500을허용한다.명령은[HANDOFF](../HANDOFF.md)의환경·상태확인절차를따른다.다른API설계예시인`/api/forecast/profile`은구현되지않았다.
+웹 페이지(`/web/index.html`)와 API(`/api/*`)는 모두 `prediction_api.py` 한 프로세스가 5500에서 제공하며, 웹은 기본적으로 상대경로(`/api/...`, 같은 출처)로 호출한다. `web/` 아래 파일만 GET/HEAD로 정적 제공하고(경로 resolve 후 `web/` 밖·심볼릭 링크 탈출은 404, 폴더 목록 없음) 그 외 경로는 제공하지 않는다. 예전 2포트 구성은 `window.RECOMMENDATION_API_BASE`로 API 주소를 덮어쓰면 되며 CORS는 localhost/127.0.0.1:5500을 허용한다. 명령은[HANDOFF](../HANDOFF.md)의환경·상태확인절차를따른다.다른API설계예시인`/api/forecast/profile`은구현되지않았다.
 
 API실제응답과JS문법/연결확인까지만했다.이전브라우저접근거절이있어지도위치·클릭·전체UX시각검증을하지않았고우회하지않는다.[좌표보정표](STATION_COORDINATES.md)와현재app.js22개값은2026-11-16문자열대조에서전부일치했다.API도app좌표를쓰므로추천에반영된다.사용자가지도표시를확인했으나마커와실제역사위치의정합은별도로검증하지않았다.
 
 수집키는로컬.env에유지하고브라우저에전달하지않는다.KakaoJS키는브라우저SDK용이지만그값을문서에복사하지않는다.키는`web/config.local.js`(gitignore)에두고`web/kakao-loader.js`가SDK를불러온다.견본은`web/config.example.js`다.이구조는로컬실행전용이고정적호스팅배포시에는다시정해야한다.공개배포·서버호스팅·모바일최종검증은별도미완과제다.
+
+**추천 결과 묶음:** `POST /api/recommend`는 점수·정규화(전체 후보 기준)·정렬을 계산한 뒤 장소(`poi.id`, 없으면 이름+주소)별로 묶어 점수가 가장 높은 후보 하나만 `results`에 둔다. `limit`은 묶은 뒤 장소 수에 적용한다. 각 결과에 `alt_times`(같은 장소의 다른 선택지 최대 3개, 점수순; 각 항목은 `departure_time`, `arrival_time`, `boarding_station`, `alighting_station`(역 이름), `mean_load`, `score`)가 추가되며 열차를 타지 않는 후보(`no_train`)는 넣지 않는다. 응답에 `place_total`(묶은 뒤 장소 수)이 추가되고 `total`은 묶기 전 후보 수 그대로다.
+
+**카카오맵 길찾기 링크:** 카드와 지도 팝업의 "카카오맵 길찾기" 링크는 카카오맵 공식 지도 URL 링크(`https://map.kakao.com/link/by/{walk|traffic}/이름,위도,경도/이름,위도,경도`, 출발 위치가 없으면 `https://map.kakao.com/link/to/이름,위도,경도`)를 새 탭으로 연다. 열차 없는 후보는 `walk`, 열차 후보는 `traffic`(대중교통)을 쓴다. API 키와 백엔드 호출은 없으며, 사용자가 링크를 누를 때만 장소 좌표와 선택한 출발 위치가 카카오로 전달된다.
+
+**시간 칩과 `include_matrix`:** 추천 화면의 시간 칩("장소별 최적 시간", 시간별)은 클라이언트가 순위를 다시 매기지 않고, 칩을 고를 때마다 `POST /api/recommend`를 `start_hour = end_hour = 선택 시간`으로 다시 호출한다(서버가 그 시간 기준으로 정규화·정렬). "장소별 최적 시간"은 사용자가 정한 범위로 호출하고 `include_matrix: true`를 함께 보낸다. `include_matrix`(선택, 기본 false)가 true면 응답에 `matrix`가 추가된다: `{hours:[시간...], rows:[{poi_id, name, no_train, cells:[{hour, departure_time, mean_load, score}]}]}`. 행은 최종 결과의 상위 장소 최대 15곳이며, 각 칸은 이미 계산된 후보 중 그 장소·그 시간의 최고 점수 후보(점수는 메인 순위와 같은 정규화)이고 맞는 열차가 없으면 세 값이 null이다. 점수·정렬·후보 계산은 바뀌지 않는다.
+
+**`GET /api/profile?date=YYYY-MM-DD&boarding=<역>&alighting=<역>`:** 운행일(date)과 역 이름(앱의 22개 역 이름 그대로)을 받아, 그날 시간표에서 승차역→하차역 구간을 달리는 모든 열차의 예상 재차인원을 `predict_profile`(추천과 같은 모델·날씨·시간표 규칙)로 한 번에 계산한다. 응답: `{service_date, boarding, alighting, holiday, weather_source, hours:[{hour(5~24), count, min, median, max, trains:[{departure_time, arrival_time, direction, train_id, mean_load, max_load}]}]}`. `mean_load`/`max_load`는 승차 후 하차 직전까지 구간별 예상 재차인원의 평균/최대, hour는 승차역 출발 시간대이고 min/median/max는 그 시간대 열차들의 `mean_load` 통계이다(열차 없으면 null). 입력 오류는 400이다. (날짜, 승차, 하차) 기준 LRU(32)로 메모리에 캐시한다. 처음 보는 날짜는 날씨 조회(원격 호출은 10초 간격 제한) 때문에 첫 호출이 10초쯤 걸릴 수 있다.
+
+**`web/data/station_profile.json`:** `scripts/build_web_station_profile.py`가 `data/processed/subway/`(읽기 전용)의 2024-11-01~2026-11-01 운행일을 읽어 만든 정적 파일이다. 역·요일 유형(평일/휴일, `predict_load.HOLIDAYS`와 주말 규칙)별로 05~24시(24시는 다음 날 0시, 01~04시 제외)의 평균 승차·하차 인원과 평균에 쓴 일수·기간을 담는다. 혼잡도 분석 탭은 승차역의 승차+하차 합계를 별도 축의 선으로 그려 모델과 독립적인 실제 평균을 보여 준다. `python scripts/build_web_station_profile.py`로 다시 만들 수 있다.

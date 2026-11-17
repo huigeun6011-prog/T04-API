@@ -16,3 +16,6 @@ outputs/best_model.pt
 
 # 로컬 전용 키 설정
 web/config.local.js
+
+# 로컬 전용 Claude 설정과 외부 스킬 (내 PC 경로가 들어 있고 서드파티 자료 3MB)
+.claude/

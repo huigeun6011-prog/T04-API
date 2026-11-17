@@ -1,0 +1,5 @@
+# OD-derived direction prior (experiment only; see config.json for frozen grid and hashes)
+Same 6 days, seeds (none, 11), 1000 Adam iterations. Baseline arm reproduces 539.84 terminal / 12.15 negative MSE.
+Results: results.csv, summary_normal5.csv, summary_midnight_day.csv, pq_arrays.npz; post-hoc peaks: peak_posthoc.csv/.json.
+Findings: all 15 OD-prior arms change terminal/negative MSE by <0.5%, slack unchanged (1.4), load median/p95/p99 within ~1-2% of baseline. Fitted p/q still move ~0.17 from the prior (the loss, not the prior, determines them). Peak est/actual stays 0.51 (MAE 325). Data-derived direction shares shrink the NEEDED concentration from 1.87x (50:50) to 1.21-1.44x (p_hat) / 1.28x (fitted p), i.e. direction explains much of the reference gap, but the optimizer does not turn that into higher peak-train loads, and priors cannot create per-train variation.
+Limits: p_hat depends on gravity/OD assumptions and boarding-only reference; no actual direction data exists; peak result evaluated once, not iterated.

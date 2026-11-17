@@ -1,0 +1,35 @@
+{
+  "purpose": "Synthetic recovery of per-train factor w_k; convex/exact solvers; real peak cases never read",
+  "date": "2025-11-04",
+  "scenarios": "same as phase C: a_rush, b_lognormal(seed1), c_null, d_alternate (=trap e_sharp); w normalized mean 1",
+  "truth": "x = w_k beta[cell a] pi[a->b]; pi_true main = (A_obs[cell b]+1)*exp(-0.1 d); misspecified truth = station-level attraction (hour ignored) * (1+d)^-1.5",
+  "days": "K synthetic weekdays share the timetable and w; each day: beta = day_factor(lognormal sd .1, K>1) * base, independent 2%/5% multiplicative noise per cell; pi_perturb variant: per-day lognormal sd .1 on pi pairs (estimator uses nominal pi)",
+  "noises": [
+    0.0,
+    0.02,
+    0.05
+  ],
+  "methods": {
+    "D0_oracle_beta": "beta known, pi known, free w, exact bounded LS (K=1)",
+    "D1_free": "beta profiled from B per day (exact), pi known, free w, Levenberg-Marquardt Gauss-Newton with exact Jacobian; K in {1,5,20} (+60 for a,b at 2/5%)",
+    "D2_smooth": "as D1 with second-difference penalty on w per direction (gamma=0.1*mean diag info), K in {1,20}",
+    "D2_basis{m}": "w = Phi c, cubic B-spline over origin departure time, m in {6,12,24}, smoothness rho=0.01 on 2nd diff of c, K in {1,20}",
+    "D3": "basis 24, kernel alpha[cell(b)]*exp(-delta d) estimated by alternating LM / L-BFGS (flat init), noise 2%: truth main, truth misspecified (kernel est.), truth misspecified with the WRONG fixed main pi",
+    "D1/D2 pi_perturb": "K=20, noise 2%, free and basis24, scenarios a,b,c",
+    "offset_sensitivity": "off in {1,10,100} for D1_free K=1 and basis24 K=1, scenarios a,b,c, noise 2%"
+  },
+  "ridge_to_one": "eps=1e-4 * mean diag information, pulls w toward 1 (null hypothesis)",
+  "metrics": "corr, within-hour corr (origin-hour groups), bin-mean corr at 60/30/15/5 min of origin departure, relative error of bin means, std/mean of w_hat",
+  "decision_rules": {
+    "success": "30-min-bin corr >= 0.9 for the scenario AND std(w_hat)/mean(w_hat) <= 0.05 in c_null for the same method/K/noise",
+    "finest_bin": "finest bin width in {60,30,15,5} with bin corr >= 0.9, per (method,K,noise,scenario); none => not recoverable at any tested width",
+    "categories": "(i) per-train recoverable: within-hour corr >= 0.9; (ii) recoverable only at coarse resolution: state finest bin width; (iii) not recoverable"
+  },
+  "resources": "<=3 workers, threads 1, BELOW_NORMAL, per-stage limit 15 min",
+  "note": "basis grid changed from the brief's {4,6,8,12} to {6,12,24} because a cubic basis with <=12 functions cannot represent the 45-minute rush bumps (projection corr 0.69 at m=8, 0.87 at m=12, 0.996 at m=24, checked before running)",
+  "source_sha256": {
+    "gt_train_factor.py": "fe4110193a24f00ccde0de6527f521ae376626c974de7e44c17eb400e0aa430a",
+    "gt_train_factor_v2.py": "7e2654154349433c9a3d76484a74d9818ab676cec58751b8e250bac9368d58d6",
+    "experiment_train_factor_v2.py": "f4e57f09583eab72ea4356b12bf5c48030f340ff44c1b2d1f614d0278628d91f"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "purpose": "Mass-preserving arrival curve vs uniform headway; peak cases not read",
+  "cases": {
+    "2025-01-16": "before_weekday",
+    "2025-01-18": "before_saturday",
+    "2026-05-13": "after_weekday_with_past_same_weekday",
+    "2026-05-16": "after_saturday_with_past_same_weekday",
+    "2026-10-21": "ordinary_after_weekday",
+    "2025-08-14": "midnight_gate_schedule_mismatch_possible"
+  },
+  "seeds": [
+    null,
+    11
+  ],
+  "epochs": 1000,
+  "patience": 0,
+  "optimizer": "Adam lr .1; logit noise std .25 for seed 11 (as ablation)",
+  "arms": {
+    "baseline": {
+      "impl": "ac",
+      "mode": "baseline"
+    },
+    "headway_uniform_existing": {
+      "impl": "gt"
+    },
+    "curve_d1": {
+      "impl": "ac",
+      "mode": "d1",
+      "mix": 1.0
+    },
+    "curve_d2": {
+      "impl": "ac",
+      "mode": "d2",
+      "mix": 1.0
+    },
+    "curve_d2_mix50": {
+      "impl": "ac",
+      "mode": "d2",
+      "mix": 0.5
+    }
+  },
+  "curve": {
+    "grid": "1-minute cells 05:00..25:00",
+    "constraint": "exact hourly sums, hours with B=0 are 0, nonneg",
+    "smoothness": {
+      "d1": "sum squared first differences",
+      "d2": "sum squared second differences"
+    },
+    "boundary": "free ends (no penalty outside 05:00-25:00); window of first departure starts 05:00; mass after last departure = slack",
+    "mix": "curve_d2_mix50 = 0.5*curve_d2 + 0.5*flat (both mass preserving)",
+    "solver": "primal active-set, sparse KKT"
+  },
+  "source_sha256": {
+    "generate_ground_truth.py": "cf1e3911679862aded356f972c5a46399a5eaf0566a71470cfd063a4bb3f8530",
+    "gt_arrival_curve.py": "86a0c6395e06024adcb685a9faf205200c064f7bd9b7796a9d4d92ad82788b57",
+    "experiment_arrival_curve.py": "66ee68cb123f7a38d02e801a341f9f9f859e11d34270619ceb3b331a21c16187"
+  }
+}

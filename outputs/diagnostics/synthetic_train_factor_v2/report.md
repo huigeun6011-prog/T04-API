@@ -1,0 +1,4 @@
+# Per-train factor, phase D (synthetic only; config.json = declared grid/rules/hashes; results_summarized.csv = all 184 runs)
+Solver check: exact LM/bounded-LS reproduces phase C noise-free E1 (within-hour 0.99/0.89/0.81 for a/b/d) in 9 iterations. At 2% noise the exact oracle-beta solve gives within-hour 0.37/0.64/0.53 (E1 was 0.23/0.28/0.32), so most of the phase C failure is information (noise), only part solver.
+Resolution: with pi known, 30-min bin means of w are recoverable at 2% noise (corr 0.91-0.99 for a at K=1; 0.5-0.86 for b,d at K=1-20); per-train needs K>=60 and still only ~0.8 (within-hour). Unregularized estimators invent patterns in the null (std 0.06-0.59) so none passes the declared success rule except low-dim basis24 with K=20 for the smooth rush scenario.
+Unknown pi (kernel estimated) fails completely (corr ~ -0.2..0.05, null std 0.7-1.0), also with a wrong fixed pi under a misspecified truth.
