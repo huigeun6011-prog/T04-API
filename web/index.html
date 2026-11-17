@@ -45,7 +45,7 @@
   <div class="main-layout">
 
     <!-- 좌측: 컨트롤 패널 -->
-    <aside class="control-panel">
+    <aside class="control-panel" id="controlPanel">
 
       <!-- Step 1 -->
       <div class="panel-step">
@@ -96,16 +96,27 @@
         <input id="quietWeight" type="range" min="0" max="100" step="10" value="50" aria-label="열차 한산함 비중" />
         <p class="control-help">한산함은 이동 구간의 예상 열차 재차인원으로 계산합니다. 거리는 출발지와 장소 사이 직선거리입니다.</p>
       </div>
+      <div class="panel-step">
+        <div class="step-label"><span class="step-num">6</span><span class="step-title">최대 도보 시간</span></div>
+        <select id="maxWalk" class="date-input" aria-describedby="walkHelp">
+          <option value="5">5분</option><option value="10">10분</option><option value="15" selected>15분</option><option value="20">20분</option><option value="30">30분</option><option value="45">45분</option><option value="60">60분</option><option value="">제한 없음</option>
+        </select>
+        <p class="control-help" id="walkHelp">열차를 타지 않고 걸어가는 장소(출발 역 근처)에 적용됩니다. 직선거리 × 1.3 ÷ 4.5km/h 로 어림한 시간이며 실제 길과 다를 수 있습니다. 먼 곳까지 보려면 값을 늘리거나 “제한 없음”을 고르세요.</p>
+      </div>
       <button class="search-btn" id="searchBtn">추천 경로 찾기</button>
 
       <div class="mock-notice">장소는 수집 데이터에서 불러오며, 날씨는 선택한 날짜에 Open-Meteo로 조회합니다.</div>
     </aside>
+
+    <div class="splitter splitter-v" id="splitV" role="separator" aria-orientation="vertical" aria-label="왼쪽 패널 너비 조절 (좌우 화살표 키)" aria-controls="controlPanel" tabindex="0"></div>
 
     <!-- 우측: 지도 + 결과 -->
     <div class="right-col">
 
       <!-- 카카오 지도 -->
       <div class="map-area">
+        <button type="button" class="panel-toggle" id="panelToggle" aria-controls="controlPanel" aria-expanded="true">패널 접기</button>
+        <div class="map-updating" id="mapUpdating" role="status" hidden>새 출발지로 다시 계산 중…</div>
         <div id="kakaoMap" class="naver-map" role="application" aria-label="지도: 눌러서 출발 위치를 선택합니다"></div>
         <!-- API 키 미설정 또는 도메인 미등록 시 대체 화면 -->
         <div class="map-fallback" id="mapFallback">
@@ -123,14 +134,20 @@
         </div>
       </div>
 
+      <div class="splitter splitter-h" id="splitH" role="separator" aria-orientation="horizontal" aria-label="추천 결과 영역 높이 조절 (위아래 화살표 키)" aria-controls="resultsSection" tabindex="0"></div>
+
       <!-- 추천 결과 -->
       <section class="results-section" id="resultsSection">
         <div class="results-header">
           <h2 class="results-title">추천 결과</h2>
           <span class="results-meta" id="resultsMeta" aria-live="polite"></span>
+          <button type="button" class="results-toggle" id="resultsToggle" aria-controls="resultsBody" aria-expanded="true">결과 접기</button>
         </div>
-        <div class="time-chips" id="timeChips" role="group" aria-label="시간 선택" hidden></div>
-        <div class="results-cards" id="resultsCards" aria-live="polite"></div>
+        <div class="results-body" id="resultsBody">
+          <p class="update-note" id="updateNote" role="status" hidden></p>
+          <div class="time-chips" id="timeChips" role="group" aria-label="시간 선택" hidden></div>
+          <div class="results-cards" id="resultsCards" aria-live="polite"></div>
+        </div>
       </section>
 
     </div><!-- .right-col -->
@@ -175,14 +192,7 @@
       <div class="pipeline-card"><div class="p-step">3단계</div><h3>시간·역·장소 추천</h3><p>Python 예측 서비스가 실제 운행 시간표에서 이동 가능한 후보를 계산합니다. 선택 시간 안에서 이동 구간의 한산함과 직선거리의 비중을 합쳐 순위를 매깁니다.</p></div>
     </div>
     <div class="about-data-flow"><h3>자정을 넘는 운행</h3><p>방문 날짜의 24시는 다음 날 00시입니다. 막차의 재차인원은 전날 운행일과 연결하고, 날씨는 실제 시각을 사용합니다. 출발지와 목적지에 같은 역이 연결되면 열차를 타지 않는 후보로 구분합니다.</p></div>
-    <div class="about-link-box">
-      <a href="../docs/AI/METHODOLOGY.md" class="about-link">
-        📄 전체 수식·방법론 문서 보기 (METHODOLOGY.md)
-      </a>
-      <a href="../docs/AI/EXTRACT_TRAIN_LOADS.md" class="about-link">
-        📄 열차 궤적 추출기 매뉴얼 (EXTRACT_TRAIN_LOADS.md)
-      </a>
-    </div>
+    <p class="about-doc-note">자세한 수식과 방법은 저장소의 docs/AI/METHODOLOGY.md, 열차 궤적 추출기 사용법은 docs/AI/EXTRACT_TRAIN_LOADS.md 에 정리되어 있습니다.</p>
 
   </div>
 </div><!-- #tab-about -->
@@ -191,5 +201,6 @@
 <script src="weather-client.js"></script>
 <script src="app.js"></script>
 <script src="analysis.js"></script>
+<script src="layout.js"></script>
 </body>
 </html>

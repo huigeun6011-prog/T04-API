@@ -42,6 +42,7 @@ const state = {
   quietWeight: 0.5,
   recommendationRequestId: 0,
   recommendationController: null,
+  researchTimer: null,
   weather: null,
   nextWeather: null,
   results: [],
@@ -150,12 +151,9 @@ function setDeparture(lat, lng, label = null) {
 
   // 이미 계산된 추천 결과가 있으면 재추천 필요 알림, 없으면 미리보기 갱신
   // 💡 사용자가 지도를 클릭해 출발지를 찍었을 때는 지도 시점(줌/중심)이 제멋대로 움직이지 않도록 adjustBounds를 false로 유지합니다.
-  if (state.results && state.results.length > 0) {
-    document.getElementById('searchBtn').textContent = '새 출발지로 추천 다시 찾기';
-    document.getElementById('predictionAnalysis').textContent = '출발지가 변경되었습니다. [추천 다시 찾기]를 누르면 새 출발지 기준으로 열차 일정을 계산합니다.';
-    if (state.selectedItem) {
-      showPlaceRoute(state.selectedItem, true, false);
-    }
+  if ((state.results && state.results.length > 0) || document.getElementById('searchBtn').disabled) {
+    // 이미 검색했거나 검색 중이면 새 출발지로 자동 재검색한다(연속 클릭은 마지막 것만 요청)
+    scheduleResearch();
   } else {
     renderEmptyState();
   }
@@ -202,7 +200,7 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
   if (!Number.isFinite(poiLat) || !Number.isFinite(poiLng)) return;
 
   const poiPos = new kakao.maps.LatLng(poiLat, poiLng);
-  const required = [{ pos: poiPos, isPlace: true }];
+  const required = [{ pos: poiPos, isPlace: true }];  // side 는 카드 위치 결정 후 채운다
 
   // 💡 1. 출발지 및 목적지 기준 가장 가까운 역을 항상 현재 위치 기준으로 정확히 결정
   // (이전 검색 결과의 '예전 역'에 묶여 경로가 엉뚱한 곳으로 이어지는 문제 해결)
@@ -357,15 +355,36 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
     }
   }
 
-  // 장소 팝업 카드 띄우기
+  // 목적지 핀: 다른 장소의 작은 점과 구별되는 큰 핀 (경로 위에 표시)
+  const pin = document.createElement('div');
+  pin.className = 'dest-pin';
+  pin.setAttribute('role', 'img');
+  pin.setAttribute('aria-label', `목적지 ${poi.name || ''}`);
+  pin.innerHTML = '<svg viewBox="0 0 30 40" width="30" height="40" aria-hidden="true"><path d="M15 39C15 39 2 24 2 14a13 13 0 0 1 26 0C28 24 15 39 15 39z" fill="#C0392B" stroke="#fff" stroke-width="2.5"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';
+  const pinOverlay = new kakao.maps.CustomOverlay({ position: poiPos, content: pin, xAnchor: 0.5, yAnchor: 1, zIndex: 30 });
+  pinOverlay.setMap(state.map);
+  state.routePolylines.push(pinOverlay);
+
+  // 정보 카드는 경로가 들어오는 쪽의 반대편에 둔다 (경로선·역·출발지를 가리지 않도록)
+  let side = 'north';
+  if (required.length > 1) {
+    const prev = required[required.length - 1].pos;
+    const dy = poiPos.getLat() - prev.getLat();
+    const dx = (poiPos.getLng() - prev.getLng()) * Math.cos(poiPos.getLat() * Math.PI / 180);
+    if (Math.abs(dy) >= Math.abs(dx)) side = dy >= 0 ? 'north' : 'south';
+    else side = dx >= 0 ? 'east' : 'west';
+  }
+  const anchors = { north: [0.5, 1], south: [0.5, 0], east: [0, 0.5], west: [1, 0.5] };
+  const wrap = document.createElement('div');
+  wrap.className = `poi-card-wrap side-${side}`;
   const content = document.createElement('div');
   content.className = 'poi-info-card';
+  wrap.appendChild(content);
   content.innerHTML = `
     <div class="poi-info-title">
       <span>${catEmoji(poi.facility_type)} ${escapeHtml(poi.name)}</span>
       <span style="font-size:11px;color:#888;">${catLabel(poi.facility_type)}</span>
     </div>
-    <div class="poi-info-desc">${escapeHtml(poi.address || '주소 정보 없음')}</div>
     <div class="poi-info-route">
       ${isDirectWalk || !bStation || bStation.name === aStation.name
         ? `🚶 도보 직행 (약 ${(directDist * 1000).toFixed(0)}m · 지하철 불필요)`
@@ -376,46 +395,59 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
   ['click', 'mousedown', 'touchstart'].forEach(t => content.addEventListener(t, ev => ev.stopPropagation()));
   state.poiInfoOverlay = new kakao.maps.CustomOverlay({
     position: poiPos,
-    content,
-    yAnchor: 1.3,
+    content: wrap,
+    xAnchor: anchors[side][0],
+    yAnchor: anchors[side][1],
     zIndex: 20,
   });
   state.poiInfoOverlay.setMap(state.map);
 
   // 카드나 마커를 직접 클릭했을 때: 필요한 지점이 이미 화면 안이면 지도를 건드리지 않고, 벗어난 경우에만 최소한으로 넓힌다.
   if (adjustBounds) {
+    required[0].side = side;
+    const wr = wrap.getBoundingClientRect();
+    required[0].size = wr.width ? { w: wr.width, h: wr.height } : null;
     ensureVisible(required);
   }
 }
 
-// 필요한 지점(장소·출발지·승하차역)이 현재 지도 영역 안에 있으면 아무것도 하지 않는다.
-// 하나라도 밖이면 현재 영역을 그 지점들까지 넓힌 영역으로만 바꾼다(확대는 하지 않음).
+// 목적지(핀 + 정보 카드)·출발지·승하차역이 지도 칸 안에 모두 들어오게 한다.
+// 이미 들어와 있으면 아무것도 하지 않고, 아니면 (1) 들어갈 때까지만 축소하고 (2) 가장 적게 평행이동한다. 확대는 하지 않는다.
 function ensureVisible(points) {
   const map = state.map;
   const el = document.getElementById('kakaoMap');
-  const W = el ? el.clientWidth : 0, H = el ? el.clientHeight : 0;
-  if (!map || !W || !H || !points.length) return;
-  const cur = map.getBounds();
-  const s = cur.getSouthWest().getLat(), w = cur.getSouthWest().getLng();
-  const n = cur.getNorthEast().getLat(), e = cur.getNorthEast().getLng();
-  const dLat = n - s, dLng = e - w;
-  const padLat = 28 / H * dLat, padLng = 28 / W * dLng;
-  // 장소 정보 카드는 장소 위쪽·좌우로 펼쳐지므로 그만큼 여유를 둔다.
-  const cardLat = Math.min(150, H * 0.35) / H * dLat, cardLng = Math.min(140, W * 0.4) / W * dLng;
-  let minLat = s, maxLat = n, minLng = w, maxLng = e, outside = false;
-  points.forEach(({ pos, isPlace }) => {
-    const lat = pos.getLat(), lng = pos.getLng();
-    const lo = lat - padLat, hi = lat + (isPlace ? cardLat : padLat);
-    const left = lng - (isPlace ? cardLng : padLng), right = lng + (isPlace ? cardLng : padLng);
-    if (lo < s || hi > n || left < w || right > e) outside = true;
-    minLat = Math.min(minLat, lo); maxLat = Math.max(maxLat, hi);
-    minLng = Math.min(minLng, left); maxLng = Math.max(maxLng, right);
-  });
-  if (!outside) return;
-  const level = map.getLevel();
-  const next = new kakao.maps.LatLngBounds(new kakao.maps.LatLng(minLat, minLng), new kakao.maps.LatLng(maxLat, maxLng));
-  map.setBounds(next);
-  if (map.getLevel() < level) map.setLevel(level);
+  if (!map || !el || !points.length) return;
+  map.relayout(); // 결과 영역 때문에 지도 칸 크기가 바뀐 경우 카카오 내부 크기를 먼저 맞춘다
+  const W = el.clientWidth, H = el.clientHeight;
+  if (!W || !H) return;
+  const pad = 14, padR = 54; // 오른쪽은 지도 확대/축소 컨트롤을 피한다
+  const measure = () => {
+    const proj = map.getProjection();
+    let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
+    const add = (x0, y0, x1, y1) => { l = Math.min(l, x0); t = Math.min(t, y0); r = Math.max(r, x1); b = Math.max(b, y1); };
+    points.forEach(({ pos, isPlace, side, size }) => {
+      const c = proj.containerPointFromCoords(pos);
+      if (!isPlace) { add(c.x - 8, c.y - 8, c.x + 8, c.y + 8); return; }
+      const w = size?.w || 250, h = size?.h || 110;
+      add(c.x - 15, c.y - 40, c.x + 15, c.y);                       // 핀
+      if (side === 'north') add(c.x - w / 2, c.y - h, c.x + w / 2, c.y);
+      else if (side === 'south') add(c.x - w / 2, c.y, c.x + w / 2, c.y + h);
+      else if (side === 'east') add(c.x, c.y - h / 2, c.x + w, c.y + h / 2);
+      else add(c.x - w, c.y - h / 2, c.x, c.y + h / 2);
+    });
+    return { l, t, r, b };
+  };
+  let rect = measure();
+  const fits = q => q.l >= pad && q.t >= pad && q.r <= W - padR && q.b <= H - pad;
+  if (fits(rect)) return;
+  let guard = 0;
+  while ((rect.r - rect.l > W - pad - padR || rect.b - rect.t > H - 2 * pad) && map.getLevel() < 14 && guard++ < 8) {
+    map.setLevel(map.getLevel() + 1, { animate: false });
+    rect = measure();
+  }
+  const dx = rect.l < pad ? rect.l - pad : (rect.r > W - padR ? rect.r - (W - padR) : 0);
+  const dy = rect.t < pad ? rect.t - pad : (rect.b > H - pad ? rect.b - (H - pad) : 0);
+  if (dx || dy) map.panBy(dx, dy);
 }
 
 // ─────────────────────────────────────────────
@@ -679,7 +711,7 @@ function renderRecommendations(payload) {
         <div class="result-rank">${i + 1}</div>
         <div class="result-name">${escapeHtml(p.name)}</div>
         <div class="result-cat">${catEmoji(p.facility_type)} ${catLabel(p.facility_type)}</div>
-        <div class="recommendation-time">${noTrain ? '🚶 도보 직행 (지하철 없음)' : `🚇 ${escapeHtml(formatTrainTime(r.departure_time))} 출발 → ${escapeHtml(formatTrainTime(r.arrival_time))} 도착`}</div>
+        <div class="recommendation-time">${noTrain ? `🚶 도보 약 ${typeof r.walk_minutes === 'number' ? `${r.walk_minutes}분` : '직행'} (지하철 없음)` : `🚇 ${escapeHtml(formatTrainTime(r.departure_time))} 출발 → ${escapeHtml(formatTrainTime(r.arrival_time))} 도착`}</div>
         <div class="result-info"><span class="result-info-key">이용 경로</span><span class="result-info-val">${noTrain ? '지하철 없이 직접 이동' : `${escapeHtml(stationName(r.boarding_station))}역 → ${escapeHtml(stationName(r.alighting_station))}역 (${escapeHtml(r.direction || '')})`}</span></div>
         <div class="result-info"><span class="result-info-key">예상 재차</span><span class="result-info-val">${noTrain ? '열차 미탑승 (점수 중립)' : `구간 평균 ${countLabel(r.mean_load)}`}</span></div>
         <div class="result-info"><span class="result-info-key">거리</span><span class="result-info-val">직선 ${weatherNumber(r.distance_km, 'km')}</span></div>
@@ -719,8 +751,56 @@ function renderRecommendations(payload) {
   }
 }
 
+// ───────── 출발지 변경 시 자동 재검색 ─────────
+function setUpdating(on) {
+  document.getElementById('resultsSection')?.classList.toggle('is-updating', on);
+  const badge = document.getElementById('mapUpdating');
+  if (badge) badge.hidden = !on;
+  if (on) {
+    state.routePolylines.forEach(p => { try { if (typeof p.setOptions === 'function') p.setOptions({ strokeOpacity: 0.3 }); } catch (_) { /* 무시 */ } });
+  }
+}
+
+function setStale(on) {
+  document.getElementById('resultsSection')?.classList.toggle('is-stale', on);
+}
+
+function showUpdateNote(message, retry = false) {
+  const note = document.getElementById('updateNote');
+  if (!note) return;
+  if (!message) { note.hidden = true; note.textContent = ''; return; }
+  note.textContent = message + ' ';
+  if (retry) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'update-retry';
+    btn.textContent = '다시 시도';
+    btn.addEventListener('click', () => requestRecommendations({ auto: true }));
+    note.appendChild(btn);
+  }
+  note.hidden = false;
+}
+
+function scheduleResearch() {
+  clearTimeout(state.researchTimer);
+  state.recommendationController?.abort();
+  state.recommendationRequestId++;           // 이전 요청의 늦은 응답은 무시된다
+  const button = document.getElementById('searchBtn');
+  button.disabled = false;
+  button.removeAttribute('aria-busy');
+  button.textContent = '추천 경로 찾기';
+  setUpdating(true);
+  setStale(false);
+  showUpdateNote('');
+  state.researchTimer = setTimeout(() => { state.researchTimer = null; requestRecommendations({ auto: true }); }, 600);
+}
+
 async function requestRecommendations(opts = {}) {
-  const hourMode = Number.isInteger(opts.hour) ? opts.hour : null;
+  const auto = opts.auto === true;
+  clearTimeout(state.researchTimer);
+  state.researchTimer = null;
+  const hourMode = Number.isInteger(opts.hour) ? opts.hour : (auto ? state.activeHour : null);
+  const prevPoiId = auto ? (state.selectedItem?.poi?.id ?? null) : null;
   if (!state.departure) {
     document.getElementById('resultsCards').innerHTML = '<p class="empty-state">먼저 지도에서 출발 위치를 선택해 주세요. 지도 클릭이 어려우면 아래 노선도 역 이름을 클릭해 선택할 수 있습니다.</p>';
     renderMetroSchematic();
@@ -731,17 +811,25 @@ async function requestRecommendations(opts = {}) {
   state.recommendationController = controller;
   const id = ++state.recommendationRequestId;
   const button = document.getElementById('searchBtn');
-  button.disabled = true;
-  button.setAttribute('aria-busy', 'true');
-  button.innerHTML = '<span class="spinner" aria-hidden="true"></span>이동 가능한 후보 계산 중…';
   const startedAt = Date.now();
-  const cardsBox = document.getElementById('resultsCards');
-  document.getElementById('resultsMeta').textContent = '추천 계산 중';
-  cardsBox.innerHTML = `<div class="loading-status" role="status"><span id="loadingElapsed">계산 중 · 0초</span></div><div class="skeleton-row" aria-hidden="true">${'<div class="skeleton-card"><i></i><i></i><i></i><i></i></div>'.repeat(4)}</div>`;
-  const tick = setInterval(() => {
-    const el = document.getElementById('loadingElapsed');
-    if (el) el.textContent = `계산 중 · ${Math.floor((Date.now() - startedAt) / 1000)}초`;
-  }, 1000);
+  let tick = null;
+  setStale(false);
+  showUpdateNote('');
+  if (auto) {
+    setUpdating(true);   // 이전 결과는 흐리게 두고 새 결과가 오면 바꾼다
+  } else {
+    setUpdating(false);
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    button.innerHTML = '<span class="spinner" aria-hidden="true"></span>이동 가능한 후보 계산 중…';
+    const cardsBox = document.getElementById('resultsCards');
+    document.getElementById('resultsMeta').textContent = '추천 계산 중';
+    cardsBox.innerHTML = `<div class="loading-status" role="status"><span id="loadingElapsed">계산 중 · 0초</span></div><div class="skeleton-row" aria-hidden="true">${'<div class="skeleton-card"><i></i><i></i><i></i><i></i></div>'.repeat(4)}</div>`;
+    tick = setInterval(() => {
+      const el = document.getElementById('loadingElapsed');
+      if (el) el.textContent = `계산 중 · ${Math.floor((Date.now() - startedAt) / 1000)}초`;
+    }, 1000);
+  }
   const timeout = setTimeout(() => controller.abort(), 90000);
 
   try {
@@ -758,6 +846,7 @@ async function requestRecommendations(opts = {}) {
         category: state.selectedCategory,
         origin: state.departure,
         limit: 50,
+        ...(document.getElementById('maxWalk').value !== '' ? { max_walk_minutes: Number(document.getElementById('maxWalk').value) } : {}),
       }),
     });
     let payload;
@@ -770,6 +859,7 @@ async function requestRecommendations(opts = {}) {
     if (!Array.isArray(payload.results)) throw new Error('예측 결과 형식을 확인할 수 없습니다.');
     if (id !== state.recommendationRequestId) return;
 
+    setUpdating(false);
     state.results = payload.results;
     state.activeHour = hourMode;
     if (hourMode === null) {
@@ -779,16 +869,35 @@ async function requestRecommendations(opts = {}) {
     renderRecommendations(payload);
     renderTimeChips();
     window.Analysis?.refreshHeatmap();
-    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+    if (!auto) document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
 
-    // 1위 추천 장소의 경로를 지도에 기본 표시
-    if (payload.results.length > 0) {
+    if (auto && prevPoiId !== null) {
+      // 출발지 변경 후 재검색: 같은 장소가 결과에 있으면 새 결과로 경로를 다시 그린다(카메라는 움직이지 않음)
+      const idx = payload.results.findIndex(r => r.poi?.id === prevPoiId);
+      if (idx >= 0) {
+        document.querySelector(`.result-card[data-index="${idx}"]`)?.classList.add('selected');
+        showPlaceRoute(payload.results[idx], true, false);
+      } else {
+        clearRoute();
+        state.selectedItem = null;
+        window.Analysis?.setSelected(null);
+        showUpdateNote('선택했던 장소가 새 출발지 기준 결과에 없어 선택을 해제했습니다.');
+      }
+    } else if (payload.results.length > 0) {
+      // 1위 추천 장소의 경로를 지도에 기본 표시
       const firstCard = document.querySelector('.result-card[data-index="0"]');
       if (firstCard) firstCard.classList.add('selected');
       showPlaceRoute(payload.results[0], true);
     }
   } catch (error) {
     if (id !== state.recommendationRequestId) return;
+    if (auto) {
+      // 이전 결과는 그대로 두되(흐림 해제 후 '이전 결과' 표시) 오류와 재시도 버튼을 보인다
+      setUpdating(false);
+      setStale(true);
+      showUpdateNote(`새 출발지 기준으로 다시 계산하지 못했습니다(${error.name === 'AbortError' ? '응답 시간 초과' : (error.message === 'Failed to fetch' ? '예측 서비스에 연결할 수 없음' : error.message)}). 아래는 이전 출발지 기준 결과입니다.`, true);
+      return;
+    }
     renderPoiMarkers([]);
     document.getElementById('resultsMeta').textContent = '추천을 불러오지 못했습니다';
     document.getElementById('resultsCards').innerHTML = `<p class="empty-state is-error" role="alert">${escapeHtml(error.name === 'AbortError' ? '응답 시간이 길어 요청을 중단했습니다. 잠시 후 다시 시도해 주세요.' : error.message === 'Failed to fetch' ? '예측 서비스에 연결할 수 없습니다. prediction_api.py 가 실행 중인지, 주소가 http://127.0.0.1:5500/web/index.html 인지 확인해 주세요.' : error.message)}<br>혼잡도나 추천 점수를 임의로 대신 표시하지 않습니다.</p>`;
@@ -796,7 +905,7 @@ async function requestRecommendations(opts = {}) {
   } finally {
     clearTimeout(timeout);
     clearInterval(tick);
-    if (id === state.recommendationRequestId) {
+    if (id === state.recommendationRequestId && !auto) {
       button.disabled = false;
       button.removeAttribute('aria-busy');
       button.textContent = '추천 경로 찾기';
@@ -824,6 +933,12 @@ function renderTimeChips() {
 }
 
 function initSearchBtn() {
+  document.getElementById('maxWalk').addEventListener('change', () => {
+    if (state.results.length > 0) {
+      document.getElementById('searchBtn').textContent = '변경된 도보 시간으로 추천 다시 찾기';
+      document.getElementById('predictionAnalysis').textContent = '도보 시간이 변경되었습니다. [추천 다시 찾기]를 누르면 다시 계산합니다.';
+    }
+  });
   document.getElementById('searchBtn').addEventListener('click', () => requestRecommendations());
 }
 

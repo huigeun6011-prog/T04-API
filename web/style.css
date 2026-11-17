@@ -1023,3 +1023,67 @@ button.heat-cell:hover { filter: brightness(1.12); }
 @media (prefers-reduced-motion: reduce) { .heat-cell { transition: none; } }
 @media (max-width: 600px) { .heat-cell { height: 44px; } }
 @media (min-width: 861px) and (max-height: 800px) { .map-area { flex: 1 0 266px; min-height: 266px; } }
+.about-doc-note { font-size: 13px; color: var(--text-2); line-height: 1.7; margin: 14px 0 0; }
+
+/* 목적지 핀과 경로 반대쪽에 놓는 정보 카드 */
+.dest-pin { width: 30px; height: 40px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.4)); pointer-events: none; }
+.dest-pin svg { display: block; }
+.poi-card-wrap { pointer-events: none; }
+.poi-card-wrap .poi-info-card { pointer-events: auto; min-width: 180px; max-width: 230px; }
+.poi-card-wrap.side-north { padding-bottom: 46px; }
+.poi-card-wrap.side-south { padding-top: 10px; }
+.poi-card-wrap.side-east { padding-left: 20px; }
+.poi-card-wrap.side-west { padding-right: 20px; }
+
+/* ── 출발지 변경 자동 재검색 표시 ── */
+.results-body { display: flex; flex-direction: column; min-width: 0; }
+.results-section.is-updating .results-body { opacity: .45; pointer-events: none; transition: opacity .15s; }
+.results-section.is-stale .results-body .results-cards { opacity: .65; }
+.map-updating { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 8; background: var(--primary-dk); color: #fff; font-size: 12.5px; padding: 6px 14px; border-radius: 100px; box-shadow: var(--shadow-md); }
+.map-updating[hidden] { display: none; }
+.update-note { margin: 0 18px 8px; padding: 8px 12px; font-size: 13px; color: var(--text); background: #F5EEDC; border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0; }
+.update-note[hidden] { display: none; }
+.update-retry { margin-left: 6px; padding: 4px 12px; border-radius: 100px; border: 1.5px solid var(--primary); background: var(--bg-card); color: var(--primary-dk); font-size: 12.5px; min-height: 32px; }
+
+/* ── 크기 조절 (넓은 화면 전용) ── */
+.panel-toggle { position: absolute; top: 10px; left: 10px; z-index: 8; min-height: 34px; padding: 4px 12px; border-radius: 100px; border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 12.5px; font-weight: 600; box-shadow: var(--shadow-sm); }
+.results-toggle { margin-left: auto; min-height: 32px; padding: 3px 12px; border-radius: 100px; border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text-2); font-size: 12.5px; }
+.splitter { flex: none; position: relative; background: var(--border-lt); touch-action: none; }
+.splitter::after { content: ""; position: absolute; inset: 0; margin: auto; background: var(--border); border-radius: 2px; }
+.splitter-v { width: 10px; cursor: col-resize; }
+.splitter-v::after { width: 3px; height: 40px; }
+.splitter-h { height: 10px; cursor: row-resize; }
+.splitter-h::after { width: 40px; height: 3px; }
+.splitter:hover, .splitter.dragging { background: #DDD3BF; }
+.splitter:focus-visible { background: #DDD3BF; outline: 3px solid var(--focus-ring); outline-offset: -3px; }
+body.is-resizing { user-select: none; cursor: inherit; }
+body.is-resizing .main-layout * { pointer-events: none; }
+body.is-resizing .splitter { pointer-events: auto; }
+.results-section.is-sized { overflow: hidden; }
+.results-section.is-sized .results-body { flex: 1 1 auto; min-height: 0; overflow: auto; }
+@media (min-width: 861px) {
+  .main-layout.panel-collapsed .control-panel, .main-layout.panel-collapsed #splitV { display: none; }
+  .results-section.collapsed { height: auto !important; }
+  .results-section.collapsed .results-body { display: none; }
+  .right-col.results-collapsed #splitH { display: none; }
+}
+@media (max-width: 860px) {
+  .splitter, .panel-toggle, .results-toggle { display: none !important; }
+  .results-section { height: auto !important; }
+  .update-note { margin: 0 14px 8px; }
+}
+
+/* 결과 영역이 작아져 스크롤될 때 카드가 눌려 글자가 상자 밖으로 나오지 않게: 내용 높이를 유지하고 바깥이 스크롤된다 */
+.results-body > * { flex-shrink: 0; }
+.results-cards { flex: 0 0 auto; }
+.result-card { min-width: 0; }
+.result-info { min-width: 0; gap: 8px; }
+.result-info-val { min-width: 0; }
+.result-alt, .result-foot, .recommendation-time, .result-cat { overflow-wrap: anywhere; word-break: keep-all; }
+.result-foot > * { min-width: 0; }
+.update-note, .loading-status, .empty-state { overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+  .kakao-route { margin: 0; padding: 0 4px; }
+  .results-title { white-space: nowrap; flex: none; }
+  .results-header { flex-wrap: wrap; }
+}

@@ -30,6 +30,9 @@ ROOT = Path(__file__).resolve().parent
 FEATURES = ['station_idx', 'hour', 'dir_code', 'is_weekend', 'temp', 'precip', 'snow', 'plan_version']
 MODEL_PATH = ROOT / 'outputs/load_predictor.joblib'
 CHANGE = '2026-03-30'
+# 도보 시간 추정: 직선거리 x 우회계수 / 보행속도. 실제 경로가 아닌 추정치다(D-014).
+WALK_KMH = 4.5
+WALK_DETOUR = 1.3
 STATIONS = []
 _model = None
 _model_stamp = None
@@ -223,6 +226,11 @@ def recommend(payload):
             if key not in trips or (trip['mean_load'], trip['departure_time']) < (trips[key]['mean_load'], trips[key]['departure_time']):
                 trips[key] = trip
     category = payload.get('category','all')
+    max_walk = payload.get('max_walk_minutes')
+    if max_walk is not None:
+        max_walk = float(max_walk)
+        if not 1 <= max_walk <= 240:
+            raise ValueError('최대 도보 시간은 1~240분이어야 합니다.')
     for poi in pois:
         if not poi.get('has_coordinates') or (category != 'all' and poi['facility_type'] != category):
             continue
@@ -230,6 +238,10 @@ def recommend(payload):
         alight = nearest(point)
         base = dict(poi=poi, boarding_station=board, alighting_station=alight, distance_km=round(km(origin,point),3), walking_distance_km=round(km(origin,board)+km(point,alight),3), opening_hours=None)
         if alight['idx'] == board['idx']:
+            walk_minutes = round(base['distance_km']*WALK_DETOUR/WALK_KMH*60)
+            if max_walk is not None and walk_minutes > max_walk:
+                continue
+            base['walk_minutes'] = walk_minutes
             candidates.append(dict(**base,hour=None,departure_time=None,arrival_time=None,direction=None,train_id=None,mean_load=None,max_load=None,no_train=True))
         else:
             candidates.extend(dict(**base,**trip) for (station,h),trip in trips.items() if station==alight['name'])
@@ -254,16 +266,29 @@ def recommend(payload):
         grouped.setdefault(key, []).append(c)
     places = []
     place_keys = []
+    place_walk_only = []
     for key, options in grouped.items():
         place_keys.append(key)
         best = dict(options[0])
+        place_walk_only.append(bool(best['no_train']))
         best['alt_times'] = [dict(departure_time=o['departure_time'],arrival_time=o['arrival_time'],boarding_station=o['boarding_station']['name'],alighting_station=o['alighting_station']['name'],mean_load=o['mean_load'],score=o['score']) for o in options[1:4] if not o['no_train']]
         places.append(best)
+    # 도보 전용 후보가 목록을 채우지 않도록 limit 의 1/3 까지만 먼저 담고, 자리가 남으면 나머지 도보 후보로 채운다(원래 순위 유지).
+    walk_cap = max(1, limit // 3)
+    chosen, skipped = [], []
+    for i in range(len(places)):
+        if len(chosen) >= limit:
+            break
+        if place_walk_only[i] and sum(place_walk_only[j] for j in chosen) >= walk_cap:
+            skipped.append(i)
+        else:
+            chosen.append(i)
+    chosen = sorted(chosen + skipped[:max(0, limit - len(chosen))])
     matrix = None
     if payload.get('include_matrix') is True:
         # 상위 장소(최대 15곳)의 시간대별 최선 후보를 이미 계산된 후보에서 그대로 꺼낸다(점수·정렬은 그대로).
         rows = []
-        for key, best in list(zip(place_keys, places))[:min(limit, 15)]:
+        for key, best in [(place_keys[i], places[i]) for i in chosen][:min(limit, 15)]:
             by_hour = {}
             for c in grouped[key]:
                 if c['hour'] is not None:
@@ -271,9 +296,11 @@ def recommend(payload):
             cells = [dict(hour=h, departure_time=by_hour[h]['departure_time'], mean_load=by_hour[h]['mean_load'], score=by_hour[h]['score']) if h in by_hour else dict(hour=h, departure_time=None, mean_load=None, score=None) for h in range(start, end+1)]
             rows.append(dict(poi_id=best['poi'].get('id'), name=best['poi'].get('name'), no_train=best['no_train'], cells=cells))
         matrix = dict(hours=list(range(start, end+1)), rows=rows)
-    response = dict(results=places[:limit],total=len(candidates),place_total=len(places),meta=dict(service_date=day,boarding_station=board,quiet_weight=weight,weather_source=weather_sources,model_updated_at=datetime.fromtimestamp(MODEL_PATH.stat().st_mtime).isoformat(),distance_basis='출발 위치에서 장소까지 직선거리',load_basis='승차 후부터 하차 전까지 구간별 예상 재차인원 평균',limitations=['장소 자체의 방문객 혼잡도를 예측하지 않습니다.','운영시간 자료가 없어 장소 개방 여부는 확인되지 않았습니다.','같은 역 주변 장소는 열차 이동이 없어 한산함 점수를 중립값으로 표시합니다.','시간별 순위는 해당 시간대에 운행하는 열차 중 예상 구간 평균이 가장 낮은 열차 기준입니다.']))
+    response = dict(results=[places[i] for i in chosen],total=len(candidates),place_total=len(places),meta=dict(service_date=day,boarding_station=board,quiet_weight=weight,weather_source=weather_sources,model_updated_at=datetime.fromtimestamp(MODEL_PATH.stat().st_mtime).isoformat(),distance_basis='출발 위치에서 장소까지 직선거리',load_basis='승차 후부터 하차 전까지 구간별 예상 재차인원 평균',limitations=['장소 자체의 방문객 혼잡도를 예측하지 않습니다.','운영시간 자료가 없어 장소 개방 여부는 확인되지 않았습니다.','같은 역 주변 장소는 열차 이동이 없어 한산함 점수를 중립값으로 표시합니다.','시간별 순위는 해당 시간대에 운행하는 열차 중 예상 구간 평균이 가장 낮은 열차 기준입니다.']))
     if matrix is not None:
         response['matrix'] = matrix
+    response['meta']['max_walk_minutes'] = max_walk
+    response['meta']['walk_basis'] = f'도보 시간은 직선거리 x {WALK_DETOUR} / {WALK_KMH}km/h 추정이며 실제 길이 아닙니다.'
     return response
 
 
@@ -320,6 +347,20 @@ STATIC_TYPES = {
     '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon',
     '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.txt': 'text/plain; charset=utf-8',
 }
+
+
+def warm_up():
+    """서버 시작 직후 백그라운드에서 첫 호출이 느려지는 원인(날씨 조회, 시간표·모델 초기화)을 미리 처리한다."""
+    try:
+        today = datetime.now().date()
+        for version in ('20250930', '20260330'):
+            schedule_file(version)
+        model = get_model()
+        model.predict(pd.DataFrame([[0, 8, 0, 0, 10.0, 0.0, 0.0, 1]], columns=FEATURES))
+        for offset in (0, 1):  # 24시 구간은 다음 날 0시 날씨를 쓰므로 오늘과 내일을 모두 받아 둔다
+            weather_day((today + timedelta(days=offset)).isoformat())
+    except Exception:
+        pass  # 준비 실패는 첫 요청이 같은 일을 다시 하며 오류를 보고한다
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -427,5 +468,6 @@ if __name__ == '__main__':
     args=parser.parse_args()
     stations()
     get_model()
+    threading.Thread(target=warm_up, daemon=True).start()
     print(f'Prediction API: http://127.0.0.1:{args.port}',flush=True)
     ThreadingHTTPServer(('127.0.0.1',args.port),Handler).serve_forever()
