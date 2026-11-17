@@ -1,0 +1,8 @@
+{
+  "n_cases": 20,
+  "n_matched": 19,
+  "matched_mae": 322.39157894736843,
+  "matched_bias": -322.39157894736843,
+  "estimated_label_mae": 255.96757945708214,
+  "caveat": "Selected peak cases, model predicts hour-conditioned post-stop estimated loads. In-sample dates after full refit; not independent holdout accuracy. Actual peak count may be measured before versus after stop; no such measurement metadata is supplied."
+}

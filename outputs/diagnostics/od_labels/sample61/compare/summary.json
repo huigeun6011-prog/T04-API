@@ -1,0 +1,19 @@
+{
+  "n_queries": 30,
+  "mean_jaccard_top10": 0.761662995873522,
+  "min_jaccard": 0.05263157894736842,
+  "mean_spearman_scores": 0.9071339452479555,
+  "mean_walk_only_prod": 0.10999999999999997,
+  "mean_walk_only_cand": 0.10499999999999998,
+  "mean_abs_hour_diff": 0.245223684894871,
+  "model_cells": 1628,
+  "model_spearman": 0.9630742283864494,
+  "model_ratio_mean_cand_over_prod": 0.940328329739577,
+  "prod_mean": 135.5711246066444,
+  "cand_mean": 127.481369162282,
+  "thresholds": {
+    "same": 0.8,
+    "partial": 0.5
+  },
+  "verdict": "부분적으로 다르다"
+}

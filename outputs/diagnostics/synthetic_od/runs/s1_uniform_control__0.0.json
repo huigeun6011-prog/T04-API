@@ -1,0 +1,53 @@
+{
+ "scenario": "s1_uniform_control",
+ "noise": 0.0,
+ "true_total": 110086.0,
+ "input_B_total": 110085.99999999999,
+ "input_A_total": 110086.0,
+ "od": {
+  "cell": {
+   "n": 814,
+   "spearman": 0.999999994437773,
+   "pearson": 1.0,
+   "sum_ratio": 0.9999999999999999,
+   "top10pct_ratio": 1.0000000000000002,
+   "mae_rel": 6.471636503659124e-16
+  },
+  "train": {
+   "n": 5039,
+   "spearman": 0.9999999988745405,
+   "pearson": 1.0,
+   "sum_ratio": 1.0,
+   "top1pct_ratio": 1.0000000000000004,
+   "deviation_corr": 1.0
+  },
+  "recovered": true,
+  "seconds": 0.1836259365081787,
+  "converged": true,
+  "nit": 0,
+  "B_rel_l1": 1.9350390801816585e-16,
+  "A_rel_l1": 6.587717268803901e-16,
+  "est_total": 110085.99999999999
+ },
+ "adam": {
+  "cell": {
+   "n": 814,
+   "spearman": 0.9310391542620569,
+   "pearson": 0.9298323873864933,
+   "sum_ratio": 0.9147557632327146,
+   "top10pct_ratio": 0.82679942596505,
+   "mae_rel": 0.15084828916774856
+  },
+  "train": {
+   "n": 5039,
+   "spearman": 0.918429018564219,
+   "pearson": 0.9189471037347153,
+   "sum_ratio": 0.9085807661038343,
+   "top1pct_ratio": 0.9106876041436658,
+   "deviation_corr": 0.8103318817000852
+  },
+  "recovered": true,
+  "seconds": 4.782175302505493
+ },
+ "seconds_total": 5.022508859634399
+}

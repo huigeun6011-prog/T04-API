@@ -1,0 +1,17 @@
+{
+ "date": "2025-05-12",
+ "lam": 0.01,
+ "seconds": 29.970303999999942,
+ "rows": 5281,
+ "converged": true,
+ "nit": 1261,
+ "objective": 329.82227494382005,
+ "proj_grad_inf": 7.497198183624432e-07,
+ "message": "CONVERGENCE: RELATIVE REDUCTION OF F <= FACTR*EPSMCH",
+ "terminal_abs_max": 1.5631940186722204e-13,
+ "raw_load_min": -1.5631940186722204e-13,
+ "B_rel_l1_eligible": 0.005251584133934692,
+ "A_rel_l1_eligible": 0.005226386400872118,
+ "board_slack_nocell": 9.0,
+ "alight_slack_nocell": 12.0
+}

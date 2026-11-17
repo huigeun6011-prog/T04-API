@@ -1,0 +1,25 @@
+{
+  "note": "실행 전 고정. 결과를 보고 바꾸지 않는다. 합성 자료만 사용(실제 피크 19건 미사용).",
+  "date": "2025-11-04",
+  "truth": "x_true[v] = w_k * beta[cell(a)] * pi[a->b]; beta는 셀 승차합이 실제 B와 같도록 정함; pi = attr/z, attr=(A_real[cell(b)]+1)*exp(-beta_d*d)",
+  "scenarios": {
+    "s1_uniform_control": {"w": "ones", "beta_d": 0.0, "attractiveness": false, "desc": "정답=OD의 균일 prior(통제군, 풀이기 점검)"},
+    "s2_gravity_mild":    {"w": "ones", "beta_d": 0.1, "attractiveness": true, "desc": "목적지 매력도+약한 거리감쇠"},
+    "s3_gravity_short":   {"w": "ones", "beta_d": 0.3, "attractiveness": true, "desc": "짧은 이동 위주"},
+    "s4_rush":            {"w": "rush", "beta_d": 0.1, "attractiveness": true, "desc": "08:15, 18:15 부근 열차가 1+1.0 가중(폭 45분)"},
+    "s5_lognormal":       {"w": "lognormal_sigma0.3_seed1", "beta_d": 0.1, "attractiveness": true, "desc": "열차별 무작위 편차"}
+  },
+  "noise": [0.0, 0.02, 0.05],
+  "noise_model": "B, A 칸별 곱셈 잡음 clip(1+s*N(0,1), 0.5, inf), noise_seed=7",
+  "estimators": {
+    "od": "gt_train_od 균일 기준 q, lam=0.01 (런북 Step 0과 동일)",
+    "adam": "ac.solve_day(date, mode=baseline, epochs=1000), load = max(raw,0). production(200회+종점0)의 근사이며 동일하지 않음"
+  },
+  "metrics": {
+    "cell_level": "비종점 이벤트의 (역,시간,방향)별 평균 재차: Spearman, Pearson, 합 비율(추정/정답), 정답 상위 10% 셀의 합 비율",
+    "train_level": "비종점 이벤트별 재차: Spearman, Pearson, 합 비율, 정답 상위 1% 이벤트의 평균 비율, 셀 평균을 뺀 열차 편차의 상관",
+    "marginal_fit": "추정 승하차 합 vs 입력 합계의 L1 상대오차"
+  },
+  "pass_rule_cell_level": "Spearman>=0.9 이고 합 비율 0.9~1.1 이고 상위10% 셀 비율 0.8~1.2 이면 '복원'. 하나라도 벗어나면 '미복원'. 부분 충족은 수치 그대로 보고.",
+  "workers": 3
+}

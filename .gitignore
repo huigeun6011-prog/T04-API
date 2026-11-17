@@ -19,3 +19,7 @@ web/config.local.js
 
 # 로컬 전용 Claude 설정과 외부 스킬 (내 PC 경로가 들어 있고 서드파티 자료 3MB)
 .claude/
+
+# OD 라벨 표본 실행의 재생성 가능한 대용량 산출물 (make_od_labels.py로 다시 만든다)
+outputs/diagnostics/od_labels/*/labels/
+outputs/diagnostics/od_labels/*/dataset.csv
