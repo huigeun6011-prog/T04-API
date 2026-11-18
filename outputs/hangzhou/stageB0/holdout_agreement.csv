@@ -1,0 +1,4 @@
+pair,top1_half_A,top1_half_B,top1_agree_within_1,heldout_1hub_A_on_B,insample_1hub_B_on_B,heldout_2hub_A_on_B,second_hub_improvement_heldout,second_hub_supported,per_trip_assignment_agreement_within1,halfA_hubs,halfB_hubs
+AB,posX12-posY6,posX12-posY6,True,6.914,6.914,3.755,0.4569,True,0.9997,"[(12, 6), (12, 12)]","[(12, 6), (12, 12)]"
+AC,posX10-posY12,posX10-posY12,True,2.84,2.84,2.007,0.2932,True,1.0,"[(10, 12), (10, 13)]","[(10, 12), (10, 13)]"
+BC,posX10-posY14,posX10-posY14,True,5.477,5.477,3.374,0.3839,True,0.9993,"[(10, 14), (10, 17)]","[(10, 14), (10, 17)]"

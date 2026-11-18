@@ -1,0 +1,11 @@
+direction,band,N,N_exp,added,note,wanted
+toward_66,05-07,20,,0,E1 expected unavailable,
+toward_66,07-09,28,,0,E1 expected unavailable,
+toward_66,09-17,120,115.57,0,not short,
+toward_66,17-19,30,29.29,0,not short,
+toward_66,19-23:30,43,53.71,0,,11.00
+toward_34,05-07,24,,0,E1 expected unavailable,
+toward_34,07-09,30,27.29,0,not short,
+toward_34,09-17,120,115.00,0,not short,
+toward_34,17-19,30,28.71,0,not short,
+toward_34,19-23:30,50,,0,E1 expected unavailable,

@@ -1,0 +1,4 @@
+pair,n_trips,best_score,best_nonneighbour,gap_to_nonneighbour_min,cls,flat_median_score
+AB,128509,6.923,posX12-posY0,0.047,ambiguous,15.906
+AC,68030,2.829,posX12-posY13,0.596,clear,15.211
+BC,199855,5.442,posX10-posY16,0.336,ambiguous,17.638

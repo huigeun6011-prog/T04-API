@@ -1,0 +1,174 @@
+{
+ "synthesis_counts_all": {
+  "알 수 없음": 40,
+  "반박": 20
+ },
+ "synthesis_counts_by_band": {
+  "05-07": {
+   "알 수 없음": 12
+  },
+  "07-09": {
+   "반박": 7,
+   "알 수 없음": 5
+  },
+  "09-17": {
+   "알 수 없음": 9,
+   "반박": 3
+  },
+  "17-19": {
+   "반박": 10,
+   "알 수 없음": 2
+  },
+  "19-23:30": {
+   "알 수 없음": 12
+  }
+ },
+ "synthesis_counts_rush": {
+  "반박": 17,
+  "알 수 없음": 7
+ },
+ "e3_turnback_candidate_share_by_dir_band": [
+  {
+   "direction": "toward_34",
+   "band": "05-07",
+   "turnback_candidate": 0.0
+  },
+  {
+   "direction": "toward_34",
+   "band": "07-09",
+   "turnback_candidate": 0.0
+  },
+  {
+   "direction": "toward_34",
+   "band": "09-17",
+   "turnback_candidate": 0.0
+  },
+  {
+   "direction": "toward_34",
+   "band": "17-19",
+   "turnback_candidate": 0.0
+  },
+  {
+   "direction": "toward_34",
+   "band": "19-23:30",
+   "turnback_candidate": 0.0
+  },
+  {
+   "direction": "toward_66",
+   "band": "05-07",
+   "turnback_candidate": 0.05
+  },
+  {
+   "direction": "toward_66",
+   "band": "07-09",
+   "turnback_candidate": 0.103
+  },
+  {
+   "direction": "toward_66",
+   "band": "09-17",
+   "turnback_candidate": 0.0
+  },
+  {
+   "direction": "toward_66",
+   "band": "17-19",
+   "turnback_candidate": 0.0
+  },
+  {
+   "direction": "toward_66",
+   "band": "19-23:30",
+   "turnback_candidate": 0.0
+  }
+ ],
+ "e1_changepoints_found": [],
+ "e1_evaluable_share": 0.5,
+ "null_false_step_share_mean": 0.2,
+ "informative_cell_share_by_band": {
+  "05-07": 0.0,
+  "07-09": 0.625,
+  "09-17": 0.21875,
+  "17-19": 0.703125,
+  "19-23:30": 0.203125
+ },
+ "pool2_headway_mean_s": {
+  "toward_66": {
+   "trains": 220,
+   "outside_05_2330": 0,
+   "max_gap_s_05_2330": 603.4000000000087,
+   "gaps_gt600_07_22": 0,
+   "max_gap_s_07_22": 402.1000000000058,
+   "mean_headway_s": {
+    "05-07": 339.5368421052632,
+    "07-09": 246.1232142857143,
+    "09-17": 286.42727272727274,
+    "17-19": 239.35000000000005,
+    "19-23:30": 326.3612499999999
+   }
+  },
+  "toward_34": {
+   "trains": 210,
+   "outside_05_2330": 0,
+   "max_gap_s_05_2330": 629.1499999999978,
+   "gaps_gt600_07_22": 0,
+   "max_gap_s_07_22": 529.0,
+   "mean_headway_s": {
+    "05-07": 381.47812499999986,
+    "07-09": 353.0875,
+    "09-17": 289.77653061224487,
+    "17-19": 243.3178571428572,
+    "19-23:30": 311.50581395348837
+   }
+  }
+ },
+ "morning_0709_independent_peak_headway_s": {
+  "toward_34": {
+   "seg0": null,
+   "seg1": 258.1673306772908,
+   "seg2": 234.35804701627487,
+   "seg3": 227.76801405975397,
+   "seg4": 223.41509770149077,
+   "seg5": 271.74110851762475
+  },
+  "toward_66": {
+   "seg0": 261.2903225806451,
+   "seg1": 256.17550891256195,
+   "seg2": 265.57377049180326,
+   "seg3": 262.3481781376518,
+   "seg4": 270.57428780640885,
+   "seg5": 303.5545023696683
+  }
+ },
+ "morning_0709_trains_per_day_pool2": {
+  "toward_34": 21,
+  "toward_66": 29
+ },
+ "end_segment_median_rho_by_band": {
+  "toward_34_head": {
+   "05-07": null,
+   "07-09": null,
+   "09-17": null,
+   "17-19": null,
+   "19-23:30": null
+  },
+  "toward_34_tail": {
+   "05-07": null,
+   "07-09": 0.8502673796791445,
+   "09-17": 1.0096208262591966,
+   "17-19": 0.9658385093167703,
+   "19-23:30": null
+  },
+  "toward_66_head": {
+   "05-07": null,
+   "07-09": 1.0050658561296861,
+   "09-17": null,
+   "17-19": 1.0037313432835822,
+   "19-23:30": null
+  },
+  "toward_66_tail": {
+   "05-07": null,
+   "07-09": 0.8652482269503547,
+   "09-17": null,
+   "17-19": 0.9841417910447761,
+   "19-23:30": null
+  }
+ }
+}

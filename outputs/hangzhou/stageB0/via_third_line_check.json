@@ -1,0 +1,13 @@
+{
+ "n": 20000,
+ "direct_best": "A id 77 - C id 46",
+ "direct_mean_abs": 2.820594549179077,
+ "direct_W": 7.157589435577393,
+ "via_B_hubs": "A79 -> B6 ... B10 -> C48",
+ "via_mean_abs": 4.453423563988096,
+ "via_W_total": -5.5364583333333535,
+ "share_via_better_by_3min": 0.06525,
+ "share_direct_better_by_3min": 0.24025,
+ "via_B_leg_stations": 4,
+ "note": "direct = 1088-candidate search, via = fixed hubs from AB/BC fits + one W (no search)"
+}

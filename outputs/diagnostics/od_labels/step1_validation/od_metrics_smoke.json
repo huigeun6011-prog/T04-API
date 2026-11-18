@@ -1,0 +1,121 @@
+{
+  "train_mae": 13.433799124001508,
+  "train_rmse": 19.845224868114727,
+  "train_r2": 0.944024304420084,
+  "val_mae": 24.414640072284964,
+  "val_rmse": 35.31523111167142,
+  "val_r2": 0.8028844295912869,
+  "features": [
+    "station_idx",
+    "hour",
+    "dir_code",
+    "is_weekend",
+    "temp",
+    "precip",
+    "snow",
+    "plan_version"
+  ],
+  "n_samples": 14787,
+  "service_date_start": "2026-10-03",
+  "service_date_end": "2026-10-24",
+  "n_service_days": 3,
+  "train_date_end": "2026-10-21",
+  "validation_date_start": "2026-10-24",
+  "validation_date_end": "2026-10-24",
+  "validation_by_hour": {
+    "5": {
+      "rows": 103,
+      "mae": 24.525079623004224
+    },
+    "6": {
+      "rows": 207,
+      "mae": 19.136105283831043
+    },
+    "7": {
+      "rows": 220,
+      "mae": 41.72734563608994
+    },
+    "8": {
+      "rows": 250,
+      "mae": 20.508170213260367
+    },
+    "9": {
+      "rows": 264,
+      "mae": 22.169225509082093
+    },
+    "10": {
+      "rows": 264,
+      "mae": 31.725708314069877
+    },
+    "11": {
+      "rows": 264,
+      "mae": 41.030464058772594
+    },
+    "12": {
+      "rows": 264,
+      "mae": 42.92633370563936
+    },
+    "13": {
+      "rows": 264,
+      "mae": 38.36376025852276
+    },
+    "14": {
+      "rows": 264,
+      "mae": 29.986491694546118
+    },
+    "15": {
+      "rows": 264,
+      "mae": 22.561385662259198
+    },
+    "16": {
+      "rows": 274,
+      "mae": 22.860773054136047
+    },
+    "17": {
+      "rows": 320,
+      "mae": 18.708491195557304
+    },
+    "18": {
+      "rows": 319,
+      "mae": 18.595493583290676
+    },
+    "19": {
+      "rows": 275,
+      "mae": 13.084749780586058
+    },
+    "20": {
+      "rows": 264,
+      "mae": 13.748272909510547
+    },
+    "21": {
+      "rows": 234,
+      "mae": 15.224817714495094
+    },
+    "22": {
+      "rows": 219,
+      "mae": 16.139090033381056
+    },
+    "23": {
+      "rows": 196,
+      "mae": 11.138032783106745
+    },
+    "24": {
+      "rows": 24,
+      "mae": 6.851459482711898
+    }
+  },
+  "validation_by_plan": {
+    "1": {
+      "rows": 4753,
+      "mae": 24.414640072284964
+    }
+  },
+  "deployment_refit_all_dates": true,
+  "target_kind": "estimated_post_stop_onboard_passengers",
+  "midnight_rule": "service_date hour=24 uses next calendar date 00:00 weather and gate counts",
+  "label_policy": "load=max(raw_load,0), each raw_load is unmodified cumulative board-alight; terminal residual not overwritten; correction retained in CSV",
+  "has_raw_load_and_correction": true,
+  "solver_diagnostics_path": null,
+  "ground_truth_train_loads.csv_sha256": "90c0fde5da5fb70dc60e396f0cc844214dfa7e951da3c1e83abf398e4ead7d5b",
+  "load_predictor.joblib_sha256": "1be2d15de6540470ff1c6e325572a72ad64e65c256039d432f707956fe16e20d"
+}

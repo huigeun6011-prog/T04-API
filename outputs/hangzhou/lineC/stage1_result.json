@@ -1,0 +1,8 @@
+{
+ "bc_within5_branch": 0.5781,
+ "bc_within5_plain": 0.5911,
+ "ac_within5": 0.8839,
+ "gate_bc": false,
+ "gate_ac": true,
+ "passed": false
+}

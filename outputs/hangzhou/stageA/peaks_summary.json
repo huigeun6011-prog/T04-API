@@ -1,0 +1,41 @@
+{
+ "n_stations": 80,
+ "class_counts": {
+  "clear": 54,
+  "weak": 25,
+  "none": 1
+ },
+ "per_line": {
+  "A": {
+   "clear": 11,
+   "none": 0,
+   "weak": 3
+  },
+  "B": {
+   "clear": 19,
+   "none": 1,
+   "weak": 14
+  },
+  "C": {
+   "clear": 24,
+   "none": 0,
+   "weak": 8
+  }
+ },
+ "top10_07_09_classes": {
+  "weak": 5,
+  "clear": 3,
+  "none": 2
+ },
+ "labelled_dir_share_overall": 0.6426035523488751,
+ "labelled_dir_share_station_quantiles": {
+  "0.05": 0.226,
+  "0.25": 0.596,
+  "0.5": 0.684,
+  "0.75": 0.763,
+  "0.95": 0.796
+ },
+ "median_peak_interval_s_clear": 286.75,
+ "exits_share_in_none": 0.06669176343233545,
+ "exits_share_in_clear": 0.6346217399865206
+}

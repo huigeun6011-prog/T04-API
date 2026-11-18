@@ -1,0 +1,11 @@
+direction,band,trains,median_exits_per_train_per_day,informative_seg_share,in_zone
+toward_34,05-07,17,287.500,1.000,False
+toward_34,07-09,29,1206.000,1.000,True
+toward_34,09-17,99,427.000,1.000,True
+toward_34,17-19,29,695.000,1.000,True
+toward_34,19-23:30,44,391.000,1.000,True
+toward_66,05-07,20,175.000,1.000,False
+toward_66,07-09,29,1053.500,1.000,True
+toward_66,09-17,100,417.000,1.000,True
+toward_66,17-19,30,893.000,1.000,True
+toward_66,19-23:30,43,465.000,1.000,True

@@ -1,0 +1,23 @@
+model,group,n,a,b,hops_used,W,within5,median_abs,mean_abs,median_residual_min
+graph_hops,fit,740839,3.791,2.336,1-32,,,,,
+graph_hops,same_line_all (W=0),740839,,,,0.0,0.8091,1.867,3.256,
+graph_hops,same_line_all (W=median),740839,,,,1.18,0.8477,1.974,3.053,
+graph_hops,same_line_A (W=median),32889,,,,-0.11,0.9721,1.21,1.74,
+graph_hops,same_line_B (W=median),462117,,,,2.31,0.8232,2.382,3.406,
+graph_hops,same_line_C (W=median),245833,,,,-0.12,0.9621,1.385,1.927,
+graph_hops,"cross_BC (both directions pooled, W=median)",199855,,,,6.08,0.7633,2.767,3.905,
+graph_hops,"cross_AC (both directions pooled, W=median)",68030,,,,3.54,0.783,2.709,3.539,
+graph_hops,"cross_AB (both directions pooled, W=median)",128509,,,,2.47,0.8451,2.405,3.251,
+graph_hops,BC residual B-group B0-10 x C-group C34-45,14861,,,,,0.7798,,,0.97
+graph_hops,BC residual B-group B0-10 x C-group C46-51,17733,,,,,0.7395,,,-2.4
+graph_hops,BC residual B-group B0-10 x C-group C52-66,56304,,,,,0.8646,,,-0.83
+graph_hops,BC residual B-group B11-20 x C-group C34-45,23348,,,,,0.8045,,,-1.01
+graph_hops,BC residual B-group B11-20 x C-group C46-51,21278,,,,,0.7078,,,-2.4
+graph_hops,BC residual B-group B11-20 x C-group C52-66,33712,,,,,0.8286,,,0.99
+graph_hops,BC residual B-group B21-27 x C-group C34-45,4184,,,,,0.6479,,,3.19
+graph_hops,BC residual B-group B21-27 x C-group C46-51,6014,,,,,0.7093,,,2.16
+graph_hops,BC residual B-group B21-27 x C-group C52-66,9267,,,,,0.5321,,,4.68
+graph_hops,BC residual B-group B28-33(branch) x C-group C34-45,2895,,,,,0.4187,,,5.96
+graph_hops,BC residual B-group B28-33(branch) x C-group C46-51,4491,,,,,0.5112,,,4.83
+graph_hops,BC residual B-group B28-33(branch) x C-group C52-66,5768,,,,,0.3408,,,6.59
+"direct_hub_B10-C51 (plain ID order, stage-1 style)",B11-20 x C34-45 median residual,23348,,,,,0.5911,,,-15.08

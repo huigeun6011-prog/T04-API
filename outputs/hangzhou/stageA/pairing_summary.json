@@ -1,0 +1,69 @@
+{
+ "rows": 2304828,
+ "lines": [
+  "A",
+  "B",
+  "C"
+ ],
+ "users": 715736,
+ "exit_paired_share_all": 0.6501,
+ "pair_minutes_quantiles": {
+  "0.01": 4.2,
+  "0.05": 6.7,
+  "0.25": 12.3,
+  "0.5": 19.6,
+  "0.75": 30.2,
+  "0.95": 50.2,
+  "0.99": 65.7
+ },
+ "pair_minutes_quantiles_by_payType": {
+  "0": [
+   7.0,
+   19.9,
+   48.9
+  ],
+  "1": [
+   6.6,
+   19.0,
+   49.3
+  ],
+  "2": [
+   6.8,
+   19.2,
+   49.3
+  ],
+  "3": [
+   6.1,
+   22.5,
+   58.4
+  ]
+ },
+ "cross_line_trips_share_of_exits": 0.3438,
+ "entry_paired_share_all": 0.6506,
+ "entry_paired_share_by_payType": {
+  "0": 0.5992,
+  "1": 0.6391,
+  "2": 0.6707,
+  "3": 0.7118
+ },
+ "payType_share_of_exits": {
+  "1": 0.4343,
+  "2": 0.3195,
+  "0": 0.1455,
+  "3": 0.1007
+ },
+ "entries": 1151957,
+ "transfer_like_entries": 11633,
+ "transfer_like_share_of_entries": 0.0101,
+ "transfer_by_kind_share_of_entries": {
+  "same_station": 0.0101,
+  "different_line": 0.0,
+  "same_line_other_station": 0.0
+ },
+ "entry_after_exit_gap_hist_all_kinds": null,
+ "paired_exits_whose_entry_follows_other_line_exit_le15min": 0.0,
+ "notes": [
+  "direction = sign(exit id - entry id), relies on stationID-order hypothesis",
+  "pairing: previous record of same user must be an entry on the same line, <=180 min; ties sorted exit-before-entry"
+ ]
+}

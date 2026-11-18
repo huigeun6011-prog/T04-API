@@ -1,0 +1,33 @@
+exits_window,n_peaks,median_interval_s,regularity,explained,coverage,lift,cls,group,lineID,stationID,subset
+31676,4,7489.0,0.4539,0.0376,0.0169,2.2312,none,busiest3,B,15,all_exits
+20437,12,1058.0,1.8171,0.1136,0.0506,2.2464,none,busiest3,B,15,paired_both_dirs
+12057,70,279.0,0.2222,0.7068,0.2931,2.4119,clear,busiest3,B,15,dir_plus(id increasing)
+8380,66,292.0,0.4178,0.7084,0.2757,2.5689,clear,busiest3,B,15,dir_minus(id decreasing)
+17496,73,279.0,0.2303,0.7068,0.3044,2.3218,clear,busiest3,B,9,all_exits
+12859,70,281.0,0.3238,0.6781,0.2932,2.3129,clear,busiest3,B,9,paired_both_dirs
+3322,78,268.0,0.1604,0.8639,0.3286,2.6291,clear,busiest3,B,9,dir_plus(id increasing)
+9537,78,274.0,0.3248,0.8287,0.3269,2.5346,clear,busiest3,B,9,dir_minus(id decreasing)
+11192,67,272.0,0.3732,0.5913,0.2803,2.1094,clear,busiest3,B,7,all_exits
+8497,72,277.0,0.2834,0.652,0.3029,2.1527,clear,busiest3,B,7,paired_both_dirs
+2174,79,271.0,0.1697,0.8818,0.3328,2.6494,clear,busiest3,B,7,dir_plus(id increasing)
+6323,79,269.0,0.2686,0.8515,0.3307,2.5745,clear,busiest3,B,7,dir_minus(id decreasing)
+2666,69,300.0,0.1242,0.7622,0.2907,2.622,clear,mid5,A,73,all_exits
+666,105,172.5,0.8986,0.8393,0.4288,1.9574,weak,mid5,A,73,paired_both_dirs
+262,91,258.0,0.7006,0.9962,0.3567,2.793,weak,mid5,A,73,dir_plus(id increasing)
+404,69,302.0,0.2533,0.9035,0.2845,3.1757,clear,mid5,A,73,dir_minus(id decreasing)
+2859,105,180.5,0.6953,0.7828,0.4368,1.7921,weak,mid5,C,48,all_exits
+1884,103,188.0,0.6715,0.7893,0.4277,1.8455,weak,mid5,C,48,paired_both_dirs
+815,76,291.0,0.1546,0.9264,0.3149,2.9422,clear,mid5,C,48,dir_plus(id increasing)
+1069,78,289.0,0.2145,0.9065,0.3229,2.8075,clear,mid5,C,48,dir_minus(id decreasing)
+2603,95,223.5,0.6286,0.7883,0.3948,1.9967,weak,mid5,C,42,all_exits
+1707,110,185.0,0.6649,0.8471,0.4527,1.8713,weak,mid5,C,42,paired_both_dirs
+741,73,290.0,0.1112,0.9244,0.3035,3.0457,clear,mid5,C,42,dir_plus(id increasing)
+966,75,284.0,0.1699,0.9317,0.3143,2.9642,clear,mid5,C,42,dir_minus(id decreasing)
+2588,92,254.0,0.5177,0.7141,0.372,1.9193,clear,mid5,B,19,all_exits
+2085,100,206.0,0.716,0.7511,0.4051,1.8539,weak,mid5,B,19,paired_both_dirs
+1248,82,265.0,0.2377,0.8838,0.3406,2.5952,clear,mid5,B,19,dir_plus(id increasing)
+837,81,265.5,0.2015,0.9092,0.3338,2.7242,clear,mid5,B,19,dir_minus(id decreasing)
+2585,73,287.5,0.187,0.7323,0.3075,2.3811,clear,mid5,C,57,all_exits
+1344,95,191.0,0.7997,0.7775,0.3987,1.9504,weak,mid5,C,57,paired_both_dirs
+880,73,287.5,0.1722,0.8989,0.3063,2.9342,clear,mid5,C,57,dir_plus(id increasing)
+464,69,293.0,0.1493,0.8901,0.2884,3.086,clear,mid5,C,57,dir_minus(id decreasing)

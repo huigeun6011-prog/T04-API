@@ -1,0 +1,30 @@
+{
+ "A": {
+  "n_same_line_trips": 32889,
+  "intercept_min": 2.43,
+  "slope_min_per_station": 2.79,
+  "max_d": 13,
+  "median_adjacent_q25": 4.94,
+  "n_adjacent_pairs_checked": 13
+ },
+ "B": {
+  "n_same_line_trips": 462117,
+  "intercept_min": 2.79,
+  "slope_min_per_station": 2.51,
+  "max_d": 33,
+  "median_adjacent_q25": 5.17,
+  "n_adjacent_pairs_checked": 33
+ },
+ "C": {
+  "n_same_line_trips": 245833,
+  "intercept_min": 2.58,
+  "slope_min_per_station": 2.41,
+  "max_d": 31,
+  "median_adjacent_q25": 4.92,
+  "n_adjacent_pairs_checked": 31
+ },
+ "cross_line_trips": 396394,
+ "all_trips": 1145896,
+ "n_anomalous_adjacent": 1,
+ "cross_by_pair": "{('A', 'B'): 64346, ('A', 'C'): 33588, ('B', 'A'): 64163, ('B', 'C'): 99999, ('C', 'A'): 34442, ('C', 'B'): 99856}"
+}

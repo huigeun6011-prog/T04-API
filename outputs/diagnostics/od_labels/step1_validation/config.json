@@ -1,0 +1,11 @@
+{
+ "dates": [
+  "2026-10-21",
+  "2026-10-24",
+  "2026-10-03"
+ ],
+ "lam": 0.01,
+ "workers": 3,
+ "base": "uniform",
+ "solver": "gt_train_od.fit L-BFGS-B"
+}

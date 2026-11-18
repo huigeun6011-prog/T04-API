@@ -1,0 +1,6 @@
+pair,label,n,W,within5,mean_abs,median_abs
+BC,fixed B10-C51 (branch-aware B distances),199855,8.97,0.5781,6.717,3.867
+BC,fixed B10-C51 (plain ID-order B),199855,8.7,0.5911,6.521,3.733
+BC,B0 data-driven B10-C48 (branch-aware),199855,4.5,0.56,5.913,4.333
+BC,"B0 data-driven B10-C48 (plain, as in B0)",199855,4.02,0.5981,5.479,3.95
+AC,fixed A77-C46,68030,7.16,0.8839,2.813,2.06

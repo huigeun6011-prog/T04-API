@@ -1,0 +1,14 @@
+{
+ "n_days": 3,
+ "rows": 14787,
+ "unseen_nan_weather": 0,
+ "not_converged": 0,
+ "terminal_abs_max": 1.8474111129762605e-13,
+ "raw_load_min": -1.8474111129762605e-13,
+ "columns_ok": true,
+ "dates": [
+  "2026-10-03",
+  "2026-10-21",
+  "2026-10-24"
+ ]
+}

@@ -1,0 +1,4 @@
+pair,via,n,direct_1hub_mean_abs,direct_W,via_mean_abs,via_W,share_via_better_by_3,share_direct_better_by_3,via_leg_stations
+AB,C,128509,6.941,-5.76,7.363,-2.55,0.318,0.369,2
+AC,B,68030,2.813,7.16,4.505,-5.55,0.064,0.25,4
+BC,A,199855,5.479,4.02,9.212,-6.27,0.115,0.533,2
