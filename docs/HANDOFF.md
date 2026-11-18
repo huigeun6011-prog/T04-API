@@ -1,6 +1,6 @@
 # 다음 AI를 위한 인수인계
 
-기준: 2026-11-17. 이 문서를 먼저 읽고 [README](../README.md), [방법론](AI/METHODOLOGY.md), 필요한 상세 보고서를 읽는다. **실험·재학습·모델 교체·웹 수정은 사용자 지시가 있을 때만 한다.** 진행 중인 작업, 완료 기록, 다음 후보는 [ROADMAP](../ROADMAP.md)에, 시도·실험 전체와 실패 이유는 [EXPERIMENTS](EXPERIMENTS.md)에 있다.
+기준: 2026-11-18. 이 문서를 먼저 읽고 [README](../README.md), [방법론](AI/METHODOLOGY.md), 필요한 상세 보고서를 읽는다. **실험·재학습·모델 교체·웹 수정은 사용자 지시가 있을 때만 한다.** 진행 중인 작업, 완료 기록, 다음 후보는 [ROADMAP](../ROADMAP.md)에, 시도·실험 전체와 실패 이유는 [EXPERIMENTS](EXPERIMENTS.md)에 있다.
 
 ## 1. 목표와 확정한 요구
 
@@ -88,6 +88,10 @@ production 전체 감사에서도 저장 load≥0·종점0은 만족했지만 �
 - 변수는 계속 하루800개(731일584,800개)다. 부분공유를 넣었다고 일별 변수가 없어지지 않는다. 1000회 중앙 실행시간 기본1.67초/전부2.25초였다.
 - 세 가정은 코드 옵션으로 구현했지만 기본 활성화·전체 all 재학습·production 교체는 하지 않았다. **baseline 대비 smooth+pooling 두 개만 묶은 실험과 가중치 탐색은 아직 안 했다.** 다음 권고안일 뿐 실행 승인으로 간주하지 않는다.
 
+### 열차 단위 OD 후보 (E-13~E-20, production 미적용)
+
+헤드웨이·정원·도착률 곡선은 실패했고(E-13, E-15), 열차 단위 OD 변수(E-16)가 피크 추정/실제를 0.51→0.62로 올린 가장 나은 후보다. 열차별 재차는 합계만으로 식별되지 않고(E-17), 열차 계수 w_k는 조건부로만 복원된다(E-18~19). 61일 표본 점검(E-20)에서 추천 상위10 겹침 0.76, 피크 19건 MAE 322(production 376)였고 합성 정답에서 순위는 잘 복원하나 수준은 prior에 좌우됐다. 사용자는 2026-11-17에 Step 4의 A(교체 안 함)·B(731일 재생성)를 모두 고르지 않고 보류했다. **production은 그대로다.** 상세는 [EXPERIMENTS](EXPERIMENTS.md), 진행·다음 후보는 [ROADMAP](../ROADMAP.md).
+
 ## 6. 실제 피크와 정확도 해석
 
 (d)20사례 중 출발역·시각·방향·운행일·최고혼잡역으로19건을 연결했다. 2026-08-18 하행1171열차는 시간표 미매칭이며 사용자가 이번 비교에서 무시하도록 했다. 임의로 다른 열차에 맞추지 않는다.
@@ -100,15 +104,16 @@ production 전체 감사에서도 저장 load≥0·종점0은 만족했지만 �
 
 ## 7. 웹 구현과 중요한 미해결 항목
 
-- `web/app.js`는 `web/data/pois.json`548행을 읽는다. 좌표532개, 좌표 없는 산책로11개는 텍스트로 보여준다. 문화시설0개, 도서관1개·서점4개는 좌표가 없다.
-- `web/weather-client.js`: Open-Meteo 무키, 500ms 지연합치기·요청중복제거·최소10초 간격·예보1시간/과거7일 캐시. 익일00시용 다음 날짜도 조회한다. 표시 날짜만 바꿔도 API 추천을 자동 반복하지 않는다.
-- `prediction_api.py`: Python 표준 HTTP 서버. `/api/health`, `/api/stations`, `/api/predict`, `POST /api/recommend`. FastAPI나 ONNX 구현이 아니다.
-- 추천은 출발점의 최근접역과 장소의 최근접역을 붙이고, 선택 시간에 실제 시간표상 가능한 열차/이동구간을 찾는다. 구간 출발 후~하차 전 정차 예측의 평균·최대를 계산한다. 같은 역+시간에는 평균이 가장 작은 열차를 선택한다.
-- 거리 점수는 출발점→장소 직선거리, 한산함은 후보군 최대 평균load 대비 역전값이다. 10% 가중합으로 정렬한다. 같은 역 주변 장소는 열차를 안 타므로 한산함 중립값을 적용한다. 이 중립값·정규화·시간별최적열차 선택이 사용자에게 검증된 최종 정책은 아니다.
-- 운영시간·실제 도보경로/시간 자료가 없다. API 성공·점수 계산 가능과 추천 품질을 혼동하지 않는다.
-- `extract_train_loads.py`는 아직 출력 종점을0으로 덮어쓴다. 개선GT의 raw잔차 정책과 다르다. 다음날 날씨를 중복 로드하는 코드도 있다. 추출 JSON을 raw 물리 검증에 쓰지 않는다.
-- API 실제 응답과 JS 문법/연결 확인까지 했다. 브라우저 접근이 이전에 거절되어 지도 위치·클릭·전체 UX의 시각검증은 하지 않았다. 이후 브라우저 검증도 없다. 기존 거절을 우회하지 않는다.
-- SVG는 데이터 구조 설명 자료이며 현재 실험·배포 상태의 정본이 아니다. 이번 요청에서는 SVG를 수정하지 않았다.
+웹 변경 이력은 [DECISIONS](DECISIONS.md) D-010~D-026, 현재 코드 설명과 검증 구분은 [웹 연결](AI/WEB_INTEGRATION_DESIGN.md)이 정본이다. 아래는 `web/`과 `prediction_api.py`를 직접 읽어 확인한 상태다.
+
+- POI 파일은 548곳(532개 좌표)이며 좌표 없는 산책로 11곳은 텍스트로 표시한다. 역 22개 좌표는 사용자가 직접 제공한 WGS84 좌표다. 브라우저와 API는 `web/app.js`의 `STATIONS`를 공유하고 API는 시작 때 값을 읽으므로 좌표 변경 뒤에는 재시작이 필요하다.
+- `prediction_api.py`는 표준 `ThreadingHTTPServer`로 기본 포트 5500에서 웹과 API를 함께 제공한다. 경로는 `GET /api/health`, `/api/stations`, `/api/predict`, `/api/profile`, `POST /api/recommend`다. FastAPI/ONNX는 사용하지 않는다.
+- 추천은 Open-Meteo 날씨, 시간표, `outputs/load_predictor.joblib`, POI와 출발지 좌표를 사용한다. 한산함/거리 비중은 10% 단위다. 도보는 직선거리 기반 추정이며 실제 보행 경로·운영시간은 없다. 열차 ETA는 걷기와 열차 이동만 포함하고 대기·환승은 포함하지 않는다. API 성공이 추천 효용이나 실제 승객 수 정확도를 증명하지 않는다.
+- UI는 시간 막대, 가까운 곳/지하철로 멀리 탭, 걷는 시간 합계 한도, 분석·모델 소개 화면을 제공한다. 막대 조작은 서버 재순위 없이 선택 장소의 시간 표시를 바꾼다. 도보 전용 장소 자체에는 재차인원이 없으며, 해당 화면의 비교 막대는 현재 탭의 지하철 후보 값임을 구분한다. 이 막대·선택 시각·창 크기/이동 변경은 코드에서 확인했으나 최근 수정 후 브라우저 시각 확인은 하지 않았다.
+- 지도 선로 자료는 OSM 양방향 관계에서 뽑은 42개 구간이며, 곡선 끝점을 사용자 제공 역 좌표에 맞췄다. 코드상 22개 역과 구간 끝점 연결은 확인했다. 최근 좌표 보정 후 지도 정합, 터치·모바일 최종 확인은 미완료다. D-015~D-020에는 그 당시 핀·카드·패널·시간 막대·탭 등의 브라우저 확인 기록이 있으므로 최근 변경 검증과 혼동하지 않는다.
+- `prediction_api.py` 254·285행의 `dict(**base, walking_distance_km=...)`는 중복 키워드가 있으면 예외가 나 추천이 400으로 실패할 수 있어, 사용자가 `dict(base, walking_distance_km=...)`로 고쳤다(D-026). 현재 수정된 코드 형태를 확인했다.
+- `extract_train_loads.py`의 출력 종점 0 보정은 개선 GT의 raw 잔차 정책과 다르며, 이를 raw 물리 검증으로 간주하지 않는다.
+- SVG는 자료 흐름 설명용이며 현행 웹 배포 상태의 정본은 아니다.
 
 ## 8. 실행 환경과 상태 확인
 
@@ -127,26 +132,50 @@ Invoke-RestMethod http://127.0.0.1:5500/api/health
 
 ## 9. 파일 안내
 
+경로는 프로젝트 루트 기준이다. 루트에는 `prediction_api.py`, `predict_load.py`, `extract_train_loads.py`, `train_predict_model.py`, `train_load_model.py`가 있다.
+
 | 경로 | 역할 |
 |---|---|
 | `scripts/utils/collect_data.py`, `collect_weather.py` | 원본 승하차/과거날씨 수집. 기존 자료를 재수집할 필요 없음. |
 | `scripts/data_prep/process_subway.py` | XML→역별 JSON,01~04시 제거. |
-| `time_xlsx_to_csv.py`, `subway_time_to_json.py` | 공식엑셀→CSV→열차별 JSON. |
-| `generate_ground_truth.py`, `gt_assumptions.py` | 개선후보 GT,선택적3가정,raw/slack 기록. |
-| `train_predict_model.py` | HGB 지도학습,날짜holdout후전체refit,별도후보출력지원. |
-| `diagnose_gt_convergence.py`, `compare_gt_improvement.py`, `experiment_gt_assumptions.py`, `validate_gt_dataset.py` | 수렴/배분개선/3가정/보존식 감사. |
-| `evaluate_peak_cases.py` | 레시피고정후실제피크사후검증.튜닝용아님. |
-| `predict_load.py`, `prediction_api.py`, `extract_train_loads.py` | 단일예측/웹API/파일추출. |
-| `scripts/collect_poi_once.py`, `build_web_poi.py` | POI수집→웹JSON. |
-| `train_load_model.py`, `best_model.pt` | 이전PyTorch예측모델.현공식HGB와혼용금지. |
+| `scripts/data_prep/time_xlsx_to_csv.py`, `subway_time_to_json.py` | 공식엑셀→CSV→열차별 JSON. |
+| `scripts/data_prep/generate_ground_truth.py`, `gt_assumptions.py` | 개선후보 GT,선택적3가정,raw/slack 기록. |
+| `train_predict_model.py`(루트) | HGB 지도학습,날짜holdout후전체refit,별도후보출력지원. |
+| `scripts/data_prep/diagnose_gt_convergence.py`, `compare_gt_improvement.py`, `experiment_gt_assumptions.py`, `validate_gt_dataset.py` | 수렴/배분개선/3가정/보존식 감사. |
+| `scripts/data_prep/evaluate_peak_cases.py` | 레시피고정후실제피크사후검증.튜닝용아님. |
+| `predict_load.py`, `prediction_api.py`, `extract_train_loads.py`(모두 루트) | 단일예측/웹API/파일추출. |
+| `scripts/collect_poi_once.py`, `scripts/build_web_poi.py`, `scripts/build_web_station_profile.py` | POI수집→웹JSON, 실제 평균 승하차→`web/data/station_profile.json`. |
+| `train_load_model.py`(루트), `outputs/best_model.pt` | 이전PyTorch예측모델.현공식HGB와혼용금지. |
 | `scripts/data_prep/gen_station_hourly.py` | 이전모델용역시간열차수.현GT는시간표에서직접셈. |
-| `scripts/data_prep/diagnose_feasibility_bound.py` | 실제피크 실현가능성 상한 진단(진단전용, 2026-11-16). |
+| `scripts/data_prep/diagnose_feasibility_bound.py` | 실제피크 실현가능성 상한 진단(진단전용, 2026-11-16, E-12). |
+| `scripts/data_prep/gt_queue_model.py`, `experiment_queue_model.py`, `validate_queue_peaks.py` | 대기열·정원 모델(E-13, 폐기). |
+| `scripts/data_prep/gt_od_prior.py`, `experiment_od_prior.py`, `validate_od_prior_peaks.py` | 방향 prior(E-14, 폐기·진단용). |
+| `scripts/data_prep/gt_arrival_curve.py`, `experiment_arrival_curve.py`, `validate_arrival_curve_peaks.py`, `diagnose_headway_mass.py`, `diagnose_headway_transplant.py` | 연속 도착률 곡선·headway 진단(E-15). |
+| `scripts/data_prep/gt_train_od.py`, `experiment_train_od.py`, `validate_train_od_peaks.py`, `lp_bounds_train_od.py` | 열차 단위 OD 변수(E-16)와 LP 가능 범위(E-17). 후보 보류. |
+| `scripts/data_prep/gt_train_factor.py`, `gt_train_factor_v2.py`, `experiment_train_factor_synth.py`, `experiment_train_factor_v2.py` | 열차 계수 합성 복원(E-18, E-19). |
+| `scripts/data_prep/make_od_labels.py`, `compare_od_vs_production_recommend.py`, `experiment_synthetic_od.py` | OD 라벨 생성·조립기, 추천 민감도 비교, 합성 정답 복원(E-20). 실행 절차는 [LOAD_ESTIMATION_RUNBOOK](AI/LOAD_ESTIMATION_RUNBOOK.md). |
+| `scripts/hangzhou/`(+`LINE_C_PROTOCOL.md`), `outputs/hangzhou/`, `data/external/hangzhou/`(gitignore) | 항저우 태그 자료 시간표 복원 시도(E-22). §11 참고. |
+| `design/` | 항저우 노선도 시각화(`hangzhou_network.html`, `hangzhou_overlay.html`, `gen_network.js`)와 웹 디자인 프로토타입(`prototype_ab.html`, D-018). 현상태의 정본이 아니다. |
 | `scripts/analysis/` | 독립분석/과거실험.미참조가미실행증거는아님. |
 
 ## 10. 다음 AI가 먼저 할 일
 
 1. 현재 사용자 지시가 무엇인지 확인하고, 진행 중인 작업과 완료 기록은 [ROADMAP](../ROADMAP.md)에서 먼저 본다. 새 실험·재학습은 사용자 지시가 있을 때만 한다. 이전 에이전트의 맥락은 세션 밖으로 이어지지 않으므로 새로 시킬 때는 이 문서와 ROADMAP을 읽히고 시작한다.
-2. 다음 작업 승인 시 production/candidate 경로·원시측정정의·지도표시 미검증·비정규운행일 제외 미실행을 먼저 기억한다.
+2. 다음 작업 승인 시 production/candidate 경로·원시측정정의·마커-실제역사 정합 및 터치/모바일 미검증(§7)·비정규운행일 제외 미실행을 먼저 기억한다.
 3. 제안된 smooth+pool 조합이나 가중치 탐색은 별도 실험이다. 실제피크값으로 맞추지 않고 같은 연산예산·누수없는 날짜검증을 유지한다.
 4. 모델을 바꾸려면 별도후보생성→원시보존/물리잔차/날짜검증→한계보고를 거친다. 낮은 내부loss만으로production교체나실제정확도완료를 선언하지 않는다.
 5. 과거 문서를 근거로60000행·12일·더미웹·JSON변환미확인·물리제약충족·Naver·ONNX완료로 되돌리지 않는다.
+
+## 11. 항저우 태그 자료 시간표 복원 (E-22, E-23, 2026-11-18, 보류)
+
+**진행 상태: 보류 ([D-022](DECISIONS.md)).** 사용자가 제공한 항저우 지하철 카드 태그(2019-01, `data/external/hangzhou/`, gitignore)에서 열차 도착시각을 복원해 OD 역산을 실제 태그로 시험할 전 단계를 시도했다. 지침은 [HANGZHOU_TIMETABLE_BRIEF](AI/HANGZHOU_TIMETABLE_BRIEF.md)(자료 구성 포함), C선 실행 기준은 `scripts/hangzhou/LINE_C_PROTOCOL.md`, 결과는 `outputs/hangzhou/`다. 시간표와 열차별 재차 정답이 없고 노선 A/B/C가 실제 어느 호선인지는 확인되지 않았다. 대전 production·웹과 무관하다.
+
+- 어디까지: C선 1/08만. (E-22) 피크 연결 방식은 후보 1,200개 중 양끝 2역 이내 17.42%(기준 ≥60%), 1~2역 조각 53.00%(기준 ≤5%)로 조각화 관문 실패. (E-23) shift-and-stack 방식은 후보 439개, 양끝 2역 이내 45.33%(미통과), 조각 0.00%(통과), 숨긴 역 재현율 82.3%(대조 31.2%). 수치는 보고서 기준이다. 1/15는 열지 않았고 시간표는 발행하지 않았다.
+- 왜 바꾸나: 공식 시간표가 없어 평가가 같은 날 태그 안의 내부 일관성에 머물고, 산출은 모든 열차가 전 역을 운행한다는 가정이며 열차별 실제 출발점·종점·정차역(회차·단축 포함)은 관측되지 않았고, 그 위의 재차인원은 순환 위험이 있으며, 사전 관문 지표는 귀무도 25~41%라 변별력이 낮았다(E-23). 사용자의 목표는 시간표가 아니라 해당 일자 모든 열차의 출발점·종점·정차역이다.
+- 사용자 결정: C선만 진행([D-021](DECISIONS.md), 분석 일자·규칙 고정은 불필요). 항저우 추가 작업(1/15 독립 검증 등)은 보류하고 열차 단위 공식 시간표와 개인별 태그(또는 열차별 재차 실측)를 가진 공개 자료를 조사한다(D-022, 조사 결과는 아직 없음). 보류이지 폐기가 아니다.
+- 후속(E-24~E-27, 파일 기준): 사용자 결정(2026-11-18)으로 C선만 보고(분기 Y자 없음) 1/01~25 전부 사용·과적합 허용·평일/주말 별도 풀링한다. 도메인 제약은 관측 = 계획 + 지연(≥0)이다. 환승 제외 입장 태그 검증은 사전 기준 미통과(E-24), 풀링 + 역별 랙으로 창 안 92.6%·방향 일치 71.9%(E-25, 랙 5분위 때문에 음수 대기 5%는 해석하지 않음), pool2 수정으로 가짜 열차 0·공백 0, 열차 430개, 양끝 2역 이내 85.1%(E-26), 단축·회차는 증거 없음이나 양성 대조 미실시(E-27). 산출은 `outputs/hangzhou/lineC_direct_check/`, `lineC_pool/`, `lineC_pool2/`, `lineC_struct/`.
+- E-28~E-29(파일 기준): pool3(놓친 열차 채우기)로 열차 440개, 07~09시 34/66 배차 비 1.43→1.02, 양끝 2역 이내 83.9%, 방향 일치 66.9%이며 사용자가 pool3를 최종 시간표 후보로 채택했다(채운 열차 10개는 낮은 문턱 후보, 실제 열차 확정 아님). 05~07시와 34번 방향 19~23:30시는 못 채웠다. 양성 대조에서 현재 단축 진단 규칙(E1 필수)은 심은 단축을 한 번도 '지원'하지 못해 기준 미충족이고 가짜 지원은 0이었다. 따라서 기존 "반박 20/22칸"은 혼잡시간대 중·후반 구간에서 10~25% 이상 단축을 배제하는 정도로만 신뢰하고, 알 수 없음 칸은 단축 여부에 대해 말해 주지 않는다. 산출은 `outputs/hangzhou/lineC_pool3/`, `lineC_pos/`.
+- E-30~E-31(파일 기준): E1 필수를 뺀 새 종합 규칙(E3 absent ≥0.15 또는 E2 supportive)은 평일 혼잡시간대 f=25·50% 단축을 모든 시나리오에서 검출했고(f=10%는 V1 p=18·23만 기준 초과), 가짜 지원은 0이었다. 심지 않은 데이터 60칸은 반박 44·알 수 없음 4·미확인 12(05~07시)·지원 0이며, 반박 44칸 중 12칸만 검출 시험을 거쳤고 32칸(구간 p 이전, 낮 9~17시, 19~23:30시)은 검출력 미확인이다. 최종 시간표 후보는 `outputs/hangzhou/lineC_final/candidate_arrival_events_final.csv`(평일, 440열차, 14,080행, imputed 20)이고 분석 구간(열차당 하차 일평균 중앙값 ≥350, 사용자 확정) 밖인 05~07시 열차 37개는 삭제하지 않고 low_signal로 표시했다. `structure_status`의 반박은 전 구간 운행과 모순 없다는 뜻이지 전 열차가 끝까지 갔다는 확정이 아니다.
+- **궁극 목표 상태:** 목표(해당 일자 모든 열차의 출발점·종점·정차역, 단축·회차 포함)는 평일 기준 전 구간 운행 가정과 모순 없는 시간표 후보까지이고, 혼잡시간대 중·후반 구간에서 10~25% 이상 단축은 없다는 증거까지만 있다. 공식 시간표와의 비교, 05~07시·낮·저녁 구조, 열차 한 대 단위 판정은 얻지 못했다.
+- E-32~E-33(파일 기준): 반박 칸 검출 시험에서 f=25·50% 단축은 모든 시간대·위치·변형에서 검출(종합 지원 1.0), f=10%는 낮 p=23 V1만 기준 초과, 가짜 지원 0. 시험한 반박 칸은 12→37칸이고 구간 0의 7칸은 미시험이다. 각 칸의 반박은 25% 이상(일부 10% 이상) 단축을 배제하는 정도로만 신뢰한다. 주말 최종 시간표 `candidate_arrival_events_final_weekend.csv`(7일, 491열차, 15,712행): 양끝 2역 이내 70.9%, 창 안 93.1%, 방향 일치 66.8%, 600초 초과 공백 0. 주말은 단축 진단을 하지 않았고 `low_signal`·`structure_status`가 문자열 '미확인', `refuted_share_cell`은 비어 있다(파서 주의). 방향 비대칭(05~07시 0.80, 19~23:30시 0.83)과 주말 낮 배차가 평일보다 짧은 점(약 240초 대 286~290초)은 확인하지 못했다.
+- 사용자 결정(2026-11-18): 구간 0 반박 7칸 시험, 주말 단축 진단, 주말 비대칭 채우기, 1/01 제외 재생성은 하지 않는다. 열차별 정답 재차인원 구성과 OD 역산 q 민감도 시험은 방향 메모만 작성했고(미실행) 별도 에이전트와 사용자 승인을 기다린다: [HANGZHOU_OD_TEST_BRIEF](AI/HANGZHOU_OD_TEST_BRIEF.md).
