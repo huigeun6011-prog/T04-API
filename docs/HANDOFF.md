@@ -48,7 +48,18 @@
 
 ## 4. 지금 API가 읽는 production과 후보를 반드시 구분
 
-### production
+### production (2026-11-19부터: 열차 단위 OD 라벨 61일 기반, [D-027](DECISIONS.md))
+
+- **라벨:** 열차 단위 OD 방법(`gt_train_od`, 균일 기준 q, λ=0.01, L-BFGS-B)으로 만든 61일(2024-11-01부터 12일 간격, `outputs/diagnostics/od_labels/sample61/sample_dates.json`, 휴일 18일). 보존식·종점 0·비음수가 구조로 성립한다(종점 재차 최대 2.2e-13, 61일 모두 수렴). 승하차 합계 오차는 적격 셀 L1 최대 0.67%의 소프트 제약이다.
+- **재현:** `python scripts/data_prep/make_od_labels.py --dates <sample_dates.json의 날짜> --out-dir outputs/diagnostics/od_labels/sample61 --lam 0.01 --workers 3`(61일, 약 15분) 후 `--assemble`, `python train_predict_model.py --dataset outputs/diagnostics/od_labels/sample61/dataset.csv --model-output outputs/load_predictor.joblib --metrics-output outputs/model_metrics.json`. 라벨 CSV(`labels/`, `dataset.csv`)는 git에 없다.
+- `outputs/load_predictor.joblib`: HistGradientBoostingRegressor(OD 라벨 61일로 앞 80% 학습/뒤 20% 검증 후 전체 refit). SHA256 `aca76083a67ab748c1a304f9f98cdc07e31926358376e928153bff768dfbc9d2`. 피처 순서와 API 계약은 이전과 같다.
+- `outputs/model_metrics.json`: 검증 MAE 23.94, RMSE 34.37, R² 0.838(2026-05-31~10-22 검증). **라벨 정의가 달라 이전 production 지표(MAE 20.14)와 비교하지 않는다.** 추정 라벨 재현 지표일 뿐 실제 승객 정확도가 아니다. 이전 production 해시와 라벨 방식도 이 파일에 적었다.
+- `dataset.csv` SHA256 `ebd67c595a3d78b8d43e907a6171e4cfddef8139461fc9b6e36a58c0fa922682`(git 추적 안 함).
+- **근거(E-34~E-38):** 항저우 C선 실제 승객 태그로 만든 정답 대비, OD는 같은 역·방향의 시간대 순서에서 Adam보다 일관되게 낫다(새 평일 4일 사전 고정 확인: 순서 상관 0.957 대 0.775, 2칸 이내 93% 대 69%, 단순 방법 0.58~0.62). 대전 피크 19건에서도 소폭 낫다(MAE 322 대 376). 표본 크기 점검에서 122일 라벨이 61일보다 낫지 않았다(731일 재생성 불필요).
+- **알려진 한계(반드시 읽을 것):** (1) 절대 인원 수(수준)는 기준 분포 q가 정하며 두 방법 모두 검증되지 않았다(항저우 균일 q 1.26배 과대, 대전 피크 약 0.5~0.6배 과소). **화면에 절대 인원을 정확한 값으로 보여 주지 않는다.** (2) 열차 한 대 단위 구분은 복원되지 않았다(시간대 평균 오라클 수준). (3) 시간대 순서 개선은 항저우 C선 한정이고 대전 정답은 피크 19건뿐이다. (4) 추천 결과가 이전과 달라진다(예: 시청 출발 7~9시 상위가 9시대에서 7시대로 바뀜).
+- **되돌리기:** 이전 production 파일(joblib SHA256 `6a1e4ec8e1f66be5c90d865d9ef5e625768d5dcc0835f69fcd82fcc62800467a`, metrics SHA256 `251d2da8f1cf08db3737660a0cf31deea8f4ceeefd00df197e2b48e9381b897d`)은 `outputs/backup_before_od_swap_20261119/`에 있고(git에는 올리지 않음, `SHA256.txt` 포함) git 이력에도 있다. 교체 커밋만 `git revert`하면 된다.
+
+### 이전 production (Adam 200회 라벨, 2026-11-19 교체 전; 백업과 git 이력에 있음)
 
 - `outputs/ground_truth_train_loads.csv`: 731일, 3,733,691행. 24시 날씨를 고친 뒤 **이전200회 solver**로 만든 라벨이다. 순차 음수 clamp와 종점0 덮어쓰기가 들어 있다.
 - `outputs/load_predictor.joblib`: HistGradientBoostingRegressor. API는 이 경로만 읽고 파일 mtime 변경 시 다시 로드한다.
@@ -88,7 +99,7 @@ production 전체 감사에서도 저장 load≥0·종점0은 만족했지만 �
 - 변수는 계속 하루800개(731일584,800개)다. 부분공유를 넣었다고 일별 변수가 없어지지 않는다. 1000회 중앙 실행시간 기본1.67초/전부2.25초였다.
 - 세 가정은 코드 옵션으로 구현했지만 기본 활성화·전체 all 재학습·production 교체는 하지 않았다. **baseline 대비 smooth+pooling 두 개만 묶은 실험과 가중치 탐색은 아직 안 했다.** 다음 권고안일 뿐 실행 승인으로 간주하지 않는다.
 
-### 열차 단위 OD 후보 (E-13~E-20, production 미적용)
+### 열차 단위 OD (E-13~E-38, 2026-11-19 production으로 교체됨, 위 §4)
 
 헤드웨이·정원·도착률 곡선은 실패했고(E-13, E-15), 열차 단위 OD 변수(E-16)가 피크 추정/실제를 0.51→0.62로 올린 가장 나은 후보다. 열차별 재차는 합계만으로 식별되지 않고(E-17), 열차 계수 w_k는 조건부로만 복원된다(E-18~19). 61일 표본 점검(E-20)에서 추천 상위10 겹침 0.76, 피크 19건 MAE 322(production 376)였고 합성 정답에서 순위는 잘 복원하나 수준은 prior에 좌우됐다. 사용자는 2026-11-17에 Step 4의 A(교체 안 함)·B(731일 재생성)를 모두 고르지 않고 보류했다. **production은 그대로다.** 상세는 [EXPERIMENTS](EXPERIMENTS.md), 진행·다음 후보는 [ROADMAP](../ROADMAP.md).
 

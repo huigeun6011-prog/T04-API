@@ -1,10 +1,10 @@
 {
-  "train_mae": 17.695283593070567,
-  "train_rmse": 25.673862687907388,
-  "train_r2": 0.903364673842311,
-  "val_mae": 20.141964575177283,
-  "val_rmse": 29.412485586571933,
-  "val_r2": 0.8766449599750434,
+  "train_mae": 15.84269384885035,
+  "train_rmse": 23.206872753087776,
+  "train_r2": 0.9230630683487445,
+  "val_mae": 23.943817701221995,
+  "val_rmse": 34.3654409212238,
+  "val_r2": 0.838260307610297,
   "features": [
     "station_idx",
     "hour",
@@ -15,109 +15,120 @@
     "snow",
     "plan_version"
   ],
-  "n_samples": 3733691,
+  "n_samples": 312637,
   "service_date_start": "2024-11-01",
-  "service_date_end": "2026-11-01",
-  "n_service_days": 731,
-  "train_date_end": "2026-06-07",
-  "validation_date_start": "2026-06-08",
-  "validation_date_end": "2026-11-01",
+  "service_date_end": "2026-10-22",
+  "n_service_days": 61,
+  "train_date_end": "2026-05-19",
+  "validation_date_start": "2026-05-31",
+  "validation_date_end": "2026-10-22",
   "validation_by_hour": {
     "5": {
-      "rows": 15141,
-      "mae": 24.342308499254774
+      "rows": 1339,
+      "mae": 23.127350647608313
     },
     "6": {
-      "rows": 30629,
-      "mae": 14.677368782523232
+      "rows": 2709,
+      "mae": 22.793227677779768
     },
     "7": {
-      "rows": 45740,
-      "mae": 24.35275541297412
+      "rows": 4066,
+      "mae": 34.655198704569386
     },
     "8": {
-      "rows": 56550,
-      "mae": 23.582970066820984
+      "rows": 5032,
+      "mae": 26.348638679291856
     },
     "9": {
-      "rows": 40608,
-      "mae": 20.225079185041132
+      "rows": 3594,
+      "mae": 26.015382664540034
     },
     "10": {
-      "rows": 38808,
-      "mae": 18.131232541681044
+      "rows": 3432,
+      "mae": 23.261294962362463
     },
     "11": {
-      "rows": 38808,
-      "mae": 18.19447016390448
+      "rows": 3432,
+      "mae": 19.97319959244999
     },
     "12": {
-      "rows": 38808,
-      "mae": 19.423609660339455
+      "rows": 3432,
+      "mae": 19.28412800215335
     },
     "13": {
-      "rows": 38808,
-      "mae": 18.519535488144882
+      "rows": 3432,
+      "mae": 18.045956374334896
     },
     "14": {
-      "rows": 38808,
-      "mae": 17.902104751819586
+      "rows": 3432,
+      "mae": 18.624193526755636
     },
     "15": {
-      "rows": 38808,
-      "mae": 19.16453883823218
+      "rows": 3432,
+      "mae": 24.62508239143702
     },
     "16": {
-      "rows": 39478,
-      "mae": 24.263040284788982
+      "rows": 3490,
+      "mae": 30.233291340791073
     },
     "17": {
-      "rows": 45740,
-      "mae": 23.68363354111255
+      "rows": 4043,
+      "mae": 32.07028890470792
     },
     "18": {
-      "rows": 57693,
-      "mae": 24.49615154120267
+      "rows": 5119,
+      "mae": 23.91908909146089
     },
     "19": {
-      "rows": 44925,
-      "mae": 18.382735083476344
+      "rows": 3980,
+      "mae": 22.90437019803196
     },
     "20": {
-      "rows": 38808,
-      "mae": 15.329319060487041
+      "rows": 3432,
+      "mae": 20.56463203285359
     },
     "21": {
-      "rows": 37098,
-      "mae": 18.070159762602483
+      "rows": 3285,
+      "mae": 22.095010606494302
     },
     "22": {
-      "rows": 32693,
-      "mae": 19.967583298829965
+      "rows": 2892,
+      "mae": 21.48432917084353
     },
     "23": {
-      "rows": 29912,
-      "mae": 16.510974375499202
+      "rows": 2647,
+      "mae": 19.234298251289815
     },
     "24": {
-      "rows": 3628,
-      "mae": 10.108960158072986
+      "rows": 321,
+      "mae": 11.29908029029517
     }
   },
   "validation_by_plan": {
     "1": {
-      "rows": 751491,
-      "mae": 20.141964575177283
+      "rows": 66541,
+      "mae": 23.943817701221995
     }
   },
   "deployment_refit_all_dates": true,
   "target_kind": "estimated_post_stop_onboard_passengers",
   "midnight_rule": "service_date hour=24 uses next calendar date 00:00 weather and gate counts",
-  "ground_truth_train_loads.csv_sha256": "8a7c1822c2bd2d5cb9d583bd24a390391728b46ee7b74b4d7b7ce9b1484ad5f6",
-  "load_predictor.joblib_sha256": "6a1e4ec8e1f66be5c90d865d9ef5e625768d5dcc0835f69fcd82fcc62800467a",
+  "label_policy": "load=max(raw_load,0), each raw_load is unmodified cumulative board-alight; terminal residual not overwritten; correction retained in CSV",
+  "has_raw_load_and_correction": true,
+  "solver_diagnostics_path": null,
+  "ground_truth_train_loads.csv_sha256": "ebd67c595a3d78b8d43e907a6171e4cfddef8139461fc9b6e36a58c0fa922682",
+  "load_predictor.joblib_sha256": "aca76083a67ab748c1a304f9f98cdc07e31926358376e928153bff768dfbc9d2",
+  "deployment_note": "2026-11-19 production 교체: 열차 단위 OD 라벨 61일(12일 간격, 균일 q, lam 0.01) 기반 HGB. 이전 production(Adam 200회 라벨, 731일)은 outputs/backup_before_od_swap_20261119/에 보관(SHA256.txt). 지표는 라벨 정의가 달라 이전 production 지표와 비교하지 않는다.",
+  "label_method": "gt_train_od.fit (균일 q, lam=0.01, L-BFGS-B), scripts/data_prep/make_od_labels.py --dates <sample_dates.json> --out-dir outputs/diagnostics/od_labels/sample61 --lam 0.01",
+  "label_dates_file": "outputs/diagnostics/od_labels/sample61/sample_dates.json",
+  "dataset.csv_sha256": "ebd67c595a3d78b8d43e907a6171e4cfddef8139461fc9b6e36a58c0fa922682",
+  "previous_production": {
+    "load_predictor.joblib_sha256": "6a1e4ec8e1f66be5c90d865d9ef5e625768d5dcc0835f69fcd82fcc62800467a",
+    "model_metrics.json_sha256": "251d2da8f1cf08db3737660a0cf31deea8f4ceeefd00df197e2b48e9381b897d",
+    "label_method": "Adam 200회 이전 solver + 음수 clamp·종점 0 덮어쓰기, 731일, ground_truth_train_loads.csv"
+  },
   "runtime": {
-    "python": "3.12.16",
-    "scikit_learn": "1.9.1",
-    "torch": "2.15.0+cpu"
+    "python": "3.15.2",
+    "note": "학습은 Python 3.15.2/scikit-learn 1.9.1 환경에서 수행"
   }
 }
