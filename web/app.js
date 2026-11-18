@@ -1,29 +1,29 @@
 ﻿'use strict';
 
-// 대전 1호선 22개 역 VWorld 정밀 보정 좌표 (판암 0 ~ 반석 21)
+// 대전 1호선 22개 역 사용자 제공 지도 좌표 (판암 0 ~ 반석 21)
 const STATIONS = [
-  { name: '판암',         idx: 0,  lat: 36.31696046, lng: 127.45837805 },
-  { name: '신흥',         idx: 1,  lat: 36.31967849, lng: 127.44869127 },
-  { name: '대동',         idx: 2,  lat: 36.32950425, lng: 127.44290144 },
-  { name: '대전',         idx: 3,  lat: 36.33222770, lng: 127.43442886 },
-  { name: '중앙로',       idx: 4,  lat: 36.32859315, lng: 127.42554303 },
-  { name: '중구청',       idx: 5,  lat: 36.32478871, lng: 127.41954949 },
-  { name: '서대전네거리', idx: 6,  lat: 36.32240766, lng: 127.41256249 },
-  { name: '오룡',         idx: 7,  lat: 36.32856377, lng: 127.40505467 },
-  { name: '용문',         idx: 8,  lat: 36.33825237, lng: 127.39330512 },
-  { name: '탄방',         idx: 9,  lat: 36.34560284, lng: 127.38454168 },
-  { name: '시청',         idx: 10, lat: 36.35158114, lng: 127.38672540 },
-  { name: '정부청사',     idx: 11, lat: 36.35757789, lng: 127.38123378 },
-  { name: '갈마',         idx: 12, lat: 36.35764061, lng: 127.37256862 },
-  { name: '월평',         idx: 13, lat: 36.35825770, lng: 127.36453627 },
-  { name: '갑천',         idx: 14, lat: 36.35452027, lng: 127.35440346 },
-  { name: '유성온천',     idx: 15, lat: 36.35388461, lng: 127.34153051 },
-  { name: '구암',         idx: 16, lat: 36.35664509, lng: 127.33061899 },
-  { name: '현충원',       idx: 17, lat: 36.35919845, lng: 127.32132942 },
-  { name: '월드컵경기장', idx: 18, lat: 36.36701090, lng: 127.31785476 },
-  { name: '노은',         idx: 19, lat: 36.37410659, lng: 127.31788909 },
-  { name: '지족',         idx: 20, lat: 36.38412150, lng: 127.31951307 },
-  { name: '반석',         idx: 21, lat: 36.39189559, lng: 127.31440279 },
+  { name: '판암',         idx: 0,  lat: 36.31696, lng: 127.45843 },
+  { name: '신흥',         idx: 1,  lat: 36.31966, lng: 127.44880 },
+  { name: '대동',         idx: 2,  lat: 36.32959, lng: 127.44284 },
+  { name: '대전',         idx: 3,  lat: 36.33152, lng: 127.43367 },
+  { name: '중앙로',       idx: 4,  lat: 36.32867, lng: 127.42583 },
+  { name: '중구청',       idx: 5,  lat: 36.32480, lng: 127.41955 },
+  { name: '서대전네거리', idx: 6,  lat: 36.32242, lng: 127.41258 },
+  { name: '오룡',         idx: 7,  lat: 36.32869, lng: 127.40492 },
+  { name: '용문',         idx: 8,  lat: 36.33817, lng: 127.39341 },
+  { name: '탄방',         idx: 9,  lat: 36.34555, lng: 127.38457 },
+  { name: '시청',         idx: 10, lat: 36.35153, lng: 127.38675 },
+  { name: '정부청사',     idx: 11, lat: 36.35747, lng: 127.38127 },
+  { name: '갈마',         idx: 12, lat: 36.35758, lng: 127.37280 },
+  { name: '월평',         idx: 13, lat: 36.35826, lng: 127.36460 },
+  { name: '갑천',         idx: 14, lat: 36.35475, lng: 127.35469 },
+  { name: '유성온천',     idx: 15, lat: 36.35372, lng: 127.34145 },
+  { name: '구암',         idx: 16, lat: 36.35670, lng: 127.33073 },
+  { name: '현충원',       idx: 17, lat: 36.35909, lng: 127.32180 },
+  { name: '월드컵경기장', idx: 18, lat: 36.36686, lng: 127.31700 },
+  { name: '노은',         idx: 19, lat: 36.37415, lng: 127.31788 },
+  { name: '지족',         idx: 20, lat: 36.38410, lng: 127.31950 },
+  { name: '반석',         idx: 21, lat: 36.39218, lng: 127.31456 },
 ];
 
 const state = {
@@ -35,6 +35,7 @@ const state = {
   poiMarkers: [],
   poiInfoOverlay: null,
   routePolylines: [],
+  metroSegments: null,
   pois: [],
   weatherRequestId: 0,
   startHour: 5,
@@ -51,8 +52,17 @@ const state = {
   activeHour: null,   // null = 장소별 최적 시간, 숫자 = 그 시간 기준 서버 재계산
   chipRange: null,    // 마지막 '장소별 최적 시간' 검색의 시간 범위
   matrix: null,
+  tab: 'near',        // 'near'(가까운 곳) | 'far'(지하철로 멀리): 결과는 한 번에 받고 탭 전환은 브라우저에서만 한다(D-020)
+  viewHour: null,     // 시간 막대로 보고 있는 시간(선택한 장소의 표시만 바뀜, 서버 재순위 없음). null = 그 장소의 최적(원래) 시간
+  listed: [],
+  rowCtx: { lo: 0, hi: 1 },
+  mapPickMode: false,
+  timeStripCollapsed: false,
+  timeStripPosition: null,
+  timeStripDrag: null,
 };
 
+const WALK_KMH = 4.5, WALK_DETOUR = 1.3; // 서버와 같은 도보 시간 어림값(D-014)
 const API_BASE = (window.RECOMMENDATION_API_BASE || '').replace(/\/$/, '');
 
 function nextDate(date) {
@@ -68,7 +78,19 @@ function distKm(lat1, lng1, lat2, lng2) {
 }
 
 const catLabel = c => ({ library: '도서관', park: '공원', bookstore: '서점' })[c] || c || '기타';
-const catEmoji = c => ({ library: '📚', park: '🌳', bookstore: '📖' })[c] || '📍';
+// 선 아이콘(stroke 1.7, currentColor). 장식용이라 aria-hidden, 뜻은 옆의 글자가 전달한다.
+const svgIcon = d => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${d}</svg>`;
+const ICON = {
+  park: svgIcon('<path d="M12 21v-6"/><path d="M12 15a5 5 0 1 0-4-8 4 4 0 0 0 1 8z"/><path d="M12 15a5 5 0 1 1 4-8 4 4 0 0 1-1 8z"/>'),
+  library: svgIcon('<path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/>'),
+  bookstore: svgIcon('<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6"/>'),
+  walk: svgIcon('<circle cx="13" cy="4" r="2"/><path d="M9 21l3-7M12 14l-2-4 4-2 3 4M12 14l3 7"/>'),
+  train: svgIcon('<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 12h14M9 21l2-4M15 21l-2-4"/>'),
+  pin: svgIcon('<path d="M12 21s-6-5.6-6-10a6 6 0 0 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>'),
+  search: svgIcon('<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'),
+};
+const catIcon = c => ICON[c] || ICON.pin;
+const setSearchLabel = text => { document.getElementById('searchBtn').innerHTML = `${ICON.search}<span class="go-label">${text}</span>`; };
 const hasCoords = p => p.latitude !== null && p.longitude !== null && p.latitude !== '' && p.longitude !== '' && Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude));
 
 function escapeHtml(s) {
@@ -105,10 +127,10 @@ function initMap() {
   STATIONS.forEach(s => {
     const node = document.createElement('div');
     node.className = 'station-dot';
-    node.title = `${s.name}역 (클릭하여 출발지로 지정)`;
+    node.title = `${s.name}역`;
     node.addEventListener('click', e => {
       e.stopPropagation();
-      setDeparture(s.lat, s.lng, `${s.name}역`);
+      if (state.mapPickMode) setDeparture(s.lat, s.lng, `${s.name}역`);
     });
     new kakao.maps.CustomOverlay({
       position: new kakao.maps.LatLng(s.lat, s.lng),
@@ -120,13 +142,16 @@ function initMap() {
   });
 
   kakao.maps.event.addListener(state.map, 'click', e => {
-    setDeparture(e.latLng.getLat(), e.latLng.getLng());
+    if (state.mapPickMode) setDeparture(e.latLng.getLat(), e.latLng.getLng());
   });
 
   renderPoiMarkers(visibleResults());
 }
 
 function setDeparture(lat, lng, label = null) {
+  if (state.mapPickMode) setMapPickMode(false);
+  const previousDeparture = state.departure;
+  const departureChanged = !!previousDeparture && (previousDeparture.lat !== lat || previousDeparture.lng !== lng);
   state.departure = { lat, lng };
 
   if (state.map) {
@@ -145,16 +170,44 @@ function setDeparture(lat, lng, label = null) {
     state.departureMarker.setMap(state.map);
   }
 
-  document.getElementById('locationBox').innerHTML = `<div class="loc-addr">📍 ${escapeHtml(label || '출발지 지정됨')}</div><div class="loc-coords">위도 ${lat.toFixed(5)} · 경도 ${lng.toFixed(5)}</div>`;
+  document.getElementById('locationBox').innerHTML = `<div class="loc-addr">${ICON.pin} ${escapeHtml(label || '출발지 지정됨')}</div><div class="loc-coords">위도 ${lat.toFixed(5)} · 경도 ${lng.toFixed(5)}</div>`;
+  const slot = document.getElementById('slotOrigin');
+  if (slot) slot.textContent = label || '지도에서 고른 위치';
   const near = STATIONS.map(s => ({ ...s, km: distKm(lat, lng, s.lat, s.lng) })).sort((a, b) => a.km - b.km).slice(0, 5);
   document.getElementById('stationDistList').innerHTML = near.map(s => `<div class="stn-row"><span class="stn-row-name">${escapeHtml(s.name)}역</span><span class="stn-row-dist">직선거리 ${(s.km * 1000).toFixed(0)}m</span></div>`).join('');
 
-  // 이미 계산된 추천 결과가 있으면 재추천 필요 알림, 없으면 미리보기 갱신
-  // 💡 사용자가 지도를 클릭해 출발지를 찍었을 때는 지도 시점(줌/중심)이 제멋대로 움직이지 않도록 adjustBounds를 false로 유지합니다.
-  if ((state.results && state.results.length > 0) || document.getElementById('searchBtn').disabled) {
-    // 이미 검색했거나 검색 중이면 새 출발지로 자동 재검색한다(연속 클릭은 마지막 것만 요청)
-    scheduleResearch();
-  } else {
+  if (departureChanged) {
+    // 출발지를 바꾸면 이전 기준의 결과·경로·분석은 즉시 버리고, 사용자가 다시 찾기를 누를 때만 재계산한다.
+    clearTimeout(state.researchTimer);
+    state.researchTimer = null;
+    state.recommendationController?.abort();
+    state.recommendationController = null;
+    state.recommendationRequestId++;
+    const searchButton = document.getElementById('searchBtn');
+    searchButton.disabled = false;
+    searchButton.removeAttribute('aria-busy');
+    setSearchLabel('찾기');
+    setUpdating(false);
+    setStale(false);
+    state.results = [];
+    state.lastMeta = null;
+    state.selectedItem = null;
+    state.listed = [];
+    state.matrix = null;
+    clearRoute();
+    renderPoiMarkers([]);
+    renderGroupTabs();
+    document.getElementById('resultsMeta').textContent = '출발지가 바뀌어 추천이 초기화되었습니다';
+    document.getElementById('resultsCards').innerHTML = '<p class="empty-state" role="status">출발지가 바뀌었어요. 다시 찾기를 눌러 주세요.</p>';
+    document.getElementById('predictionAnalysis').textContent = '출발지가 바뀌었어요. 다시 찾기를 누르면 분석 결과를 볼 수 있습니다.';
+    const viewStatus = document.getElementById('viewStatus');
+    if (viewStatus) viewStatus.textContent = '';
+    showUpdateNote('출발지가 바뀌었어요. 다시 찾기를 눌러 주세요.');
+    renderTimeStrip();
+    window.Analysis?.setSelected(null);
+    window.Analysis?.refreshHeatmap();
+  } else if (!previousDeparture) {
+    // 첫 출발지 지정은 기존의 명확한 검색 전 안내를 유지한다.
     renderEmptyState();
   }
 }
@@ -188,11 +241,41 @@ function getSubwayStationsAlong(bStation, aStation) {
     : STATIONS.slice(aIdx, bIdx + 1).reverse();
 }
 
+function metroPathFor(stationsAlong) {
+  const fallback = () => stationsAlong.map(s => [s.lat, s.lng]);
+  if (!state.metroSegments || stationsAlong.length < 2) return fallback();
+  const points = [];
+  for (let i = 0; i < stationsAlong.length - 1; i++) {
+    const key = `${stationsAlong[i].idx}-${stationsAlong[i + 1].idx}`;
+    const segment = state.metroSegments[key];
+    if (!Array.isArray(segment) || segment.length < 2) return fallback();
+    points.push(...(i ? segment.slice(1) : segment));
+  }
+  return points;
+}
+
+async function loadMetroLineGeometry() {
+  try {
+    const response = await fetch('./data/metro_line_geometry.json', { cache: 'no-cache' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    if (data.source !== 'OpenStreetMap' || !data.segments || Object.keys(data.segments).length !== 42) {
+      throw new Error('선로 좌표 자료가 올바르지 않습니다.');
+    }
+    state.metroSegments = data.segments;
+    if (state.selectedItem && state.map) showPlaceRoute(state.selectedItem, true, false);
+  } catch (error) {
+    console.warn('실제 선로 좌표를 불러오지 못해 역 좌표를 연결합니다.', error);
+  }
+}
+
 function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
   if (!state.map) return;
   clearRoute();
+  const prevPlaceId = state.selectedItem?.poi?.id;
   state.selectedItem = item;
-  if (isRecommendation) window.Analysis?.setSelected(item);
+  if (isRecommendation && item.poi?.id !== prevPlaceId) state.viewHour = null;
+  if (isRecommendation) { window.Analysis?.setSelected(item); syncViewHour(); }
 
   const poi = isRecommendation ? (item.poi || {}) : item;
   const poiLat = Number(poi.latitude);
@@ -207,32 +290,31 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
   const currentDepartureStation = state.departure ? nearestStation(state.departure).station : null;
   const currentPoiStation = nearestStation(poi).station;
 
-  let bStation = currentDepartureStation || (item.boarding_station ? (STATIONS.find(s => s.name === item.boarding_station.name) || item.boarding_station) : null);
+  // 추천 항목은 서버가 고른 승차·하차역을 그대로 그린다(화면이 따로 판단하지 않는다). 항목이 아닌 경우에만 현재 출발지의 가까운 역을 쓴다.
+  const serverBoard = item.boarding_station ? (STATIONS.find(s => s.name === item.boarding_station.name) || item.boarding_station) : null;
+  let bStation = (isRecommendation && serverBoard) ? serverBoard : (currentDepartureStation || serverBoard);
   let aStation = item.alighting_station ? (STATIONS.find(s => s.name === item.alighting_station.name) || item.alighting_station) : currentPoiStation;
 
-  // 💡 2. 도보 직행 판정:
-  // - 같은 역 생활권인 경우
-  // - 또는 출발지~목적지 직선거리가 900m 이내로 도보 생활권인 경우
-  // - 또는 지하철역까지 걸어가는 거리 합이 출발지->목적지 직행 거리보다 멀어 지하철 탑승이 비합리적인 경우
+  // 걷기만 할지 열차를 탈지는 서버의 결정(열차 없는 후보 = no_train, 승·하차역이 같음)을 따른다. 지도·카드·길찾기 링크가 서로 어긋나지 않게 한다.
   const directDist = state.departure ? distKm(state.departure.lat, state.departure.lng, poiLat, poiLng) : 999;
   const walkToBoardDist = (state.departure && bStation) ? distKm(state.departure.lat, state.departure.lng, bStation.lat, bStation.lng) : 0;
   const walkFromAlightDist = aStation ? distKm(aStation.lat, aStation.lng, poiLat, poiLng) : 0;
-
-  const isDirectWalk = (bStation && aStation && bStation.name === aStation.name) ||
-                       (directDist <= 0.9) ||
-                       (directDist <= (walkToBoardDist + walkFromAlightDist) * 0.85);
+  const hasRide = !!(bStation && aStation && bStation.name !== aStation.name) && !(isRecommendation && item.no_train);
+  const isDirectWalk = !hasRide;
+  // 참고용 안내: 승·하차역까지 걷는 거리의 합보다 출발지~장소 직선이 훨씬 짧으면 걸어가는 편이 나을 수 있다(점수는 바꾸지 않는다).
+  const walkMayBeBetter = hasRide && !!state.departure && directDist < (walkToBoardDist + walkFromAlightDist) * 0.85;
 
   if (state.departure) {
     const depPos = new kakao.maps.LatLng(state.departure.lat, state.departure.lng);
     required.push({ pos: depPos });
 
-    if (isDirectWalk || !bStation || bStation.name === aStation.name) {
+    if (isDirectWalk) {
       // 🚶 지하철 불필요: 출발지 → 목적지 직행 도보 점선
       const line = new kakao.maps.Polyline({
         map: state.map,
         path: [depPos, poiPos],
         strokeWeight: 4,
-        strokeColor: '#A07845',
+        strokeColor: '#13201A',
         strokeOpacity: 0.85,
         strokeStyle: 'shortdash',
       });
@@ -246,7 +328,7 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
         map: state.map,
         path: [depPos, bPos],
         strokeWeight: 4,
-        strokeColor: '#A07845',
+        strokeColor: '#13201A',
         strokeOpacity: 0.85,
         strokeStyle: 'shortdash',
       });
@@ -255,7 +337,7 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
       // 탑승역 뱃지
       const bBadge = document.createElement('div');
       bBadge.className = 'route-station-badge';
-      bBadge.textContent = `🚇 승차: ${bStation.name}역`;
+      bBadge.innerHTML = `${ICON.train}<span>승차 ${escapeHtml(bStation.name)}역</span>`;
       const bOverlay = new kakao.maps.CustomOverlay({
         position: bPos,
         content: bBadge,
@@ -269,7 +351,7 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
       // 지도 앱 공식 대중교통 노선 스타일 (흰색 외곽선 10px + 대전 1호선 녹색 6px 이중 레이어)
       const stationsAlong = getSubwayStationsAlong(bStation, aStation);
       if (stationsAlong.length > 1) {
-        const metroPath = stationsAlong.map(s => new kakao.maps.LatLng(s.lat, s.lng));
+        const metroPath = metroPathFor(stationsAlong).map(([lat, lng]) => new kakao.maps.LatLng(lat, lng));
 
         // 2-1. 흰색 테두리 밑선
         const metroUnderlay = new kakao.maps.Polyline({
@@ -288,7 +370,7 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
           map: state.map,
           path: metroPath,
           strokeWeight: 6,
-          strokeColor: '#007448', // 대전 1호선 공식 노선색
+          strokeColor: '#0B8F4D', // 노선 초록(디자인 토큰 --line)
           strokeOpacity: 1.0,
           strokeStyle: 'solid',
           zIndex: 6,
@@ -318,11 +400,11 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
 
       const aBadge = document.createElement('div');
       aBadge.className = 'route-station-badge alight';
-      aBadge.textContent = `🚶 하차: ${aStation.name}역`;
+      aBadge.innerHTML = `${ICON.walk}<span>하차 ${escapeHtml(aStation.name)}역</span>`;
       const aOverlay = new kakao.maps.CustomOverlay({
         position: aPos,
         content: aBadge,
-        yAnchor: 1.6,
+        yAnchor: -0.6,       // 승차 뱃지는 위, 하차 뱃지는 아래: 1정거장처럼 두 역이 가까워도 겹치지 않는다
         zIndex: 16,
       });
       aOverlay.setMap(state.map);
@@ -332,7 +414,7 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
         map: state.map,
         path: [aPos, poiPos],
         strokeWeight: 4,
-        strokeColor: '#C47E4A',
+        strokeColor: '#13201A',
         strokeOpacity: 0.85,
         strokeStyle: 'shortdash',
       });
@@ -347,7 +429,7 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
         map: state.map,
         path: [aPos, poiPos],
         strokeWeight: 4,
-        strokeColor: '#C47E4A',
+        strokeColor: '#13201A',
         strokeOpacity: 0.85,
         strokeStyle: 'shortdash',
       });
@@ -360,7 +442,7 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
   pin.className = 'dest-pin';
   pin.setAttribute('role', 'img');
   pin.setAttribute('aria-label', `목적지 ${poi.name || ''}`);
-  pin.innerHTML = '<svg viewBox="0 0 30 40" width="30" height="40" aria-hidden="true"><path d="M15 39C15 39 2 24 2 14a13 13 0 0 1 26 0C28 24 15 39 15 39z" fill="#C0392B" stroke="#fff" stroke-width="2.5"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';
+  pin.innerHTML = '<svg viewBox="0 0 30 40" width="30" height="40" aria-hidden="true"><path d="M15 39C15 39 2 24 2 14a13 13 0 0 1 26 0C28 24 15 39 15 39z" fill="#13201A" stroke="#fff" stroke-width="2.5"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';
   const pinOverlay = new kakao.maps.CustomOverlay({ position: poiPos, content: pin, xAnchor: 0.5, yAnchor: 1, zIndex: 30 });
   pinOverlay.setMap(state.map);
   state.routePolylines.push(pinOverlay);
@@ -382,15 +464,17 @@ function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
   wrap.appendChild(content);
   content.innerHTML = `
     <div class="poi-info-title">
-      <span>${catEmoji(poi.facility_type)} ${escapeHtml(poi.name)}</span>
-      <span style="font-size:11px;color:#888;">${catLabel(poi.facility_type)}</span>
+      <span class="poi-info-name">${catIcon(poi.facility_type)}<span class="poi-info-name-text">${escapeHtml(poi.name)}</span></span>
+      <span class="poi-info-category">${catLabel(poi.facility_type)}</span>
     </div>
     <div class="poi-info-route">
-      ${isDirectWalk || !bStation || bStation.name === aStation.name
-        ? `🚶 도보 직행 (약 ${(directDist * 1000).toFixed(0)}m · 지하철 불필요)`
-        : `🚇 ${escapeHtml(bStation.name)}역 탑승 → ${escapeHtml(aStation.name)}역 하차`}
+      ${isDirectWalk
+        ? `${ICON.walk}<span class="poi-info-route-text">도보 직행 (약 ${(directDist * 1000).toFixed(0)}m · 지하철 불필요)</span>`
+        : `${ICON.train}<span class="poi-info-route-text">${escapeHtml(bStation.name)}역 탑승 → ${escapeHtml(aStation.name)}역 하차</span>`}
     </div>
-    <div class="poi-info-link">${kakaoRouteLink(poi, isDirectWalk || !bStation || bStation.name === aStation.name)}</div>
+    ${walkMayBeBetter ? `<div class="poi-info-advice">걸어서 바로 가는 편이 더 가까울 수 있어요 (직선 약 ${(directDist * 1000).toFixed(0)}m)</div>` : ''}
+    <div class="poi-info-link">${kakaoRouteLink(poi, isDirectWalk)}</div>
+    ${hasRide ? '<div class="poi-info-attribution"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">선로 좌표 © OpenStreetMap</a></div>' : ''}
   `;
   ['click', 'mousedown', 'touchstart'].forEach(t => content.addEventListener(t, ev => ev.stopPropagation()));
   state.poiInfoOverlay = new kakao.maps.CustomOverlay({
@@ -482,8 +566,8 @@ function initDateInput() {
     state.date = e.target.value;
     loadWeather(state.date);
     if (state.results.length > 0) {
-      document.getElementById('searchBtn').textContent = '변경된 날짜로 추천 다시 찾기';
-      document.getElementById('predictionAnalysis').textContent = '날짜가 변경되었습니다. [추천 다시 찾기]를 누르면 해당 날짜 예보와 시간표로 다시 계산합니다.';
+      setSearchLabel('다시 찾기');
+      document.getElementById('predictionAnalysis').textContent = '날짜가 변경되었습니다. [다시 찾기]를 누르면 해당 날짜 예보와 시간표로 다시 계산합니다.';
     }
   });
 }
@@ -543,8 +627,8 @@ function initRecommendationControls() {
       }
       renderHourlyWeather();
       if (state.results.length > 0) {
-        document.getElementById('searchBtn').textContent = '변경된 시간으로 추천 다시 찾기';
-        document.getElementById('predictionAnalysis').textContent = '시간 범위가 변경되었습니다. [추천 다시 찾기]를 누르면 새 시간대 열차를 계산합니다.';
+        setSearchLabel('다시 찾기');
+        document.getElementById('predictionAnalysis').textContent = '시간 범위가 변경되었습니다. [다시 찾기]를 누르면 새 시간대 열차를 계산합니다.';
       }
     });
   }
@@ -571,9 +655,12 @@ function initRecommendationControls() {
 
 function initFilters() {
   document.querySelectorAll('.filter-btn').forEach(btn => btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     state.selectedCategory = btn.dataset.cat;
+    const sel = document.getElementById('catSelect');
+    if (sel) sel.value = state.selectedCategory;
 
     if (state.results && state.results.length > 0) {
       // 추천 결과 모드일 때: 현재 카테고리에 맞게 필터링 렌더링 (지도 마커도 함께 갱신)
@@ -583,10 +670,13 @@ function initFilters() {
       renderEmptyState();
     }
   }));
+  document.getElementById('catSelect')?.addEventListener('change', e => {
+    document.querySelector(`.filter-btn[data-cat="${e.target.value}"]`)?.click();
+  });
 }
 
 function visibleResults() {
-  const results = state.results || [];
+  const results = (state.results || []).filter(r => !r.group || r.group === state.tab);
   return state.selectedCategory === 'all' ? results : results.filter(r => r.poi?.facility_type === state.selectedCategory);
 }
 
@@ -595,13 +685,15 @@ function visibleResults() {
 // ─────────────────────────────────────────────
 function renderEmptyState() {
   renderPoiMarkers([]);
+  state.results = state.results || [];
+  renderGroupTabs();
   document.getElementById('resultsMeta').textContent = '추천 결과 대기 중';
   document.getElementById('resultsCards').innerHTML = `<div class="empty-state empty-guide" role="status">
     <strong>추천을 받을 준비가 되었어요</strong>
     <ol>
-      <li>지도를 눌러 출발 위치를 고릅니다.</li>
+      <li>출발지 선택을 눌러 지도 선택을 켠 뒤, 지도에서 위치를 고릅니다.</li>
       <li>방문 날짜와 이용할 시간 범위를 정합니다.</li>
-      <li>[추천 경로 찾기] 버튼을 누르면 추천 장소가 지도와 목록에 나타납니다.</li>
+      <li>[찾기] 버튼을 누르면 추천 장소가 지도와 목록에 나타납니다.</li>
     </ol>
   </div>`;
 }
@@ -691,36 +783,167 @@ function countLabel(value) {
 // ─────────────────────────────────────────────
 // 🏆 실제 추천 결과 렌더링
 // ─────────────────────────────────────────────
+// 결과 행 내부. view = {hour, cell}이면 시간 막대로 고른 시간의 값(출발·재차·점수)으로 표시하고, 목록 순서·구성은 건드리지 않는다.
+function rowInner(r, i, view) {
+  const p = r.poi || {}, noTrain = r.no_train;
+  const { lo, hi } = state.rowCtx, span = hi - lo || 1;
+  const qOf = v => `var(--q${Math.max(1, Math.min(5, 1 + Math.floor(((v - lo) / span) * 4.999)))})`;
+  const cell = view?.cell;
+  const missing = !!view && !noTrain && typeof cell?.mean_load !== 'number';
+  const dep = view && !missing ? cell.departure_time : r.departure_time;
+  const load = view ? cell?.mean_load : r.mean_load;
+  const score = view ? cell?.score : r.score;
+  const hasLoad = !noTrain && !missing && typeof load === 'number';
+  const wa = r.walk_access_minutes, we = r.walk_egress_minutes, wt = r.walk_total_minutes;
+  const haveWalk = typeof wt === 'number';
+  const total = view && !missing && typeof cell?.total_minutes === 'number' ? cell.total_minutes : r.total_minutes;
+  const ride = haveWalk && typeof total === 'number' ? total - wt : r.ride_minutes;
+  const route = `${escapeHtml(stationName(r.boarding_station))} → ${escapeHtml(stationName(r.alighting_station))}`;
+  // 걷는 시간은 직선거리로 어림한 추정치라 항상 "추정"을 붙인다. 대기·환승 시간은 포함하지 않는다.
+  const walkLine = !haveWalk ? ''
+    : noTrain ? `<span class="rt">${ICON.walk}걷기 약 ${wt}분 (추정) · 열차 없음</span>`
+    : `<span class="rt">${ICON.walk}걷기 ${wa}분 + ${we}분 = ${wt}분${typeof ride === 'number' && !missing ? ` · 지하철 ${ride}분 · 총 ${total}분` : ''} (추정)</span>`;
+  const meta = noTrain
+    ? walkLine
+    : missing
+      ? `<span class="rt">${ICON.train}${route} · ${view.hour}시에는 맞는 열차 없음</span>${walkLine}`
+      : `<span class="rt">${ICON.train}${route} · ${escapeHtml(formatTrainTime(dep))} 출발</span>${walkLine}`;
+  // 직선으로 걷는 편이 더 가까울 수 있을 때의 참고 안내(순위·점수에는 영향 없음)
+  const advice = (!noTrain && typeof r.distance_km === 'number' && typeof r.walking_distance_km === 'number' && r.distance_km < r.walking_distance_km * 0.85)
+    ? `<div class="walk-advice">걸어서 바로 가는 편이 더 가까울 수 있어요 (직선 약 ${Math.round(r.distance_km * 1000)}m)</div>` : '';
+  const tag = view ? `<div class="view-tag">${view.hour}시 기준</div>` : '';
+  return `
+        <div class="rank">${i + 1}</div>
+        <div class="row-main">
+          <div class="name">${catIcon(p.facility_type)}<span class="name-text">${escapeHtml(p.name)}</span><span class="cat-text">${catLabel(p.facility_type)}</span></div>
+          ${tag}
+          <div class="meta">${meta}</div>
+          ${advice}
+          ${view ? '' : altLine(r)}
+          <div class="addr">${escapeHtml(p.address || '주소 정보 없음')}${typeof r.distance_km === 'number' ? ` · 직선 ${r.distance_km.toFixed(1)}km` : ''}</div>
+          <div class="row-foot">${typeof score === 'number' ? `<span class="result-score">추천점수 ${score.toFixed(1)}</span>` : '<span></span>'}${kakaoRouteLink(p, noTrain)}</div>
+        </div>
+        <div class="q">${hasLoad ? `<b>${Math.round(load)}</b><small>예상 재차 · 명</small><div class="meter" aria-hidden="true"><i style="width:${Math.min(100, Math.max(8, Math.round((load / hi) * 100)))}%;background:${qOf(load)}"></i></div>` : '<b>–</b><small>열차 없음</small>'}</div>
+  `;
+}
+
+// 가까운 곳 / 지하철로 멀리 탭 (탭 전환은 브라우저에서만 처리: 서버 재순위 없음)
+const GROUP_LABEL = { near: '가까운 곳', far: '지하철로 멀리' };
+function groupCount(g) {
+  const list = (state.results || []).filter(r => r.group === g && (state.selectedCategory === 'all' || r.poi?.facility_type === state.selectedCategory));
+  const more = state.selectedCategory === 'all' && (state.lastMeta?.groups?.[g]?.places || 0) > list.length;
+  return `${list.length}${more ? '+' : ''}`;
+}
+function renderGroupTabs() {
+  const box = document.getElementById('groupTabs');
+  if (!box) return;
+  const has = (state.results || []).some(r => r.group);
+  box.hidden = !has;
+  document.getElementById('groupNote').hidden = !has;
+  if (!has) return;
+  box.querySelectorAll('[role="tab"]').forEach(t => {
+    const g = t.dataset.group, on = g === state.tab;
+    t.setAttribute('aria-selected', String(on));
+    t.tabIndex = on ? 0 : -1;
+    t.querySelector('.cnt').textContent = `(${groupCount(g)})`;
+  });
+  document.getElementById('resultsBody')?.setAttribute('aria-labelledby', state.tab === 'near' ? 'tabNear' : 'tabFar');
+  document.getElementById('groupNote').textContent = state.tab === 'near'
+    ? '총 30분 이하(걷기 + 지하철, 대기·환승 시간 제외, 추정)인 장소예요.'
+    : '총 30분을 넘는 장소예요. 점수(거리·한산함)는 이 탭 안의 장소끼리만 비교한 값입니다.';
+}
+function switchTab(name) {
+  if (state.tab === name) return;
+  state.tab = name;
+  state.viewHour = null;
+  showUpdateNote('');
+  clearRoute();
+  state.selectedItem = null;
+  window.Analysis?.setSelected(null);
+  renderRecommendations({ results: state.results, meta: state.lastMeta });
+  if (state.listed.length) {
+    document.querySelector('#resultsCards .result-card[data-index="0"]')?.classList.add('selected');
+    showPlaceRoute(state.listed[0], true);
+  } else {
+    renderTimeStrip();
+  }
+  window.Analysis?.refreshHeatmap();
+}
+function initGroupTabs() {
+  const box = document.getElementById('groupTabs');
+  if (!box) return;
+  const tabs = [...box.querySelectorAll('[role="tab"]')];
+  tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.group)));
+  box.addEventListener('keydown', e => {
+    const i = tabs.findIndex(t => t === document.activeElement);
+    if (i < 0) return;
+    const next = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
+    if (next === undefined) return;
+    e.preventDefault();
+    switchTab(tabs[next].dataset.group);
+    tabs[next].focus();
+  });
+}
+
+// 선택한 장소의 matrix 행과 보고 있는 시간의 칸
+function viewTarget() {
+  const m = state.matrix, id = state.selectedItem?.poi?.id;
+  if (!m || id == null) return null;
+  const row = m.rows.find(r => r.poi_id === id && (!r.group || r.group === state.tab));
+  if (!row) return null;
+  const usable = row.cells.some(c => typeof c.mean_load === 'number');
+  const i = state.viewHour === null ? -1 : m.hours.indexOf(state.viewHour);
+  return { row, usable, cell: i >= 0 ? row.cells[i] : null };
+}
+
+// 보고 있는 시간이 바뀌었을 때: 이전에 바꾼 행을 되돌리고 선택한 행만 갱신한다. 순서·구성은 그대로.
+function syncViewHour() {
+  document.querySelectorAll('#resultsCards .result-card[data-view]').forEach(card => {
+    const i = Number(card.dataset.index);
+    card.removeAttribute('data-view');
+    if (state.listed[i]) card.innerHTML = rowInner(state.listed[i], i, null);
+  });
+  const t = viewTarget();
+  if (state.viewHour !== null && !(t && t.cell)) state.viewHour = null;
+  let announce = '';
+  if (state.viewHour !== null && t && t.cell && state.selectedItem) {
+    const i = state.listed.findIndex(r => r.poi?.id === state.selectedItem.poi?.id);
+    const card = document.querySelector(`#resultsCards .result-card[data-index="${i}"]`);
+    if (card && i >= 0) {
+      card.dataset.view = String(state.viewHour);
+      card.innerHTML = rowInner(state.listed[i], i, { hour: state.viewHour, cell: t.cell });
+      const c = t.cell;
+      announce = `${state.selectedItem.poi.name} ${state.viewHour}시 기준: ` + (typeof c.mean_load === 'number' ? `${formatTrainTime(c.departure_time)} 출발, 예상 재차 ${Math.round(c.mean_load)}명` : '맞는 열차 없음');
+    }
+  }
+  const live = document.getElementById('viewStatus');
+  if (live) live.textContent = announce;
+  renderTimeStrip();
+}
+
 function renderRecommendations(payload) {
   state.lastMeta = payload.meta || state.lastMeta;
-  const results = (payload.results || []).filter(r => state.selectedCategory === 'all' || r.poi?.facility_type === state.selectedCategory);
+  const results = (payload.results || []).filter(r => (!r.group || r.group === state.tab) && (state.selectedCategory === 'all' || r.poi?.facility_type === state.selectedCategory));
   renderPoiMarkers(results);
+  renderGroupTabs();
 
-  document.getElementById('resultsMeta').textContent = `${state.date} 운행일 · ${state.activeHour !== null ? `${state.activeHour}시 기준` : `${state.startHour}~${state.endHour}시`} · ${results.length}개 추천 · 한산함 ${Math.round(state.quietWeight * 100)}%`;
+  document.getElementById('resultsMeta').textContent = `${state.date} 운행일 · ${state.activeHour !== null ? `${state.activeHour}시 기준` : `${state.startHour}~${state.endHour}시`} · 한산함 ${Math.round(state.quietWeight * 100)}%`;
 
   const cards = document.getElementById('resultsCards');
   if (!results.length) {
-    cards.innerHTML = '<p class="empty-state" role="status">선택한 조건으로 이동 가능한 추천이 없습니다. 시간 범위나 목적지 테마를 바꿔 주세요.</p>';
+    state.listed = [];
+    const hint = state.tab === 'near'
+      ? '걷는 시간 합계가 이 한도 안이고 총 30분 이내인 가까운 곳이 없습니다. 걷는 시간 한도를 늘리거나 [지하철로 멀리] 탭을 눌러 보세요.'
+      : '총 30분을 넘는 먼 곳이 없습니다. 걷는 시간 한도가 짧으면 먼 곳이 걸러질 수 있어요. 한도를 늘려 보세요.';
+    cards.innerHTML = `<p class="empty-state" role="status">${hint}</p>`;
+    syncViewHour();
     return;
   }
 
-  cards.innerHTML = results.map((r, i) => {
-    const p = r.poi || {}, noTrain = r.no_train;
-    return `
-      <article class="result-card" data-index="${i}">
-        <div class="result-rank">${i + 1}</div>
-        <div class="result-name">${escapeHtml(p.name)}</div>
-        <div class="result-cat">${catEmoji(p.facility_type)} ${catLabel(p.facility_type)}</div>
-        <div class="recommendation-time">${noTrain ? `🚶 도보 약 ${typeof r.walk_minutes === 'number' ? `${r.walk_minutes}분` : '직행'} (지하철 없음)` : `🚇 ${escapeHtml(formatTrainTime(r.departure_time))} 출발 → ${escapeHtml(formatTrainTime(r.arrival_time))} 도착`}</div>
-        <div class="result-info"><span class="result-info-key">이용 경로</span><span class="result-info-val">${noTrain ? '지하철 없이 직접 이동' : `${escapeHtml(stationName(r.boarding_station))}역 → ${escapeHtml(stationName(r.alighting_station))}역 (${escapeHtml(r.direction || '')})`}</span></div>
-        <div class="result-info"><span class="result-info-key">예상 재차</span><span class="result-info-val">${noTrain ? '열차 미탑승 (점수 중립)' : `구간 평균 ${countLabel(r.mean_load)}`}</span></div>
-        <div class="result-info"><span class="result-info-key">거리</span><span class="result-info-val">직선 ${weatherNumber(r.distance_km, 'km')}</span></div>
-        <div class="result-info"><span class="result-info-key">주소</span><span class="result-info-val">${escapeHtml(p.address || '주소 정보 없음')}</span></div>
-        ${altLine(r)}
-        <div class="result-foot">${typeof r.score === 'number' ? `<span class="result-score">추천점수 ${r.score.toFixed(1)}점</span>` : '<span></span>'}${kakaoRouteLink(p, noTrain || (typeof r.distance_km === 'number' && r.distance_km <= 0.9))}</div>
-      </article>
-    `;
-  }).join('');
+  const loads = results.filter(r => !r.no_train && typeof r.mean_load === 'number').map(r => r.mean_load);
+  state.rowCtx = { lo: Math.min(...loads), hi: Math.max(...loads) };
+  state.listed = results;
+  cards.innerHTML = results.map((r, i) => `<article class="result-card row" data-index="${i}">${rowInner(r, i, null)}</article>`).join('');
 
   // 카드 클릭 이벤트 바인딩
   cards.querySelectorAll('.result-card').forEach(card => {
@@ -737,6 +960,8 @@ function renderRecommendations(payload) {
     });
   });
 
+  syncViewHour();
+
   const transit = results.filter(r => !r.no_train);
   document.getElementById('predictionAnalysis').innerHTML = transit.length
     ? `<div class="analysis-scroll"><table><thead><tr><th>출발 시각</th><th>이용 구간 / 장소</th><th>평균 재차</th><th>최대 재차</th></tr></thead><tbody>${transit.map(r => `<tr><td>${escapeHtml(formatTrainTime(r.departure_time))}</td><td>${escapeHtml(stationName(r.boarding_station))} → ${escapeHtml(stationName(r.alighting_station))}<br><strong>${escapeHtml(r.poi?.name)}</strong></td><td>${countLabel(r.mean_load)}</td><td>${countLabel(r.max_load)}</td></tr>`).join('')}</tbody></table></div>`
@@ -744,14 +969,13 @@ function renderRecommendations(payload) {
 
   const notes = payload.meta?.limitations;
   if (Array.isArray(notes) && notes.length) {
-    const note = document.createElement('p');
-    note.className = 'control-help';
-    note.textContent = notes.join(' · ');
+    const note = document.createElement('details');
+    note.className = 'limits-note';
+    note.innerHTML = `<summary>예측의 한계</summary><p>${escapeHtml(notes.join(' · '))}</p>`;
     cards.prepend(note);
   }
 }
 
-// ───────── 출발지 변경 시 자동 재검색 ─────────
 function setUpdating(on) {
   document.getElementById('resultsSection')?.classList.toggle('is-updating', on);
   const badge = document.getElementById('mapUpdating');
@@ -775,24 +999,10 @@ function showUpdateNote(message, retry = false) {
     btn.type = 'button';
     btn.className = 'update-retry';
     btn.textContent = '다시 시도';
-    btn.addEventListener('click', () => requestRecommendations({ auto: true }));
+    btn.addEventListener('click', () => requestRecommendations());
     note.appendChild(btn);
   }
   note.hidden = false;
-}
-
-function scheduleResearch() {
-  clearTimeout(state.researchTimer);
-  state.recommendationController?.abort();
-  state.recommendationRequestId++;           // 이전 요청의 늦은 응답은 무시된다
-  const button = document.getElementById('searchBtn');
-  button.disabled = false;
-  button.removeAttribute('aria-busy');
-  button.textContent = '추천 경로 찾기';
-  setUpdating(true);
-  setStale(false);
-  showUpdateNote('');
-  state.researchTimer = setTimeout(() => { state.researchTimer = null; requestRecommendations({ auto: true }); }, 600);
 }
 
 async function requestRecommendations(opts = {}) {
@@ -802,7 +1012,7 @@ async function requestRecommendations(opts = {}) {
   const hourMode = Number.isInteger(opts.hour) ? opts.hour : (auto ? state.activeHour : null);
   const prevPoiId = auto ? (state.selectedItem?.poi?.id ?? null) : null;
   if (!state.departure) {
-    document.getElementById('resultsCards').innerHTML = '<p class="empty-state">먼저 지도에서 출발 위치를 선택해 주세요. 지도 클릭이 어려우면 아래 노선도 역 이름을 클릭해 선택할 수 있습니다.</p>';
+    document.getElementById('resultsCards').innerHTML = '<p class="empty-state">먼저 위의 출발지 선택을 눌러 지도 선택을 켜거나, 역 목록에서 출발지를 골라 주세요.</p>';
     renderMetroSchematic();
     return;
   }
@@ -821,7 +1031,7 @@ async function requestRecommendations(opts = {}) {
     setUpdating(false);
     button.disabled = true;
     button.setAttribute('aria-busy', 'true');
-    button.innerHTML = '<span class="spinner" aria-hidden="true"></span>이동 가능한 후보 계산 중…';
+    button.innerHTML = '<span class="spinner" aria-hidden="true"></span><span class="go-label">계산 중…</span>';
     const cardsBox = document.getElementById('resultsCards');
     document.getElementById('resultsMeta').textContent = '추천 계산 중';
     cardsBox.innerHTML = `<div class="loading-status" role="status"><span id="loadingElapsed">계산 중 · 0초</span></div><div class="skeleton-row" aria-hidden="true">${'<div class="skeleton-card"><i></i><i></i><i></i><i></i></div>'.repeat(4)}</div>`;
@@ -860,34 +1070,40 @@ async function requestRecommendations(opts = {}) {
     if (id !== state.recommendationRequestId) return;
 
     setUpdating(false);
+    if (!auto) { state.viewHour = null; state.tab = 'near'; }
     state.results = payload.results;
+    state.lastMeta = payload.meta || state.lastMeta;
     state.activeHour = hourMode;
     if (hourMode === null) {
       state.chipRange = { start: state.startHour, end: state.endHour };
       state.matrix = payload.matrix || null;
     }
     renderRecommendations(payload);
-    renderTimeChips();
+    renderTimeStrip();
     window.Analysis?.refreshHeatmap();
     if (!auto) document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
 
     if (auto && prevPoiId !== null) {
-      // 출발지 변경 후 재검색: 같은 장소가 결과에 있으면 새 결과로 경로를 다시 그린다(카메라는 움직이지 않음)
-      const idx = payload.results.findIndex(r => r.poi?.id === prevPoiId);
+      // 출발지 변경 후 재검색: 같은 탭에 같은 장소가 있으면 새 결과로 경로를 다시 그린다(카메라는 움직이지 않음)
+      const idx = state.listed.findIndex(r => r.poi?.id === prevPoiId);
       if (idx >= 0) {
         document.querySelector(`.result-card[data-index="${idx}"]`)?.classList.add('selected');
-        showPlaceRoute(payload.results[idx], true, false);
+        showPlaceRoute(state.listed[idx], true, false);
+        syncViewHour(); // 같은 장소이고 그 시간이 새 matrix에 있으면 유지, 아니면 초기화
       } else {
         clearRoute();
         state.selectedItem = null;
         window.Analysis?.setSelected(null);
-        showUpdateNote('선택했던 장소가 새 출발지 기준 결과에 없어 선택을 해제했습니다.');
+        state.viewHour = null;
+        syncViewHour();
+        const other = payload.results.some(r => r.poi?.id === prevPoiId);
+        showUpdateNote(other ? '선택했던 장소가 새 출발지 기준으로 다른 탭으로 옮겨져 선택을 해제했습니다.' : '선택했던 장소가 새 출발지 기준 결과에 없어 선택을 해제했습니다.');
       }
-    } else if (payload.results.length > 0) {
-      // 1위 추천 장소의 경로를 지도에 기본 표시
+    } else if (state.listed.length > 0) {
+      // 현재 탭 1위 장소의 경로를 지도에 기본 표시
       const firstCard = document.querySelector('.result-card[data-index="0"]');
       if (firstCard) firstCard.classList.add('selected');
-      showPlaceRoute(payload.results[0], true);
+      showPlaceRoute(state.listed[0], true);
     }
   } catch (error) {
     if (id !== state.recommendationRequestId) return;
@@ -908,46 +1124,264 @@ async function requestRecommendations(opts = {}) {
     if (id === state.recommendationRequestId && !auto) {
       button.disabled = false;
       button.removeAttribute('aria-busy');
-      button.textContent = '추천 경로 찾기';
+      setSearchLabel('찾기');
     }
   }
 }
 
-// 시간 칩: 장소별 최적 시간(기본) 또는 한 시간을 골라 서버가 그 시간 기준으로 순위를 다시 계산한다.
-function renderTimeChips() {
-  const box = document.getElementById('timeChips');
+// 시간 막대: 검색 뒤 응답의 matrix(실제 값)로만 그린다. 막대를 눌러도 순위·목록은 바뀌지 않고, 선택한 장소의 표시만 그 시간 값으로 바뀐다(D-019).
+function renderTimeStrip() {
+  const box = document.getElementById('timeStrip');
   if (!box) return;
-  const range = state.chipRange;
-  if (!range) { box.hidden = true; box.innerHTML = ''; return; }
-  const chips = [{ label: '장소별 최적 시간', hour: null }];
-  for (let h = range.start; h <= range.end; h++) chips.push({ label: `${h}시`, hour: h });
+  const m = state.matrix;
+  if (!m || !m.rows?.length || !state.results.length) { box.hidden = true; box.innerHTML = ''; return; }
+  const t = viewTarget();
+  const own = !!(t && t.usable);                       // 선택한 장소의 시간별 값이 있을 때만 막대를 누를 수 있다
+  const series = m.hours.map((h, i) => {
+    if (own) return t.row.cells[i]?.mean_load ?? null;
+    const v = m.rows.filter(r => !r.no_train && (!r.group || r.group === state.tab)).map(r => r.cells[i]?.mean_load).filter(x => typeof x === 'number');
+    return v.length ? Math.min(...v) : null;
+  });
+  const vals = series.filter(v => typeof v === 'number');
+  if (!vals.length) { box.hidden = true; box.innerHTML = ''; return; }
+  const preferredWidth = Math.max(370, Math.min(780, 220 + m.hours.length * 28));
+  box.style.setProperty('--strip-preferred-width', `${preferredWidth}px`);
+  const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
+  const qn = v => Math.min(5, 1 + Math.floor(((v - lo) / span) * 4.999));
+  const qLabel = ['매우 한산', '한산', '보통', '붐빔', '매우 붐빔'];
+  const sel = state.selectedItem;
+  const walkOnly = !!sel?.no_train;
+  const basis = own
+    ? `선택한 장소(${t.row.name}) 기준`
+    : walkOnly
+      ? '도보 전용 장소 자체의 혼잡도가 아님'
+      : '상위 후보 중 가장 한산한 값 기준';
+  const recommendationHour = sel && !sel.no_train && sel.departure_time
+    ? Number(String(sel.departure_time).split(':')[0])
+    : null;
+  const currentView = walkOnly
+    ? '선택한 장소는 도보 전용'
+    : state.viewHour === null ? '기본 추천 보기' : `현재 표시: ${state.viewHour}시`;
+  const hint = own ? '시간을 누르면 선택한 장소의 그 시간 정보를 보여줍니다 (순위는 그대로)'
+    : !sel ? '장소를 고르면 시간을 눌러 그 장소의 시간별 정보를 볼 수 있어요'
+    : walkOnly ? '이 그래프는 이 장소의 혼잡도가 아닙니다. 같은 탭의 지하철 추천안 중 시간별 최소값입니다.'
+    : '이 장소는 시간별 값이 없어 막대만 보여 줍니다 (상위 15곳만 제공)';
+  const cols = m.hours.map((h, i) => {
+    const v = series[i], selectedHour = state.viewHour === null ? recommendationHour : state.viewHour;
+    const on = selectedHour === h;
+    if (typeof v !== 'number') return `<div class="col empty" role="img" aria-label="${h}시 열차 없음"><span class="bar"></span><span class="h">${h}</span><span class="v">–</span></div>`;
+    const n = qn(v), height = 8 + Math.round(((v - lo) / span) * 28);
+    const label = `${h}시, 예상 재차 ${Math.round(v)}명, ${qLabel[n - 1]}`;
+    const inner = `<span class="bar" style="height:${height}px;background:var(--q${n})"></span><span class="h">${h}</span><span class="v">${Math.round(v)}</span>`;
+    if (!own) return `<div class="col static${on ? ' sel' : ''}" role="img" aria-label="${label}${on ? ', 선택됨' : ''}" title="${label}">${inner}</div>`;
+    return `<button type="button" class="col${on ? ' sel' : ''}" data-hour="${h}" aria-pressed="${on}" aria-label="${label}${on ? ', 선택됨' : ''}" title="${label}">${inner}</button>`;
+  }).join('');
   box.hidden = false;
-  box.innerHTML = chips.map(c => `<button type="button" class="time-chip" data-hour="${c.hour ?? ''}" aria-pressed="${c.hour === state.activeHour}">${c.label}</button>`).join('');
-  box.querySelectorAll('.time-chip').forEach(btn => btn.addEventListener('click', () => {
-    const hour = btn.dataset.hour === '' ? null : Number(btn.dataset.hour);
-    if (hour === state.activeHour) return;
-    requestRecommendations(hour === null ? {} : { hour });
-  }));
-  const pressed = box.querySelector('[aria-pressed="true"]');
-  if (pressed) box.scrollLeft = Math.max(0, pressed.offsetLeft - 48);
+  box.classList.toggle('is-collapsed', state.timeStripCollapsed);
+  const chartTitle = walkOnly ? '다른 지하철 추천안 · 예상 재차인원(명)' : '시간대별 예상 재차인원(명)';
+  box.innerHTML = `<div class="strip-head"><div class="strip-title" tabindex="0" aria-label="플로팅 창을 끌어 이동할 수 있습니다. 방향키로 이동하고 Home 키로 처음 위치로 되돌립니다." aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Home"><div class="strip-heading"><strong>언제 가면 한산할까</strong><span class="strip-drag-affordance" aria-hidden="true" title="창의 빈 곳을 끌어 이동">⠿ 끌어 이동</span></div><span class="strip-current">${escapeHtml(currentView)}</span><span class="strip-basis">${escapeHtml(chartTitle)} · ${escapeHtml(basis)}</span></div>
+      <div class="strip-actions"><button type="button" class="strip-best" aria-pressed="${state.viewHour === null}"${own ? '' : ' disabled'}>기본 추천 보기</button>
+      <button type="button" class="strip-reset" aria-label="패널 위치 초기화" title="패널 위치 초기화">↺</button>
+      <button type="button" class="strip-toggle" aria-expanded="${!state.timeStripCollapsed}" aria-controls="timeStripContent">${state.timeStripCollapsed ? '펼치기' : '접기'}</button></div></div>
+    <div class="strip-content" id="timeStripContent"><div class="strip-scroll in-range"><div class="cols" style="--n:${m.hours.length}">${cols}</div></div>
+    <div class="legend"><span><i style="background:var(--q1)"></i>한산</span><span><i style="background:var(--q3)"></i>보통</span><span><i style="background:var(--q5)"></i>붐빔</span><span class="legend-hint">${hint}</span></div></div>`;
+  box.querySelector('.strip-toggle').addEventListener('click', e => {
+    state.timeStripCollapsed = !state.timeStripCollapsed;
+    box.classList.toggle('is-collapsed', state.timeStripCollapsed);
+    e.currentTarget.setAttribute('aria-expanded', String(!state.timeStripCollapsed));
+    e.currentTarget.textContent = state.timeStripCollapsed ? '펼치기' : '접기';
+  });
+  bindTimeStripHandle(box);
+  box.querySelectorAll('.col[data-hour]').forEach(btn => btn.addEventListener('click', () => { state.viewHour = Number(btn.dataset.hour); syncViewHour(); document.querySelector(`#timeStrip .col[data-hour="${state.viewHour}"]`)?.focus(); }));
+  box.querySelector('.strip-best').addEventListener('click', () => { state.viewHour = null; syncViewHour(); document.querySelector('#timeStrip .strip-best')?.focus(); });
+  requestAnimationFrame(applyTimeStripPosition);
+}
+
+const TIME_STRIP_POSITION_KEY = 'timeStrip.position.v1';
+
+function readTimeStripPosition() {
+  try {
+    const value = JSON.parse(localStorage.getItem(TIME_STRIP_POSITION_KEY) || 'null');
+    if (value && Number.isFinite(value.x) && Number.isFinite(value.y)) {
+      return { x: Math.max(0, Math.min(1, value.x)), y: Math.max(0, Math.min(1, value.y)) };
+    }
+  } catch (_) { /* 저장소를 사용할 수 없으면 기본 위치를 쓴다 */ }
+  return null;
+}
+
+function stripPositionLimits(box) {
+  const area = document.querySelector('.map-area');
+  if (!area || !box) return null;
+  const xRange = Math.max(0, area.clientWidth - box.offsetWidth - 16);
+  const yRange = Math.max(0, area.clientHeight - box.offsetHeight - 16);
+  return { area, xRange, yRange };
+}
+
+function applyTimeStripPosition() {
+  const box = document.getElementById('timeStrip');
+  if (!box || box.hidden) return;
+  const limits = stripPositionLimits(box);
+  if (!limits) return;
+  const p = state.timeStripPosition || { x: 0, y: 1 };
+  box.style.left = `${8 + p.x * limits.xRange}px`;
+  box.style.top = `${8 + p.y * limits.yRange}px`;
+  box.style.right = 'auto';
+  box.style.bottom = 'auto';
+}
+
+function saveTimeStripPosition() {
+  const box = document.getElementById('timeStrip');
+  const limits = stripPositionLimits(box);
+  if (!box || !limits) return;
+  const left = Math.max(8, Math.min(limits.area.clientWidth - box.offsetWidth - 8, box.offsetLeft));
+  const top = Math.max(8, Math.min(limits.area.clientHeight - box.offsetHeight - 8, box.offsetTop));
+  box.style.left = `${left}px`;
+  box.style.top = `${top}px`;
+  state.timeStripPosition = {
+    x: limits.xRange ? (left - 8) / limits.xRange : 0,
+    y: limits.yRange ? (top - 8) / limits.yRange : 1,
+  };
+  try { localStorage.setItem(TIME_STRIP_POSITION_KEY, JSON.stringify(state.timeStripPosition)); }
+  catch (_) { /* 저장소를 쓸 수 없어도 현재 위치 이동은 유지한다 */ }
+}
+
+function resetTimeStripPosition() {
+  state.timeStripPosition = null;
+  try { localStorage.removeItem(TIME_STRIP_POSITION_KEY); } catch (_) { /* 기본 위치로 복귀는 계속 진행 */ }
+  applyTimeStripPosition();
+}
+
+function moveTimeStripBy(dx, dy) {
+  const box = document.getElementById('timeStrip');
+  const limits = stripPositionLimits(box);
+  if (!box || !limits) return;
+  const left = Math.max(8, Math.min(limits.area.clientWidth - box.offsetWidth - 8, box.offsetLeft + dx));
+  const top = Math.max(8, Math.min(limits.area.clientHeight - box.offsetHeight - 8, box.offsetTop + dy));
+  box.style.left = `${left}px`;
+  box.style.top = `${top}px`;
+  saveTimeStripPosition();
+}
+
+function bindTimeStripHandle(box) {
+  const handle = box.querySelector('.strip-title');
+  const resetButton = box.querySelector('.strip-reset');
+  if (!handle) return;
+  box.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || e.target.closest('button, a, input, select, .strip-scroll')) return;
+    const startLeft = box.offsetLeft, startTop = box.offsetTop;
+    state.timeStripDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, left: startLeft, top: startTop };
+    box.classList.add('is-dragging');
+    box.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  box.addEventListener('pointermove', e => {
+    const drag = state.timeStripDrag;
+    if (!drag || drag.id !== e.pointerId) return;
+    const limits = stripPositionLimits(box);
+    if (!limits) return;
+    const left = Math.max(8, Math.min(limits.area.clientWidth - box.offsetWidth - 8, drag.left + e.clientX - drag.x));
+    const top = Math.max(8, Math.min(limits.area.clientHeight - box.offsetHeight - 8, drag.top + e.clientY - drag.y));
+    box.style.left = `${left}px`;
+    box.style.top = `${top}px`;
+  });
+  const finishDrag = e => {
+    const drag = state.timeStripDrag;
+    if (!drag || drag.id !== e.pointerId) return;
+    state.timeStripDrag = null;
+    box.classList.remove('is-dragging');
+    saveTimeStripPosition();
+    if (box.hasPointerCapture(e.pointerId)) box.releasePointerCapture(e.pointerId);
+  };
+  box.addEventListener('pointerup', finishDrag);
+  box.addEventListener('pointercancel', finishDrag);
+  handle.addEventListener('keydown', e => {
+    const step = e.shiftKey ? 40 : 12;
+    const delta = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+    if (delta) { e.preventDefault(); moveTimeStripBy(...delta); }
+    else if (e.key === 'Home') { e.preventDefault(); resetTimeStripPosition(); }
+  });
+  resetButton?.addEventListener('click', resetTimeStripPosition);
+}
+
+function initTimeStripPosition() {
+  state.timeStripPosition = readTimeStripPosition();
+  const area = document.querySelector('.map-area'), box = document.getElementById('timeStrip');
+  if (typeof ResizeObserver !== 'undefined' && area && box) {
+    const observer = new ResizeObserver(applyTimeStripPosition);
+    observer.observe(area);
+    observer.observe(box);
+  }
+  window.addEventListener('resize', applyTimeStripPosition);
+}
+
+// 출발지 문장 칸: 눌러서 지도 안내와 역 목록을 연다 (Esc/바깥 클릭으로 닫힘)
+function initQueryBar() {
+  const slot = document.getElementById('slotOrigin'), pop = document.getElementById('originPop'), sel = document.getElementById('originStation');
+  const pickButton = document.getElementById('mapPickButton'), pickCancel = document.getElementById('mapPickCancel');
+  if (!slot || !pop || !sel) return;
+  sel.innerHTML += STATIONS.map(s => `<option value="${s.idx}">${escapeHtml(s.name)}역</option>`).join('');
+  const close = (focus = false) => { pop.hidden = true; slot.setAttribute('aria-expanded', 'false'); if (focus) slot.focus(); };
+  slot.addEventListener('click', () => {
+    if (state.mapPickMode) setMapPickMode(false);
+    const open = pop.hidden;
+    pop.hidden = !open;
+    slot.setAttribute('aria-expanded', String(open));
+    if (open) pickButton?.focus();
+  });
+  pickButton?.addEventListener('click', () => {
+    setMapPickMode(true);
+    close();
+    pickCancel?.focus();
+  });
+  pickCancel?.addEventListener('click', () => {
+    setMapPickMode(false);
+    slot.focus();
+  });
+  sel.addEventListener('change', () => {
+    const st = STATIONS.find(x => String(x.idx) === sel.value);
+    if (!st) return;
+    setDeparture(st.lat, st.lng, `${st.name}역`);
+    state.map?.setCenter(new kakao.maps.LatLng(st.lat, st.lng));
+    close(true);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (state.mapPickMode) { setMapPickMode(false); slot.focus(); }
+    else if (!pop.hidden) close(true);
+  });
+  document.addEventListener('click', e => { if (!pop.hidden && !e.target.closest('.slot-box')) close(); });
+}
+
+function setMapPickMode(active) {
+  state.mapPickMode = !!active;
+  const hint = document.getElementById('mapPickHint');
+  const button = document.getElementById('mapPickButton');
+  if (hint) hint.hidden = !state.mapPickMode;
+  button?.setAttribute('aria-pressed', String(state.mapPickMode));
+  document.querySelector('.map-area')?.classList.toggle('is-picking', state.mapPickMode);
 }
 
 function initSearchBtn() {
   document.getElementById('maxWalk').addEventListener('change', () => {
     if (state.results.length > 0) {
-      document.getElementById('searchBtn').textContent = '변경된 도보 시간으로 추천 다시 찾기';
-      document.getElementById('predictionAnalysis').textContent = '도보 시간이 변경되었습니다. [추천 다시 찾기]를 누르면 다시 계산합니다.';
+      setSearchLabel('다시 찾기');
+      document.getElementById('predictionAnalysis').textContent = '도보 시간이 변경되었습니다. [다시 찾기]를 누르면 다시 계산합니다.';
     }
   });
+  setSearchLabel('찾기');
   document.getElementById('searchBtn').addEventListener('click', () => requestRecommendations());
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initTimeStripPosition();
   initTabs();
   initRecommendationControls();
   initDateInput();
   initFilters();
+  initGroupTabs();
+  initQueryBar();
   initSearchBtn();
   loadPois();
+  loadMetroLineGeometry();
   setTimeout(tryInitMap, 400);
 });

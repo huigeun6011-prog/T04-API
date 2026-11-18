@@ -27,7 +27,8 @@
   function renderHeatmap() {
     const box = $('heatmapBox');
     if (!box) return;
-    const m = state.matrix;
+    const m0 = state.matrix;
+    const m = m0 && { ...m0, rows: (m0.rows || []).filter(r => !r.group || r.group === state.tab) };
     if (!m || !m.rows?.length) {
       box.innerHTML = '<p class="viz-empty" role="status">추천을 실행하면 장소별·시간별 예상 재차인원이 여기에 표시됩니다. (장소별 최적 시간 모드에서 검색할 때 만들어집니다.)</p>';
       return;

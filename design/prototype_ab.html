@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>한적 이동 — 디자인 프로토타입 A+B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF; --ground:#EEF1EE; --ink:#13201A; --ink-2:#4A5650; --ink-3:#7C8780;
+  --hair:#D9DFDA; --line:#0B8F4D; --line-dk:#066B39; --line-bg:#E3F3EA;
+  --q1:#0B8F4D; --q2:#7FB77E; --q3:#E0B84C; --q4:#D9822B; --q5:#C4452C;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){ :root{} }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Noto Sans KR',system-ui,sans-serif;color:var(--ink);background:var(--ground);font-size:14px;line-height:1.5;overflow:hidden}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+svg.i{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* map layer */
+#map{position:absolute;inset:0}
+#map svg{width:100%;height:100%;display:block}
+
+/* sample-data ribbon */
+.ribbon{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:5;background:var(--ink);color:#fff;font-size:11px;padding:3px 10px;border-radius:99px;opacity:.85}
+
+/* query bar */
+.query{position:absolute;top:16px;left:16px;right:16px;z-index:10;display:flex;gap:8px;align-items:stretch;max-width:980px}
+.brand{display:flex;align-items:center;gap:8px;background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);padding:0 14px;font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+.brand b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--line);color:#fff;font-size:12px;font-weight:700}
+.sentence{flex:1;display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);padding:8px 12px;color:var(--ink-2)}
+.slot{appearance:none;border:0;background:transparent;font:inherit;color:var(--ink);font-weight:700;border-bottom:2px solid var(--line);padding:0 2px;cursor:pointer}
+.slot:hover{background:var(--line-bg)}
+.go{background:var(--line);color:#fff;border:0;border-radius:var(--r);font:inherit;font-weight:700;padding:0 18px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.go:hover{background:var(--line-dk)}
+
+/* time strip */
+.strip{position:absolute;left:16px;top:84px;z-index:10;width:min(560px,calc(100% - 32px));background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);padding:10px 12px 8px}
+.strip h2{font-size:12px;font-weight:500;color:var(--ink-3);display:flex;justify-content:space-between;margin-bottom:6px}
+.strip h2 strong{color:var(--ink);font-weight:700}
+.bars{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;align-items:end;height:46px}
+.bar{border-radius:2px;background:var(--q2);cursor:pointer;position:relative;min-height:6px;border:0}
+.bar.sel{outline:2px solid var(--ink);outline-offset:1px}
+.bar:hover{filter:brightness(.92)}
+.hrs{display:grid;grid-template-columns:repeat(20,1fr);gap:3px;margin-top:3px;font-size:10px;color:var(--ink-3);text-align:center}
+.legend{display:flex;gap:10px;align-items:center;margin-top:6px;font-size:11px;color:var(--ink-3)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+
+/* results */
+.results{position:absolute;right:16px;top:84px;bottom:16px;width:360px;z-index:10;background:var(--paper);border:1px solid var(--hair);border-radius:var(--r);display:flex;flex-direction:column;overflow:hidden}
+.results header{padding:12px 14px;border-bottom:1px solid var(--hair);display:flex;justify-content:space-between;align-items:baseline}
+.results header h1{font-size:15px;letter-spacing:-.02em}
+.results header span{font-size:12px;color:var(--ink-3)}
+.tabs{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--hair)}
+.tab{border:1px solid var(--hair);background:var(--paper);border-radius:99px;padding:2px 10px;font:inherit;font-size:12px;color:var(--ink-2);cursor:pointer}
+.tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.list{overflow:auto;flex:1}
+.row{display:grid;grid-template-columns:26px 1fr auto;gap:10px;padding:11px 14px;border-bottom:1px solid var(--hair);cursor:pointer;align-items:start}
+.row:hover{background:#F7F9F7}
+.row.on{background:var(--line-bg);box-shadow:inset 3px 0 0 var(--line)}
+.rank{font-weight:700;color:var(--ink-3);padding-top:1px}
+.row.on .rank{color:var(--line-dk)}
+.name{font-weight:700;display:flex;gap:6px;align-items:center}
+.name svg{color:var(--ink-3)}
+.meta{font-size:12px;color:var(--ink-2);margin-top:2px}
+.meta .rt{display:inline-flex;gap:4px;align-items:center}
+.alt{font-size:11px;color:var(--ink-3);margin-top:3px}
+.q{text-align:right}
+.q b{font-size:18px;letter-spacing:-.02em}
+.q small{display:block;font-size:11px;color:var(--ink-3)}
+.meter{height:4px;border-radius:2px;background:var(--hair);margin-top:4px;overflow:hidden;width:64px;margin-left:auto}
+.meter i{display:block;height:100%}
+
+/* selected place card (placed opposite the route) */
+.pcard{position:absolute;z-index:8;background:var(--paper);border:1px solid var(--ink);border-radius:var(--r);padding:8px 10px;font-size:12px;width:200px}
+.pcard strong{display:block;font-size:13px}
+.pcard a{color:var(--line-dk);font-weight:700;text-decoration:none;border-bottom:1px solid currentColor}
+.pcard .t{color:var(--ink-3)}
+
+@media (max-width:900px){
+  .results{left:0;right:0;top:auto;bottom:0;width:auto;height:46%;border-radius:12px 12px 0 0;border-left:0;border-right:0;border-bottom:0}
+  .strip{top:132px}
+  .query{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<div id="map" aria-label="지도 예시">
+<svg viewBox="0 0 1280 800" preserveAspectRatio="xMidYMid slice" role="img">
+  <rect width="1280" height="800" fill="#EEF1EE"/>
+  <!-- river -->
+  <path d="M-20 560 C 220 520, 420 640, 640 600 S 1020 470, 1320 520 L1320 600 C 1020 550, 860 680, 640 690 S 200 610, -20 650 Z" fill="#D4E4EA"/>
+  <!-- parks -->
+  <rect x="300" y="250" width="150" height="90" rx="10" fill="#DCEBDD"/>
+  <rect x="860" y="360" width="120" height="80" rx="10" fill="#DCEBDD"/>
+  <!-- roads -->
+  <g stroke="#FFFFFF" stroke-width="7" fill="none" stroke-linecap="round">
+    <path d="M0 330 H1280"/><path d="M0 460 H1280"/><path d="M260 0 V800"/><path d="M520 0 V800"/><path d="M780 0 V800"/><path d="M1040 0 V800"/>
+  </g>
+  <g stroke="#FFFFFF" stroke-width="3" fill="none"><path d="M0 220 H1280"/><path d="M0 400 H1280"/><path d="M390 0 V800"/><path d="M650 0 V800"/><path d="M910 0 V800"/></g>
+
+  <!-- line (all) -->
+  <path id="lineAll" d="M130 150 L330 230 L520 330 L650 400 L780 460 L910 520 L1010 600" fill="none" stroke="#9FB8A8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- ride segment -->
+  <path d="M520 330 L650 400 L780 460 L910 520" fill="none" stroke="#0B8F4D" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- walk -->
+  <path d="M910 520 L930 470 L962 440" fill="none" stroke="#13201A" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round"/>
+  <path d="M470 345 L520 330" fill="none" stroke="#13201A" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round"/>
+
+  <!-- stations -->
+  <g font-size="12" font-weight="500" fill="#13201A" font-family="Noto Sans KR,sans-serif">
+    <g stroke="#9FB8A8" stroke-width="3" fill="#fff">
+      <circle cx="130" cy="150" r="6"/><circle cx="330" cy="230" r="6"/><circle cx="1010" cy="600" r="6"/>
+    </g>
+    <g stroke="#0B8F4D" stroke-width="4" fill="#fff">
+      <circle cx="520" cy="330" r="8"/><circle cx="650" cy="400" r="7"/><circle cx="780" cy="460" r="7"/><circle cx="910" cy="520" r="8"/>
+    </g>
+    <text x="142" y="140" fill="#4A5650">반석</text><text x="342" y="220" fill="#4A5650">정부청사</text>
+    <text x="1022" y="626" fill="#4A5650">판암</text>
+    <text x="500" y="310">시청</text><text x="662" y="388">중앙로</text><text x="792" y="448">중구청</text>
+    <text x="922" y="546" font-weight="700">대전</text>
+  </g>
+
+  <!-- origin -->
+  <circle cx="470" cy="345" r="11" fill="#13201A"/><circle cx="470" cy="345" r="4" fill="#fff"/>
+  <text x="396" y="378" font-size="12" font-weight="700" fill="#13201A">출발</text>
+  <!-- destination pin -->
+  <g transform="translate(962 440)">
+    <path d="M0 0 C -16 -22, -22 -30, -22 -40 a22 22 0 0 1 44 0 C 22 -30, 16 -22, 0 0Z" fill="#13201A"/>
+    <circle cx="0" cy="-40" r="9" fill="#fff"/>
+  </g>
+</svg>
+</div>
+
+<!-- query -->
+<div class="query">
+  <div class="brand"><b>한</b>한적 이동</div>
+  <div class="sentence">
+    <button class="slot">대전역</button>에서
+    <button class="slot num">내일 11/19</button>
+    <button class="slot num">07–09시</button>에
+    <button class="slot">공원</button>까지, 걸어서
+    <button class="slot num">15분</button> 이내로
+  </div>
+  <button class="go"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>찾기</button>
+</div>
+
+<!-- time strip -->
+<div class="strip" aria-label="시간대별 예상 혼잡">
+  <h2><strong>언제 가면 한산할까</strong><span>시간대별 예상 혼잡 · 상대값</span></h2>
+  <div class="bars" id="bars"></div>
+  <div class="hrs" id="hrs"></div>
+  <div class="legend"><span><i style="background:var(--q1)"></i>한산</span><span><i style="background:var(--q3)"></i>보통</span><span><i style="background:var(--q5)"></i>붐빔</span><span style="margin-left:auto">시간대를 눌러 순위를 바꿔 보세요</span></div>
+</div>
+
+<!-- results -->
+<aside class="results">
+  <header><h1>추천 장소 <span class="num">24곳</span></h1><span class="num">07–09시 기준</span></header>
+  <div class="tabs"><button class="tab on">전체</button><button class="tab">공원</button><button class="tab">도서관</button><button class="tab">서점</button></div>
+  <div class="list" id="list"></div>
+</aside>
+
+<div class="pcard" id="pcard" style="left:985px;top:400px">
+  <strong>한밭수목원</strong>
+  <span class="t">대전 → 중구청 · 07:32 승차</span><br>
+  <a href="#">카카오맵 길찾기</a>
+</div>
+
+<div class="ribbon">예시 값 · 실제 데이터 아님 (디자인 확인용)</div>
+
+<script>
+const icons={
+  park:'<svg class="i" viewBox="0 0 24 24"><path d="M12 21v-6"/><path d="M12 15a5 5 0 1 0-4-8 4 4 0 0 0 1 8z"/><path d="M12 15a5 5 0 1 1 4-8 4 4 0 0 1-1 8z"/></svg>',
+  lib:'<svg class="i" viewBox="0 0 24 24"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></svg>',
+  book:'<svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6"/></svg>',
+  walk:'<svg class="i" viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="M9 21l3-7M12 14l-2-4 4-2 3 4M12 14l3 7"/></svg>',
+  train:'<svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 12h14M9 21l2-4M15 21l-2-4"/></svg>'
+};
+const data=[
+ ['한밭수목원','park',22,'대전→중구청','07:32',6,'08:10 · 31 / 09:05 · 44'],
+ ['대전시립도서관','lib',27,'대전→중앙로','07:32',9,'08:02 · 35'],
+ ['보문산 산책로','park',31,'대전→대동','07:44',11,'08:34 · 40'],
+ ['그리다책방','book',34,'대전→시청','07:32',4,'08:10 · 38'],
+ ['유림공원','park',41,'대전→정부청사','07:44',7,'09:05 · 52'],
+ ['충남도서관','lib',45,'대전→중구청','08:02',12,'—'],
+ ['명학 소공원','park',52,'대전→서대전네거리','08:10',5,'—']
+];
+const color=v=>v<30?'var(--q1)':v<45?'var(--q2)':v<60?'var(--q3)':v<75?'var(--q4)':'var(--q5)';
+const list=document.getElementById('list');
+data.forEach((d,i)=>{
+  const r=document.createElement('div'); r.className='row'+(i===0?' on':'');
+  r.innerHTML=`<div class="rank num">${i+1}</div>
+   <div><div class="name">${icons[d[1]]}${d[0]}</div>
+   <div class="meta"><span class="rt">${icons.train}${d[3]} · <span class="num">${d[4]}</span></span> · <span class="rt">${icons.walk}도보 <span class="num">${d[5]}</span>분</span></div>
+   <div class="alt">다른 시간 <span class="num">${d[6]}</span></div></div>
+   <div class="q"><b class="num">${d[2]}</b><small>예상 재차 · 명</small><div class="meter"><i style="width:${Math.min(100,d[2]*1.5)}%;background:${color(d[2])}"></i></div></div>`;
+  r.onclick=()=>{[...list.children].forEach(c=>c.classList.remove('on'));r.classList.add('on');document.querySelector('#pcard strong').textContent=d[0];document.querySelector('#pcard .t').textContent=d[3]+' · '+d[4]+' 승차'};
+  list.appendChild(r);
+});
+const load=[8,18,52,78,85,60,44,38,34,32,33,36,42,56,70,76,58,40,26,16];
+const bars=document.getElementById('bars'), hrs=document.getElementById('hrs');
+load.forEach((v,i)=>{
+  const b=document.createElement('button'); b.className='bar'+(i>=2&&i<=4?' sel':''); b.style.height=(12+v*.4)+'px'; b.style.background=color(v);
+  b.title=(5+i)+'시 · 상대 혼잡 '+v;
+  b.onclick=()=>{[...bars.children].forEach(c=>c.classList.remove('sel'));b.classList.add('sel')};
+  bars.appendChild(b);
+  const h=document.createElement('span'); h.textContent=(i%2===0)?(5+i):''; hrs.appendChild(h);
+});
+</script>
+</body>
+</html>
