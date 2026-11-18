@@ -27,3 +27,6 @@ outputs/diagnostics/od_labels/*/dataset.csv
 # 항저우 태그 원본 자료(대용량, 외부 자료)와 중간 산출물
 data/external/
 outputs/hangzhou/cache/
+
+# 교체 전 production 백업 (교체 전 파일은 git 이력에도 있음)
+outputs/backup_before_od_swap_*/

@@ -1,6 +1,8 @@
 # 항저우 C선: 열차별 정답 재차인원과 OD 역산 민감도 시험 (방향 메모, 미실행)
 
-작성 2026-11-18. **상태: 설계 방향만 적은 메모이며 아직 실행하지 않았다.** 이 작업은 항저우 시간표 복원을 하던 세션과 **별도의 에이전트**가 맡는다. 시작 전에 사용자 승인이 필요하다(새 실험이고 대전용 OD 코드를 C선 구조로 옮기는 규모가 큰 작업이다). 배경은 [HANGZHOU_TIMETABLE_BRIEF](HANGZHOU_TIMETABLE_BRIEF.md), [EXPERIMENTS](../EXPERIMENTS.md)의 E-22~E-33, [HANDOFF](../HANDOFF.md) §11이다.
+작성 2026-11-18. **상태 갱신(2026-11-18): 첫 실행을 마쳤다(평일 3일, 시간 해상도 1시간, 데이터 추정 랙). 결과는 [report](../../outputs/hangzhou/od_test/report.md)와 [EXPERIMENTS](../EXPERIMENTS.md) E-34, 기준은 `outputs/hangzhou/od_test/criteria.md`. Adam 비교는 이어서 했다(E-35). 주말·05~07시는 하지 않았다.** 아래는 실행 전에 쓴 방향 메모이다.
+
+(원문) 상태: 설계 방향만 적은 메모이며 아직 실행하지 않았다. 이 작업은 항저우 시간표 복원을 하던 세션과 **별도의 에이전트**가 맡는다. 시작 전에 사용자 승인이 필요하다(새 실험이고 대전용 OD 코드를 C선 구조로 옮기는 규모가 큰 작업이다). 배경은 [HANGZHOU_TIMETABLE_BRIEF](HANGZHOU_TIMETABLE_BRIEF.md), [EXPERIMENTS](../EXPERIMENTS.md)의 E-22~E-33, [HANDOFF](../HANDOFF.md) §11이다.
 
 ## 1. 왜 하는가 (목적을 낮춘 이유 포함)
 

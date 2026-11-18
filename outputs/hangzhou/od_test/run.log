@@ -1,0 +1,288 @@
+done 2019-01-09__uniform__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__grav0.05__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__grav0.1__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__real__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__grav0.2__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__real_long__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__uniform__lam0.1__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__real__lam0.1__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__uniform__lam0.01__n0.02.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__uniform__lam0.01__n0.05.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__real_short__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__real__lam0.01__n0.02.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__real__lam0.01__n0.05.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__uniform__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__real__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__grav0.05__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__grav0.1__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__grav0.2__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-09__grav0.4__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__real_long__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__uniform__lam0.1__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__real__lam0.1__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__uniform__lam0.01__n0.02.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__uniform__lam0.01__n0.05.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__real_short__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__real__lam0.01__n0.02.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__real__lam0.01__n0.05.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__uniform__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__real__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__grav0.05__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__grav0.1__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__grav0.2__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-17__grav0.4__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__real_long__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__uniform__lam0.1__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__real__lam0.1__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__uniform__lam0.01__n0.02.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__uniform__lam0.01__n0.05.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__real_short__lam0.01__n0.0.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__real__lam0.01__n0.02.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__real__lam0.01__n0.05.json
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:67: RuntimeWarning: invalid value encountered in scalar divide
+  cell = dict(n=int(len(g)), spearman=corr(g.t, g.e, "s"), pearson=corr(g.t, g.e, "p"), sum_ratio=float(g.e.sum() / g.t.sum()),
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:68: RuntimeWarning: invalid value encountered in scalar divide
+  top10pct_ratio=float(g.e[top].sum() / g.t[top].sum()), mae_rel=float((g.e - g.t).abs().sum() / g.t.sum()))
+C:\Users\mastema\Desktop\aleph\T04-1117\t04-api\scripts\hangzhou_od\run_od_test.py:69: RuntimeWarning: invalid value encountered in scalar divide
+  train = dict(n=int(len(e)), spearman=corr(e.t, e.e, "s"), sum_ratio=float(e.e.sum() / e.t.sum()),
+done 2019-01-23__grav0.4__lam0.01__n0.0.json
