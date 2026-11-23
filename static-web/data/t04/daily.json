@@ -1,0 +1,36 @@
+{
+  "rows": [
+    {
+      "reading": {
+        "signal_id": "daejeon-temperature-2m",
+        "normalized_value": 10.9,
+        "unit": "°C",
+        "source_name": "Open-Meteo 대전 현재 기온",
+        "source_url": "https://api.open-meteo.com/v1/forecast?latitude=36.35&longitude=127.38&current=temperature_2m&timezone=Asia%2FSeoul",
+        "source_time": "2026-11-23T08:15:00.000Z",
+        "fetched_at": "2026-11-23T08:17:48.408Z",
+        "record_timezone": "Asia/Seoul",
+        "record_date": "2026-11-23"
+      },
+      "raw": {
+        "latitude": 36.35,
+        "longitude": 127.375,
+        "generationtime_ms": 0.0209808349609375,
+        "utc_offset_seconds": 32400,
+        "timezone": "Asia/Seoul",
+        "timezone_abbreviation": "GMT+9",
+        "elevation": 60,
+        "current_units": {
+          "time": "iso8601",
+          "interval": "seconds",
+          "temperature_2m": "°C"
+        },
+        "current": {
+          "time": "2026-11-23T17:15",
+          "interval": 900,
+          "temperature_2m": 10.9
+        }
+      }
+    }
+  ]
+}
