@@ -1,0 +1,6 @@
+{
+  "name": "daejeon-map-image-proxy",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test worker.test.mjs" }
+}

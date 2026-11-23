@@ -1,0 +1,21 @@
+.rest-map{position:relative;overflow:hidden;background:#e9eeeb;touch-action:none;isolation:isolate;outline-offset:-3px;cursor:grab}
+.rest-map:active{cursor:grabbing}
+.rest-map-image,.rest-map-vectors,.rest-map-overlays{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.rest-map-image{inset:auto;max-width:none;max-height:none;user-select:none;-webkit-user-drag:none;z-index:0}
+.rest-map-vectors{overflow:visible;z-index:1}
+.rest-map-overlays{z-index:2}
+.rest-map-overlay{position:absolute;left:0;top:0;width:max-content;pointer-events:none}
+.rest-map-overlay>*{pointer-events:auto}
+.rest-map-controls{position:absolute;right:12px;top:52px;z-index:50;display:grid;gap:1px;border:1px solid #c6d1ca;border-radius:6px;overflow:hidden;box-shadow:0 2px 8px #13201a20}
+.rest-map-controls button{width:36px;height:36px;border:0;background:#fff;color:#13201a;font:700 22px/1 sans-serif;cursor:pointer}
+.rest-map-controls button:hover{background:#f1f6f3}
+.rest-map-controls button:disabled{color:#adb7b1;cursor:default}
+.rest-map-status{position:absolute;left:12px;bottom:12px;z-index:40;max-width:calc(100% - 24px);padding:5px 9px;background:#fffffff0;border-radius:5px;font-size:12px;pointer-events:none}
+.rest-map-status[hidden],.rest-map-error[hidden]{display:none}
+.rest-map-error{position:absolute;inset:0;z-index:45;display:flex;align-items:center;justify-content:center;background:#e9eeebde;padding:24px;pointer-events:auto;cursor:default}
+.rest-map-error-card{max-width:340px;background:#fff;border:1px solid #c6d1ca;border-radius:12px;padding:20px;box-shadow:0 6px 28px #13201a15;font-size:14px;line-height:1.7;text-align:center}
+.rest-map-error-card strong{display:block;font-size:16px}
+.rest-map-error-card button{margin-top:12px;padding:8px 16px;border:1px solid #0b8f4d;border-radius:7px;color:#0b6d3d;background:#fff;font:inherit;cursor:pointer}
+.rest-map-hint{position:absolute;left:12px;top:12px;z-index:30;padding:4px 7px;background:#ffffffd9;border-radius:4px;font-size:11px;pointer-events:none}
+.is-picking .rest-map{cursor:crosshair}
+@media(max-width:600px){.rest-map-controls button{width:40px;height:40px}.rest-map-hint{max-width:calc(100% - 75px)}}

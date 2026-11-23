@@ -26,7 +26,30 @@ production HGB모델은 2026-11-19부터 **열차 단위 OD 라벨 61일**(2024-
 
 실제피크19사례에는 약376명의 큰MAE가 남았고 추천순위도 미검증입니다. [방법론](docs/AI/METHODOLOGY.md)과 [실험결과](outputs/diagnostics/assumption_ablation/report.md)를 참고하세요.
 
-## 로컬 실행
+## 정적 웹 실행 (Python 예측 서버 불필요)
+
+별도 정적 웹은 `static-web/index.html`입니다. 이 폴더의 내용 전체를 정적 호스팅에 올리면 브라우저가 추천을 계산합니다. 서버에서 Python·joblib·OD 계산을 실행하지 않으며 YML은 추가하지 않았습니다. 기존 Python 웹은 `web/`에 보존했습니다.
+
+현재 모델에서 정적 웹을 다시 만들거나 동등성을 확인할 때만 다음 명령을 사용합니다. 재학습은 하지 않습니다.
+
+```powershell
+.venv/Scripts/python.exe scripts/build_static_web.py
+.venv/Scripts/python.exe scripts/validate_static_web.py
+```
+
+빌더는 현재 HGB의 범주형 전처리·300개 트리를 JSON으로 내보내고, `static_src/`의 브라우저 엔진·화면 소스에 필요한 공용 웹 파일과 시간표·휴일·역·POI·732일 날씨만 조합합니다. 이미 생성된 `static-web/`을 운영할 때는 이 변환 명령이나 Python 환경이 필요 없습니다. 정적 사이트도 파일을 HTTP(S)로 제공해야 하므로 `index.html`을 `file://`로 직접 열지는 마세요. 로컬 확인용 파일 서버의 예는 다음과 같습니다(이 서버는 예측을 계산하지 않습니다).
+
+```powershell
+.venv/Scripts/python.exe -m http.server 5501 --bind 127.0.0.1 --directory static-web
+```
+
+접속: `http://127.0.0.1:5501/`. 과거 보관 날씨는 정적 JSON으로 읽고, 보관되지 않은 날짜는 브라우저가 Open-Meteo를 직접 조회합니다. 정적 호스팅을 사용해도 외부 날씨·지도 연결까지 오프라인이 되는 것은 아닙니다. 모델 파일은 브라우저로 내려받지만 인원 수치를 화면에 출력하지 않는 정책은 유지합니다.
+
+지도 설정이 필요하면 `static-web/config.example.js`를 참고해 해당 폴더의 `config.local.js`를 별도로 설정합니다. 빌더는 기존 `web/config.local.js`나 `.env`를 읽거나 복사하지 않고 출력 폴더의 기존 사용자 설정도 덮어쓰지 않습니다. 키가 없으면 역 선택·추천·분석을 사용할 수 있는 대체 화면이 나옵니다. `station_profile.json`·학습 라벨·원본 개인 태그·Python 파일·joblib는 정적 패키지에 포함하지 않습니다.
+
+검증: 모델 입력 14,296건의 Python–JS 최대 예측 오차 0, 전체 추천 66조건의 구조·순위 일치. Chrome에서 하위 경로(`/demo/`) 검색·필터·키 없는 장소 선택과 분석·출발지 변경 후 재검색, 320~1440px 소개 화면과 실제 예보의 브라우저 직접 조회를 확인했습니다. 실제 Pages 게시와 지도 도메인 설정 확인은 수행하지 않았습니다.
+
+## 기존 Python 웹 로컬 실행
 
 **Kakao 키 설정:** `web/config.example.js`를 `web/config.local.js`로 복사하고 JavaScript 키를 넣습니다. `config.local.js`는 gitignore 대상이라 커밋되지 않습니다. 키가 없으면 지도 대신 노선도 대체 화면이 표시됩니다.
 

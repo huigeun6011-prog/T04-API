@@ -2,7 +2,20 @@
 
 기준일: 2026-11-23. 2026-11-23의 D-028 개편(상대 순위만 표시)이 반영되어 있고, 이 개편은 브라우저에서 눈으로 확인하지 않았다. 이 문서는 현재 `web/`과 `prediction_api.py` 코드를 설명한다. API 연결이 된다는 사실은 추천 순위나 혼잡 예측이 실제와 맞는다는 뜻이 아니다.
 
-## 구성과 데이터 흐름
+## 별도 정적 웹 (D-030, 2026-11-23)
+
+`static_src/`가 브라우저 전용 화면·추천 엔진 소스이고 `static-web/`이 바로 정적 호스팅에 올릴 수 있는 산출물이다. 기존 `web/`·Python API는 보존했으며 아래 기존 API 설명과 구분한다. 생성 명령은 `.venv/Scripts/python.exe scripts/build_static_web.py`이고 선택적 `--output <폴더>`를 받는다. 범용 Python 자동 번역기가 아니라 현재 HGB와 운영 데이터를 내보내고 추천 계산을 JavaScript로 구현한 도구다.
+
+- `data/model.json`: 원본 모델 SHA256, 피처 순서, 범주형 재배열·인코딩, 기준값, 300개 트리와 범주 비트셋. 기존 `_preprocessor`의 범주형 선행 재배열을 보존한다. 예측은 Python과 같은 순서로 트리 값을 누적하며, 반올림도 Python의 짝수 반올림을 따른다.
+- `data/runtime.json`: 시간표 두 버전·역·휴일·POI·도보 상수와 순위·한계 문구. 지도 형상·UI용 POI는 필요한 정적 파일로 함께 제공한다. `data/weather/`는 732일 보관 날씨 중 필요한 hourly 4개 배열만 담는다.
+- `static-engine.js`: `window.StaticRecommendation.recommend(payload, {signal})`, `fetchWeatherForDate(date, {signal})`, `preload()` 제공. 추천 응답의 `groups`·`meta` 계약은 기존 Python과 같다. Node 검증용 `createEngine`·`predict`·`round`도 내보낸다. `/api/recommend`를 호출하지 않는다.
+- 날씨는 보관 파일 우선, 없으면 공개 archive/forecast API에 직접 요청한다. 서울 날짜 기준·익일 24시·요청별 취소·날짜별 중복 방지와 캐시·원격 10초 간격·timeout을 처리한다. 공유 요청은 한 호출자의 취소가 다른 호출자를 취소하지 않도록 유지한다.
+- 정적 화면은 기존 UI와 D-029 소개를 재사용한다. 지도 SDK가 없어도 선택 상태·분석은 지도와 분리해 갱신한다. 설정·응답 역전 시 현재 요청 ID와 AbortController로 오래된 결과 표시를 막는다. 출발지 변경 시 기존 결과를 비우고 다시 찾기를 누르는 기존 동작을 유지한다.
+- 패키지는 안전 목록으로 구성하고 `.env`·로컬 키·라벨·개인 태그·Python/joblib·사용하지 않는 평균 승하차 파일을 제외한다. 출력 폴더의 기존 `config.local.js`는 보존한다. 모델과 데이터가 브라우저에 공개된다는 점과 화면에서 인원 수치를 숨기는 정책은 별개다.
+
+검증: `scripts/validate_static_web.py`로 14,296개 피처(수치 분기 경계·결측·미지 범주 포함) 최대 예측 오차 0, 전체 추천 66조건 구조·순위 일치. 양 시간표·평일/휴일·여러 출발역·24시·카테고리·도보/구간 필터, 반올림·취소/공유캐시·서브패스·기존 설정 보존을 검사했다. root가 정적 파일 전용 Node 서버의 `/demo/`에서 Chrome 검색(20묶음/133장소)·필터(6묶음)·지도 없는 선택/프로필/히트맵·출발지 재검색을 확인했다. Python API 요청·미처리 JS 예외는 0건이고 320/375/768/1440px 소개 화면의 페이지 가로 넘침·깨진 용어 링크가 없었다. 실제 Open-Meteo 예보 24시간을 브라우저에서 직접 읽었다. 외부 폰트·지도·실제 Pages 게시 및 물리 터치 기기는 이번 확인에 포함하지 않는다.
+
+## 기존 Python 웹의 구성과 데이터 흐름
 
 1. `scripts/build_web_poi.py`가 통합 POI 자료를 `web/data/pois.json`으로 만든다. 현재 파일에는 548곳이 있고, 532곳에 좌표가 있다. 좌표 없는 11곳은 산책로 자료다.
 2. 브라우저는 `web/index.html`, `app.js`, `analysis.js`, `layout.js`, `weather-client.js`를 사용한다. 지도 SDK는 `kakao-loader.js`가 `config.local.js`의 브라우저용 Kakao 키로 불러온다. 키는 서버 응답이나 문서에 넣지 않는다.
@@ -63,6 +76,16 @@ OD는 학습용 추정값 생성, HGB는 그 값을 학습한 서비스 예측�
 확인: 모델 소개 탭을 Chrome 헤드리스에서 1440/768/375/320px로 검사해 짧은 셀 줄바꿈·페이지 가로 넘침·깨진 내부 링크·중복 ID가 없었다. Enter/Space 펼침·접기와 용어 링크의 자동 펼침·초점·해시 이동을 확인하고 첫 화면 및 표 4 스크린샷을 검토했다. 외부 요청을 차단한 로컬 파일 검사이므로 지도·API·외부 폰트·다른 탭 전체의 시각 검증을 뜻하지 않는다.
 
 ## 실행과 남은 한계
+
+### 정적 웹 지도 키 비공개 전환 (2026-11-23, 구현·검증 중)
+
+사용자 요청은 방문자 브라우저의 소스·네트워크 요청·응답에 카카오 키가 나타나지 않도록 하는 것이다. `static_src/` 및 생성된 `static-web/`만 전환하며 기존 `web/`과 Python 추천·모델은 보존한다. 브라우저가 Worker에서 키를 받아 SDK를 호출하는 방식은 사용하지 않는다.
+
+카카오의 [REST 정적 지도 API](https://developers.kakao.com/docs/ko/kakaomap/rest-api#static-info)는 `GET /v2/maps/staticmap`에 REST API 키를 Authorization 헤더로 보내 PNG/JPEG 이미지를 받는다. Worker는 Secret `KAKAO_MAP_API_KEY`를 사용해 서버에서 호출하고 이미지 바이트만 반환한다. 프런트에는 공개 Worker URL과 지도 좌표·크기·레벨만 둔다. 카카오 JavaScript SDK 및 브라우저용 appkey 설정은 정적 페이지에서 제외한다.
+
+REST 이미지에는 기존 SDK의 지도 종류 전환 기능이 없다. 지도 위 역·POI·경로선·정보 카드는 별도의 DOM/SVG 계층으로 처리하고 이미지 이동·확대 단계에 맞춰 다시 배치한다. 좌표는 [카카오가 확인한 EPSG:5181](https://devtalk.kakao.com/t/topic/38086/2)을 사용한다. WCONGNAMUL은 WTM 미터 좌표의 2.5배이며, 공식 SDK 공개 예제에서 측정한 논리 픽셀 배율은 `2 ** (level - 3)` 미터다. REST 이미지와의 정합 검증은 별도로 해야 하며, SDK 측정만으로 REST 픽셀 정합을 검증했다고 쓰지 않는다. 공식 예제 수치 근거는 `outputs/map-proxy-qa/projection-reference.json`에 있다.
+
+REST API 키가 Worker에 있다는 사용자 설명과 `KAKAO_MAP_API_KEY`가 암호화된 Secret이라는 화면 표시는 확인했다. Secret 값은 출력·문서화하지 않는다. REST 호출 성공·실제 배포 및 지도 기능 검증 결과는 작업 완료 시 추가한다.
 
 프로젝트 루트에서 `.venv/Scripts/python.exe prediction_api.py --port 5500`으로 실행한다. 이미 5500 서버가 있으면 중복으로 시작하지 않는다. 코드 수정 후 정적 페이지는 새로고침하고, 서버 코드나 앱의 역 좌표를 수정한 경우에는 서버 프로세스도 재시작한다.
 

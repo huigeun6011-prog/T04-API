@@ -17,6 +17,9 @@ outputs/best_model.pt
 # 로컬 전용 키 설정
 web/config.local.js
 
+# 정적 웹 내보내기에서 사용자가 별도로 설정하는 로컬 지도 키
+static-web/config.local.js
+
 # 로컬 전용 Claude 설정과 외부 스킬 (내 PC 경로가 들어 있고 서드파티 자료 3MB)
 .claude/
 
@@ -30,3 +33,15 @@ outputs/hangzhou/cache/
 
 # 교체 전 production 백업 (교체 전 파일은 git 이력에도 있음)
 outputs/backup_before_od_swap_*/
+
+# 민감 정보·개발 도구 산출물 (2026-11-23): 지도 Worker 배포 QA(자동화 스크립트·세션 흔적), 로컬 비밀값, 도구 캐시
+outputs/map-proxy-qa/
+.env.*
+.dev.vars
+worker/.dev.vars
+.wrangler/
+worker/.wrangler/
+node_modules/
+artifacts/
+*.pem
+*.key

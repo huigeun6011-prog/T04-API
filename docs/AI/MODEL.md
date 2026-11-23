@@ -13,6 +13,8 @@ OD와 HGB는 이어지는 단계다. 이전 배분 방식(Adam으로 방향별 �
 
 ## 파일 상태
 
+- **정적 웹 추가(2026-11-23, D-030):** `scripts/build_static_web.py`가 같은 production 모델을 브라우저용 `static-web/data/model.json`으로 내보낸다. `static_src/static-engine.js`가 범주형 전처리와 트리를 실행하므로 운영 시 Python API가 필요 없다. 모델은 바꾸거나 재학습하지 않았다. 14,296개 입력에서 원본 대비 최대 예측 오차 0을 확인했다. 시간표·날씨·추천 필터까지 포함한 66조건도 일치했다. 변환 일치는 기존 모델의 실제 인원 정확도나 추천 효용이 개선됐다는 뜻이 아니다.
+
 - API가 읽는 production은 `outputs/load_predictor.joblib`이다. 2026-11-19부터 OD 라벨 61일(312,637행) 기반 HGB이며 앞 80% 날짜로 학습·뒤 20%로 검증한 뒤 전체 61일로 refit했다. 이전 Adam 라벨 731일 모델은 백업과 git 이력에 있다([HANDOFF §4](../HANDOFF.md)).
 - `outputs/diagnostics/candidate_training/`은 feasible배분·1000회·raw잔차보존 후보다.production에 미적용이다.
 - `gt_assumptions.py`의 시간/요일/headway옵션은 구현·검증했지만 기본비활성이고 전체all모델도 만들지 않았다.
