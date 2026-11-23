@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="map-view.css" />
-  <link rel="stylesheet" href="t04-board.css" />
+  <link rel="stylesheet" href="weather-daily.css" />
   <script src="map-config.js"></script>
   <script src="map-projection.js"></script>
   <script src="map-view.js"></script>
@@ -30,7 +30,6 @@
       <button class="tab-nav-btn active" data-tab="recommend">추천 경로</button>
       <button class="tab-nav-btn" data-tab="visualize">혼잡도 분석</button>
       <button class="tab-nav-btn" data-tab="about">모델 소개</button>
-      <button class="tab-nav-btn" data-tab="t04">오늘의 정보판</button>
     </nav>
   </div>
 </header>
@@ -65,7 +64,7 @@
       </div>
       <button class="go" id="searchBtn" type="button">찾기</button>
     </div>
-    <details class="query-more">
+    <details class="query-more weather-query">
       <summary>날씨 · 가까운 역 · 걷는 시간·구간</summary>
       <div class="more-grid">
         <div class="more-card">
@@ -74,6 +73,23 @@
         </div>
         <div class="more-card">
           <h3>날씨</h3>
+          <section class="daily-weather" id="dailyWeather" aria-labelledby="dailyWeatherTitle">
+            <h4 id="dailyWeatherTitle" tabindex="-1">오늘의 날씨 <span class="weather-badge">대전 예보</span></h4>
+            <p id="dailyWeatherStatus" role="status" aria-live="polite"></p>
+            <button id="dailyWeatherRetry" type="button" class="update-retry" hidden>다시 시도</button>
+            <button id="dailyWeatherLive" type="button" class="update-retry" hidden>오늘 예보로 돌아가기</button>
+            <div id="dailyWeatherValues"></div>
+            <div id="dailyWeatherSaved" class="daily-weather__records"></div>
+            <div id="dailyWeatherLab" class="daily-weather__lab" aria-label="합성 날씨 재생" hidden>
+              <button type="button" class="update-retry" data-replay="T04-NORMAL-D1-A">첫날 정상</button>
+              <button type="button" class="update-retry" data-replay="T04-NORMAL-D1-B">같은 날 다시 조회</button>
+              <button type="button" class="update-retry" data-replay="T04-NORMAL-D2">다음 날 정상</button>
+              <label for="dailyWeatherFailure">실패 유형</label><select id="dailyWeatherFailure"></select>
+              <button type="button" class="update-retry" data-replay="failure">실패 재생</button>
+              <button type="button" class="update-retry" data-replay="reset">초기화</button>
+              <a href="#recommend">테스트 종료</a>
+            </div>
+          </section>
           <div class="weather-box" id="weatherBox"><span class="placeholder-text">날짜를 선택하면 날씨 예보를 불러옵니다.</span></div>
         </div>
         <div class="more-card">
@@ -455,53 +471,14 @@
   </script>
 </div><!-- #tab-about -->
 
-<div id="tab-t04" class="tab-content">
-  <div class="t04-wrap">
-    <h1 class="t04-title">오늘의 정보판</h1>
-    <section class="t04-sec t04-real" aria-labelledby="t04RealTitle">
-      <h2 id="t04RealTitle">대전 1호선 운행일 총 승하차 <span class="t04-badge t04-badge-real">실측 집계 · 대전교통공사</span></h2>
-      <div id="t04Real" aria-busy="true">불러오는 중…</div>
-    </section>
-    <div id="t04LabMount"></div>
-    <!-- 합성 재생 패널: 주소 해시가 #t04-lab 일 때만 위 자리에 복제되어 나타난다(링크·버튼 없음). -->
-    <template id="t04LabTemplate">
-    <section class="t04-sec t04-synth" aria-labelledby="t04SynthTitle">
-      <h2 id="t04SynthTitle">합성 테스트 재생 <span class="t04-badge t04-badge-synth">합성 테스트 — 실제 기록 아님</span></h2>
-      <div class="t04-controls">
-        <button type="button" class="t04-btn" id="t04Reset">처음으로</button>
-        <button type="button" class="t04-btn" id="t04D1A">D1-A 재생</button>
-        <button type="button" class="t04-btn" id="t04D1B">D1-B 재생</button>
-        <button type="button" class="t04-btn" id="t04D2">D2 재생</button>
-        <label class="t04-sel"><span class="sr-only">재생할 실패 유형</span><select id="t04FailKind">
-          <option value="T04-TIMEOUT">제한시간 초과</option>
-          <option value="T04-AUTH-401">외부 원천 401/403 거절</option>
-          <option value="T04-RATE-429">호출 제한</option>
-          <option value="T04-OFFLINE">연결 끊김</option>
-          <option value="T04-SCHEMA-BREAK">응답 형식 변경</option>
-        </select></label>
-        <button type="button" class="t04-btn" id="t04Fail">실패 재생</button>
-      </div>
-      <div class="t04-controls">
-        <button type="button" class="t04-btn t04-btn-primary" id="t04AutoOk">정상 순서 자동 재생</button>
-        <button type="button" class="t04-btn t04-btn-primary" id="t04AutoFail">실패 자동 재생(5종)</button>
-        <button type="button" class="t04-btn t04-btn-primary" id="t04AutoRec">오류 뒤 회복 자동 재생</button>
-      </div>
-      <p id="t04Reason" class="t04-reason"></p>
-      <p id="t04Live" class="t04-statusline" role="status" aria-live="polite"></p>
-      <div id="t04Synth"></div>
-    </section>
-    </template>
-  </div>
-</div>
-
-
 <div class="rank-float" id="rankFloat" role="dialog" aria-label="시간대 순위" hidden></div>
 
 <script src="weather-client.js"></script>
+<script src="t04-core.js"></script>
+<script src="weather-daily.js"></script>
 <script src="static-engine.js"></script>
 <script src="app.js"></script>
-<script src="t04-core.js"></script>
-<script src="t04-board.js"></script>
+<script src="weather-daily-view.js"></script>
 <script src="analysis.js"></script>
 <script src="layout.js"></script>
 </body>

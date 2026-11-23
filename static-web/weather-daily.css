@@ -1,0 +1,22 @@
+.daily-weather { margin: 0 0 1rem; }
+.query-more.weather-query[open] { max-height: 62vh; }
+.daily-weather h4 { margin: 0 0 .5rem; font-size: 1rem; }
+.daily-weather__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.2rem), 1fr));
+  gap: .45rem;
+  margin: .6rem 0;
+}
+.daily-weather__stats > div { padding: .5rem .65rem; background: #eff5f0; border-radius: .4rem; }
+.daily-weather__stats dt { font-size: .78rem; color: #315749; }
+.daily-weather__stats dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.daily-weather__records, .daily-weather__lab { margin-top: .65rem; }
+.daily-weather__lab {
+  display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
+  padding: .65rem; border: 1px solid #9a7631; border-radius: .4rem; background: #fff9e9;
+}
+.daily-weather__lab select { max-width: 100%; min-height: 2rem; }
+.daily-weather .weather-hourly { overflow-x: auto; }
+.daily-weather .update-retry { margin: .15rem; }
+.daily-weather #dailyWeatherStatus:empty { display: none; }
+.daily-weather__lab[hidden], #weatherBox.synthetic-weather-active { display: none; }

@@ -143,16 +143,15 @@ def build(output):
         shutil.copyfile(ROOT / 'web/data' / name, target)
     for name in ('index.html', 'app.js', 'static-engine.js', 'style.css',
                  'map-view.js', 'map-view.css', 'map-config.js', 'map-projection.js',
-                 't04-core.js', 't04-board.js', 't04-board.css'):
+                 't04-core.js', 'weather-daily.js', 'weather-daily-view.js', 'weather-daily.css'):
         if (source / name).is_file():
             shutil.copyfile(source / name, output / name)
     for name, content in t04_assets.items():
         target = output / 'data/t04' / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(content)
-    # These generated legacy files belong to the browser-key SDK integration.
-    # The static site now obtains map images from a Worker and needs no app key.
-    for name in ('kakao-loader.js', 'config.example.js'):
+    # Remove files from the old map SDK integration and the retired information board.
+    for name in ('kakao-loader.js', 'config.example.js', 't04-board.js', 't04-board.css'):
         legacy = output / name
         if legacy.is_file():
             legacy.unlink()

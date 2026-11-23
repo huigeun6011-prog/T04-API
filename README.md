@@ -8,10 +8,10 @@
 
 | 구성 | 위치 | 설명 |
 |---|---|---|
-| 정적 웹 (현행 공개용) | `static-web/` (소스 `static_src/`) | 브라우저 JavaScript가 모델 예측·추천을 직접 계산합니다. Python 서버가 필요 없고 GitHub Pages로 배포합니다. 추천, 분석, 모델 소개, '오늘의 정보판' 탭이 있습니다. |
+| 정적 웹 (현행 공개용) | `static-web/` (소스 `static_src/`) | 브라우저 JavaScript가 모델 예측·추천을 직접 계산합니다. Python 서버가 필요 없고 GitHub Pages로 배포합니다. 추천, 분석, 모델 소개 탭이 있습니다. |
 | 기존 Python 웹 | `web/`, `prediction_api.py` | 로컬 실행용으로 보존한 원본입니다(Kakao JS SDK 사용). |
 | 지도 이미지 Worker | `worker/` | Kakao REST 키를 Worker Secret에만 두고 지도 이미지를 프록시합니다([worker/README](worker/README.md)). |
-| T04 정보판 | `scripts/t04_daily_record.mjs`, `static-web/data/t04/` | 대전 1호선의 운행일별 실측 승하차와 7일간 비·눈 정보를 표시합니다. 과제용 조회 기록은 로컬에서 수동으로 남깁니다. |
+| T04 날씨 | `scripts/t04_weather_record.mjs`, `static-web/data/t04/weather-daily.json` | 추천 경로의 날씨 창에서 대전의 하루 평균기온과 24시간 예보를 보여줍니다. 과제용 조회 기록은 로컬에서 수동으로 남깁니다. |
 | 모델·자료 | `outputs/load_predictor.joblib`, `data/` | production HGB 모델과 승하차·날씨·시간표·POI 자료입니다. |
 
 ## 실행
@@ -43,11 +43,11 @@ Get-NetTCPConnection -LocalPort 5500 -State Listen -ErrorAction SilentlyContinue
 
 자세한 실행·배포 절차, 지도 설정, 파일별 역할은 [인수인계](docs/HANDOFF.md)(§8~§9, §12)와 [웹 연결](docs/AI/WEB_INTEGRATION_DESIGN.md)을 참고하세요.
 
-## T04 정보판과 배포
+## T04 날씨 기록과 배포
 
-- **승하차** — `#t04`에서 날짜를 고르면 기준일을 포함한 7일의 실측 총 승하차와 비·눈을 그래프와 표로 봅니다. 운행일 D는 D일 05~23시와 D+1일 00시를 합산합니다. 과제용 `daily.json`은 조회한 KST 날짜별 기록이며, 날짜 선택 그래프의 과거 이력은 `business_days.json`에서 가져옵니다.
-- **수동 기록** — 루트 `.env`에 `SUBWAY_API_KEY`를 설정하고 Node 22에서 `node --env-file=.env scripts/t04_daily_record.mjs all`을 실행합니다. 승하차 원본이 이미 있으면 재사용하므로, 실행 날짜에 실제로 API를 다시 조회했다는 확인에는 캐시 사용 여부를 먼저 확인해야 합니다. 명령별 동작과 검증 방법은 [인수인계 §12](docs/HANDOFF.md#12-외부-과제-요구-aleph-t04-외부-데이터-모니터링-대시보드-2026-11-23-정리)에 있습니다.
-- **Pages** — 일일 수집 워크플로는 삭제했습니다. 배포는 `pages.yml`이 담당하며, `data/raw/`에서 공개용 날씨와 기록에 필요한 XML을 만들어 `static-web/`만 게시합니다.
+- **확인 화면** — 추천 경로의 ‘날씨 · 가까운 역 · 걷는 시간·구간’을 펼칩니다. ‘오늘의 날씨’에 KST 00~23시 예보, 평균·최저·최고기온, 총강수량·총적설량을 표시합니다. 저장 기록의 날짜를 누르면 그날의 응답과 재계산한 값을 같은 카드에서 확인합니다.
+- **수동 기록** — 루트에서 `node scripts/t04_weather_record.mjs`를 실행합니다. 키 없이 Open-Meteo를 실제 호출하고, 원본 응답과 요약을 `static-web/data/t04/weather-daily.json`의 KST 날짜별 행에 저장합니다. 같은 날 재실행하면 한 행을 갱신합니다. 다음 실제 KST 날짜에 다시 실행하면 새 행이 생기고 평균기온 차이를 볼 수 있습니다.
+- **합성 검증과 배포** — 주소에 `#t04-lab`을 붙이면 같은 날씨 카드에서 실패 5종과 재시도를 재생할 수 있습니다. 합성 기록은 브라우저 메모리에서만 유지합니다. 일일 수집은 수동이며, `pages.yml`은 정적 사이트 배포만 담당합니다.
 
 ## 모델 한계
 
