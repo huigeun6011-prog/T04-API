@@ -251,3 +251,23 @@
 - 일치 기준: 범주형 전처리·트리 분기·결측값과 기존 피처 순서를 보존하고 Python/Node 예측값 및 추천 전체 결과를 비교한다. 날짜·휴일·시간표 개편·자정·필터·반올림과 정렬을 포함한다. 기존 예측 정확도의 한계는 변환으로 개선되거나 해소되지 않는다.
 - 데이터·설정: 학습 라벨·원본 개인별 태그·`.env`·로컬 키 설정은 내보내지 않는다. 모델은 브라우저가 내려받는 공개 파일이며 수치 출력은 기존처럼 시간대 순위만 표시한다. 지도 키는 별도 브라우저 설정이고 키가 없어도 역 선택으로 추천을 사용할 수 있게 한다.
 - 검증 및 실행 방법: 구현 완료 후 README·웹 연결 문서·ROADMAP에 기록한다. 공개 호스팅에 실제 게시하는 작업은 이번 지시의 파일 구현과 구분한다.
+
+## D-031: T04 정보판·일별 기록·GitHub Pages·지도 Worker로 공개 구성을 정한다
+
+- 초기 날씨 버전의 결정 기록이다. 기록 대상과 수집·배포 운영 변경은 D-032를 따른다.
+- 결정(2026-11-23, 사용자 요청·승인): 외부 과제 T04(외부 데이터 모니터링 대시보드)를 위해 추천 웹의 정적 패키지에 '오늘의 정보판' 탭을 추가하고, 추적 값은 대전 Open-Meteo 날씨로 한다. 일별 저장은 Worker KV가 아니라 GitHub Actions로 하고, 공개는 GitHub Pages(Actions 방식)로 한다. 지도는 Kakao REST 정적 지도를 Cloudflare Worker가 대신 호출하게 해 키가 브라우저·저장소에 나타나지 않게 한다. 과제 요구와 검수 경위는 [HANDOFF §12](HANDOFF.md)에 있다.
+- 구성(커밋 `adf636f`, `74e79a6`):
+  - 정보판: `static_src/t04-core.js`(순수 로직), `t04-board.js`·`t04-board.css`와 `index.html` 탭(`#t04`). 실제 기록(`data/t04/daily.json`)과 공개 합성 fixture 9종 재생(실패 5유형 구분, 마지막 정상값 보존, 다시 시도·복구)으로 나뉜다. `scripts/build_static_web.py`가 외부 공개 패키지의 17개 해시를 검증해 12개를 `static-web/data/t04/`로 복사하고 `daily.json`은 건드리지 않는다.
+  - 일별 기록: `scripts/t04_daily_record.mjs`가 조회한 날(KST) 다음 날 24시간 예보(기온·강수·적설)를 `{reading(아홉 필드), target_date, hourly, hourly_units, raw}` 행으로 저장한다. `signal_id`는 `daejeon-forecast-mean-temp-2m`, 대표값은 24시간 기온 평균(소수 첫째 자리). 같은 `signal_id`+`record_date`만 갱신하고, 조회 실패·24칸 불완전 시 파일을 바꾸지 않는다. 첫 구현은 현재 기온 1건(`daejeon-temperature-2m`)이었고 같은 날 예보 형식으로 바꿨다.
+  - 워크플로: `t04-daily-record.yml`이 매일 03:10 UTC(12:10 KST)와 수동 실행으로 기록·커밋(최대 3회 재시도)하고, `GITHUB_TOKEN` 푸시는 다른 워크플로를 깨우지 못하므로 같은 실행에서 `pages.yml`을 호출한다. `pages.yml`은 `static-web/`을 Pages로 배포한다(push 경로 `static-web/**`, 수동, `workflow_call`).
+  - 지도 Worker: `worker/worker.mjs`가 REST 키(Secret `KAKAO_MAP_API_KEY`)로 고정 이미지 경로만 호출하고 허용 origin·입력 범위·크기 제한을 적용한다. 프런트(`static-web/map-config.js`)에는 공개 Worker URL만 둔다. 기존 `web/`의 Kakao JS SDK 방식은 보존한다. 상세는 [worker/README](../worker/README.md)와 [웹 연결](AI/WEB_INTEGRATION_DESIGN.md).
+- 확인(2026-11-23 저녁): GitHub Pages 주소와 `daily.json`이 HTTP 200, Worker `/api/health` 200. `daily.json`에는 현재 기온 행 1건과 예보 행 1건(모두 2026-11-23)이 있었다. Node 테스트 45건 통과, `validate_static_web.py` 전체 통과(14,296 입력 오차 0, 66 추천 일치).
+- 한계: 둘째 실제 날짜 기록(C22~C24)은 아직 없다. 워크플로가 매일 정상 동작하는지, 화면의 좁은 폭·스크린리더 동작, 지도 이미지 정렬 전체 검증은 확인하지 않았다. 지도 Worker의 허용 origin은 `huigeun6011-prog.github.io`와 로컬 5501이다. 이력 커밋 `a3b6bc9`의 Kakao JS 키 폐기는 사용자가 하기로 했다.
+- 관계: D-030(정적 웹)의 공개 게시 부분을 이어받는다. 추적 값은 추천 화면의 날씨 조회와 아직 연결하지 않았다.
+
+## D-032: T04 실측 승하차 기록과 Pages 배포
+
+- **결정(2026-11-23, 사용자 요청)** — 대전 나들이 추천의 목적에 맞춰 추적 값을 Open-Meteo 날씨 예보에서 대전교통공사 1호선 실측 총 승하차로 바꾼다. 데이터가 늦게 공개되는 점을 반영해 공개 전 운행일은 미집계로 표시한다. 운행일 D는 D일 05~23시와 D+1일 00시의 합으로 정의한다. 일별 기록의 키인 KST 조회일과 집계 대상 운행일을 따로 저장한다.
+- **표시** — 정보판은 기준일 포함 7일의 실측 승하차, 강수와 적설을 그래프와 표로 보여 준다. 두 조회 기록의 비교와 원본 대조는 별도 일별 기록에 기반한다. Open-Meteo는 추천의 날씨 입력과 과거 이력의 날씨 표시에서 사용한다. 합성 실패 재생은 `#t04-lab`에서 확인한다.
+- **수집과 게시** — 일별 수집은 로컬에서 수동으로 실행한다. GitHub Actions에서는 일일 기록 워크플로를 삭제하고 Pages 배포를 유지한다. 승하차 XML과 지난 날 날씨의 원본은 각각 `data/raw/subway/`, `data/raw/weather/`에 보관한다. 공개용 날씨 파일과 `daily.json`이 참조한 XML 사본은 배포와 로컬 실행 시 생성한다.
+- **확인 범위** — 전환 작업 직후 그래프용 이력은 751운행일이고 과제용 `daily.json`은 0건이다. 서로 다른 실제 KST 날짜의 조회 2건과 새 버전의 Pages 배포는 확인이 남아 있다. 수동 실행 시 기존 XML을 재사용할 수 있으므로 실제 조회 여부는 별도로 확인한다. [HANDOFF §12](HANDOFF.md) 참고.

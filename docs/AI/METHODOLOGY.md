@@ -1,6 +1,8 @@
 # 재차인원 추정 라벨과 예측 모델의 방법론
 
-기준2026-11-16. 현재production·후보·실험을 구분한다. 확정요구·정확한파일/hash·남은문제는 [HANDOFF](../HANDOFF.md)가 정본이다.
+기준2026-11-23(이 문서의 본문 대부분은 2026-11-16 작성). 현재production·후보·실험을 구분한다. 확정요구·정확한파일/hash·남은문제는 [HANDOFF](../HANDOFF.md)가 정본이다.
+
+> **갱신 안내(2026-11-19 이후):** production은 2026-11-19에 **열차 단위 OD 라벨 61일 HGB**로 교체됐다([D-027](../DECISIONS.md), [E-39](../EXPERIMENTS.md), [HANDOFF §4](../HANDOFF.md)). 아래 "두 단계가 다르다"와 "production과 현재생성코드의 차이", "HGB학습과 평가"의 production 설명은 **교체 전 production(Adam 라벨 731일)** 기준이며 이력으로 남긴다. 현재 production의 라벨 생성은 `make_od_labels.py`·`gt_train_od.py`이고 단계 구분은 [MODEL](MODEL.md)을 따른다. 마지막 절의 권고안은 실행·채택되었다.
 
 ## 두 단계가 다르다
 
@@ -36,7 +38,7 @@
 
 | 구분 | 내용 |
 |---|---|
-| production CSV·joblib | 날씨를고친전체731일자료.이전200회solver,순차음수clamp·종점0덮어쓰기라벨로학습됨 |
+| 교체 전 production CSV·joblib | 날씨를고친전체731일자료.이전200회solver,순차음수clamp·종점0덮어쓰기라벨로학습됨 |
 | 현재GT코드/별도후보 | feasible배분·최대1000회·raw/correction/slack기록.후보는production미적용 |
 | 후보의raw_load | 출발부터board−alight를누적.종점을덮어쓰지않음 |
 | 후보의load | max(raw_load,0)인학습용투영.물리적으로일치하는실측정답이아님 |
@@ -61,12 +63,12 @@ headway는실제대기시간관측이아닌시간내균등입장가정이다.직
 
 production 추정라벨holdout MAE20.14/RMSE29.41/R²0.8766,별도후보는MAE21.94/R²0.8593이다.라벨정의가달라단순우열비교할수없다.실제피크19건은productionMAE375.99명/후보374.45명으로큰괴리가남았다.미매칭1건은사용자지시로비교에서무시했다.정확도·추천순위검증완료로해석하지않는다.
 
-최근제안된smooth+pooling두개만의조합과가중치탐색은미실험이다.축제/비정규날짜제외도미실행이다.실험/재학습은사용자지시가있을때만한다.2026-11-16에격차진단([feasibility_bound](../../outputs/diagnostics/feasibility_bound/report.md))과대기열·정원모델실험(폐기권고)을마쳤고방향prior실험이진행중이다.진행상황과완료기록은[ROADMAP](../../ROADMAP.md)이정본이다.
+최근제안된smooth+pooling두개만의조합과가중치탐색은미실험이다.축제/비정규날짜제외도미실행이다.실험/재학습은사용자지시가있을때만한다.2026-11-16에격차진단([feasibility_bound](../../outputs/diagnostics/feasibility_bound/report.md))과대기열·정원모델실험(폐기권고)을마쳤고방향prior실험은 효과없음으로 폐기했다(E-14).진행상황과완료기록은[ROADMAP](../../ROADMAP.md)이정본이다.
 
 
 ## 권고하는 재차인원 역산 방식 (2026-11-17, 시도 E-01~E-19 기준)
 
-시도별 상세와 수치는 [EXPERIMENTS](../EXPERIMENTS.md)가 정본이다. 이 절은 그 결과에서 도출한 권고안이며 **아직 production에 적용하지 않았고 실행 승인도 받지 않았다.**
+시도별 상세와 수치는 [EXPERIMENTS](../EXPERIMENTS.md)가 정본이다. 이 절은 그 결과에서 도출한 권고안이다(작성 당시 문구는 아래). **2026-11-19에 61일 표본 라벨로 production에 적용됐다**([D-027](../DECISIONS.md)). 아래 '실행 게이트'의 전체 731일 재생성은 E-38에서 불필요하다고 확인됐다. 원문: *아직 production에 적용하지 않았고 실행 승인도 받지 않았다.*
 
 ### 권고: 열차 단위 OD 변수 + 균일 기준 정규화 (E-16, λ=0.01) 라벨로 HGB 재학습, 단 게이트를 통과한 뒤에만 교체
 

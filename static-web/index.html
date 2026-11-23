@@ -459,11 +459,14 @@
   <div class="t04-wrap">
     <h1 class="t04-title">오늘의 정보판</h1>
     <section class="t04-sec t04-real" aria-labelledby="t04RealTitle">
-      <h2 id="t04RealTitle">① 실제 기록 <span class="t04-badge t04-badge-real">실제 측정값 · 하루 1회 기록</span></h2>
-      <div id="t04Real" role="status" aria-live="polite">불러오는 중…</div>
+      <h2 id="t04RealTitle">대전 1호선 운행일 총 승하차 <span class="t04-badge t04-badge-real">실측 집계 · 대전교통공사</span></h2>
+      <div id="t04Real" aria-busy="true">불러오는 중…</div>
     </section>
+    <div id="t04LabMount"></div>
+    <!-- 합성 재생 패널: 주소 해시가 #t04-lab 일 때만 위 자리에 복제되어 나타난다(링크·버튼 없음). -->
+    <template id="t04LabTemplate">
     <section class="t04-sec t04-synth" aria-labelledby="t04SynthTitle">
-      <h2 id="t04SynthTitle">② 합성 재생(시험용) <span class="t04-badge t04-badge-synth">합성 시험값 — 실제 기록 아님</span></h2>
+      <h2 id="t04SynthTitle">합성 테스트 재생 <span class="t04-badge t04-badge-synth">합성 테스트 — 실제 기록 아님</span></h2>
       <div class="t04-controls">
         <button type="button" class="t04-btn" id="t04Reset">처음으로</button>
         <button type="button" class="t04-btn" id="t04D1A">D1-A 재생</button>
@@ -484,8 +487,10 @@
         <button type="button" class="t04-btn t04-btn-primary" id="t04AutoRec">오류 뒤 회복 자동 재생</button>
       </div>
       <p id="t04Reason" class="t04-reason"></p>
-      <div id="t04Synth" role="status" aria-live="polite"></div>
+      <p id="t04Live" class="t04-statusline" role="status" aria-live="polite"></p>
+      <div id="t04Synth"></div>
     </section>
+    </template>
   </div>
 </div>
 

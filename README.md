@@ -1,75 +1,80 @@
 # 대전 한적 나들이 추천 프로젝트
 
-대전도시철도1호선의 예상 이동 혼잡과 실제 장소를 조합해 시간·이용역·목적지를 추천하는 로컬 웹 프로젝트입니다. **다음 AI는 [인수인계](docs/HANDOFF.md)를 먼저 읽으세요.** 기준2026-11-18입니다. 실험·재학습·모델교체는 사용자 지시가 있을 때만 합니다.
+대전도시철도 1호선의 예상 이동 혼잡과 실제 장소(POI)를 조합해 덜 붐비는 시간·이용역·목적지를 추천하는 웹 프로젝트입니다. 기준일은 2026-11-23입니다.
 
-## 현재 동작
+**다음 AI는 [인수인계](docs/HANDOFF.md)를 먼저 읽으세요.** 실험·재학습·모델 교체는 사용자 지시가 있을 때만 합니다. `.env`의 키 값은 출력하거나 문서·로그에 복사하지 않습니다.
 
-- 실제 POI 548곳을 지도·목록·필터에 연결했습니다. 532곳에 좌표가 있고, 좌표 없는 산책로 11곳은 텍스트로 표시합니다.
-- 출발지·운행일·05~24시 범위·장소 종류·걷는 시간 합계 한도·한산함/거리 비중(10% 단위)을 고르고 추천을 요청합니다. 결과는 총 추정시간 30분을 기준으로 **가까운 곳 / 지하철로 멀리**로 나뉩니다.
-- Open-Meteo 시간별 날씨를 API 키 없이 조회하고 캐시·호출 간격 제한을 적용합니다. 장소·날씨·혼잡도는 실제 자료와 Python 예측 API를 사용합니다.
-- 지도는 Kakao를 사용합니다. 대전 1호선 선로는 OpenStreetMap 양방향 선형을 바탕으로 그리며, 역 사이 곡선은 사용자가 전달한 역 좌표에 맞춰 보정했습니다.
-- `outputs/load_predictor.joblib`과 시간표로 열차 이동 후보와 구간별 예상 재차인원을 계산합니다. 장소 방문객 수나 장소 자체 혼잡도를 예측하지 않습니다.
+## 구성
 
-### 좌표와 화면 확인 상태
+| 구성 | 위치 | 설명 |
+|---|---|---|
+| 정적 웹 (현행 공개용) | `static-web/` (소스 `static_src/`) | 브라우저 JavaScript가 모델 예측·추천을 직접 계산합니다. Python 서버가 필요 없고 GitHub Pages로 배포합니다. 추천, 분석, 모델 소개, '오늘의 정보판' 탭이 있습니다. |
+| 기존 Python 웹 | `web/`, `prediction_api.py` | 로컬 실행용으로 보존한 원본입니다(Kakao JS SDK 사용). |
+| 지도 이미지 Worker | `worker/` | Kakao REST 키를 Worker Secret에만 두고 지도 이미지를 프록시합니다([worker/README](worker/README.md)). |
+| T04 정보판 | `scripts/t04_daily_record.mjs`, `static-web/data/t04/` | 대전 1호선의 운행일별 실측 승하차와 7일간 비·눈 정보를 표시합니다. 과제용 조회 기록은 로컬에서 수동으로 남깁니다. |
+| 모델·자료 | `outputs/load_predictor.joblib`, `data/` | production HGB 모델과 승하차·날씨·시간표·POI 자료입니다. |
 
-역 22개 좌표는 사용자가 지도에서 확인해 전달한 위도·경도이며 [역 좌표표](docs/AI/STATION_COORDINATES.md)에 기록했습니다. 웹과 API는 `web/app.js`의 `STATIONS`를 공유합니다. API는 서버 시작 때 좌표를 읽으므로 좌표를 바꾼 뒤에는 서버 재시작이 필요합니다.
+## 실행
 
-코드와 선로 자료의 역 좌표 연결은 검사했습니다. D-015~D-020에는 당시의 브라우저 확인 기록이 있습니다. 최근 수동 좌표·선로 곡선 보정과 플로팅 창 변경은 브라우저 화면에서 아직 확인하지 않았고, 모바일·터치 기기도 최종 검증하지 않았습니다. 상세는 [웹 연결](docs/AI/WEB_INTEGRATION_DESIGN.md)의 검증 구분을 참고하세요.
+**정적 웹 확인** — 프로젝트 루트에서 `run_static.bat`을 실행합니다. Node가 있으면 공개용 데이터를 동기화하고, `.venv` 또는 시스템 Python으로 정적 파일 서버를 시작합니다. 직접 실행할 때는 다음 순서입니다.
 
-## 모델 상태와 한계
+```powershell
+node scripts/sync_static_data.mjs
+python -m http.server 5501 --bind 127.0.0.1 --directory static-web
+```
 
-production HGB모델은 2026-11-19부터 **열차 단위 OD 라벨 61일**(2024-11-01부터 12일 간격, 균일 기준 q, λ=0.01)로 학습한 모델입니다. 검증 MAE23.94명/R²0.838은 **추정라벨 재현성**이며 라벨 정의가 달라 이전 production(Adam 라벨 731일, MAE20.14)과 비교하지 않습니다. 배포파일은 평가후 전체 61일로 refit했습니다. 이전 production은 `outputs/backup_before_od_swap_20261119/`와 git 이력에 있고 [HANDOFF §4](docs/HANDOFF.md)에 교체 근거·한계·되돌리는 법이 있습니다.
-
-**절대 인원 수는 신뢰할 수 없습니다.** 수준은 기준 분포 q가 정하며 검증되지 않았습니다(항저우 균일 q 1.26배 과대, 대전 피크 약 0.5~0.6배 과소). 믿을 수 있는 것은 시간대·역의 상대 순서입니다(항저우 정답 대비 같은 역·방향 시간대 순서 상관 0.96, 2칸 이내 93%). 열차 한 대 단위 구분은 복원되지 않았습니다. 대전 자체 검증은 피크 19건뿐입니다([E-34~E-38](docs/EXPERIMENTS.md)).
-
-이전 production은 Adam으로 GT분배율을 추정하는 방식(이전200회solver의 clamp·종점0보정 라벨, 731일)이었습니다. 이후 배분소실 수정/raw·slack 기록/1000회 후보와3가정 실험은 production에 적용하지 않았습니다. 현재 GT생성코드(`generate_ground_truth.py`)를 기본실행하면 OD 라벨과 다른 방법으로 생성됩니다.
-
-실제피크19사례에는 약376명의 큰MAE가 남았고 추천순위도 미검증입니다. [방법론](docs/AI/METHODOLOGY.md)과 [실험결과](outputs/diagnostics/assumption_ablation/report.md)를 참고하세요.
-
-## 정적 웹 실행 (Python 예측 서버 불필요)
-
-별도 정적 웹은 `static-web/index.html`입니다. 이 폴더의 내용 전체를 정적 호스팅에 올리면 브라우저가 추천을 계산합니다. 서버에서 Python·joblib·OD 계산을 실행하지 않으며 YML은 추가하지 않았습니다. 기존 Python 웹은 `web/`에 보존했습니다.
-
-현재 모델에서 정적 웹을 다시 만들거나 동등성을 확인할 때만 다음 명령을 사용합니다. 재학습은 하지 않습니다.
+접속은 `http://127.0.0.1:5501/`입니다. `file://`로 직접 열지 마세요. 현재 모델에서 정적 웹을 다시 만들거나 Python과의 동등성을 확인할 때만 다음을 실행합니다(재학습 없음).
 
 ```powershell
 .venv/Scripts/python.exe scripts/build_static_web.py
 .venv/Scripts/python.exe scripts/validate_static_web.py
 ```
 
-빌더는 현재 HGB의 범주형 전처리·300개 트리를 JSON으로 내보내고, `static_src/`의 브라우저 엔진·화면 소스에 필요한 공용 웹 파일과 시간표·휴일·역·POI·732일 날씨만 조합합니다. 이미 생성된 `static-web/`을 운영할 때는 이 변환 명령이나 Python 환경이 필요 없습니다. 정적 사이트도 파일을 HTTP(S)로 제공해야 하므로 `index.html`을 `file://`로 직접 열지는 마세요. 로컬 확인용 파일 서버의 예는 다음과 같습니다(이 서버는 예측을 계산하지 않습니다).
-
-```powershell
-.venv/Scripts/python.exe -m http.server 5501 --bind 127.0.0.1 --directory static-web
-```
-
-접속: `http://127.0.0.1:5501/`. 과거 보관 날씨는 정적 JSON으로 읽고, 보관되지 않은 날짜는 브라우저가 Open-Meteo를 직접 조회합니다. 정적 호스팅을 사용해도 외부 날씨·지도 연결까지 오프라인이 되는 것은 아닙니다. 모델 파일은 브라우저로 내려받지만 인원 수치를 화면에 출력하지 않는 정책은 유지합니다.
-
-지도 설정이 필요하면 `static-web/config.example.js`를 참고해 해당 폴더의 `config.local.js`를 별도로 설정합니다. 빌더는 기존 `web/config.local.js`나 `.env`를 읽거나 복사하지 않고 출력 폴더의 기존 사용자 설정도 덮어쓰지 않습니다. 키가 없으면 역 선택·추천·분석을 사용할 수 있는 대체 화면이 나옵니다. `station_profile.json`·학습 라벨·원본 개인 태그·Python 파일·joblib는 정적 패키지에 포함하지 않습니다.
-
-검증: 모델 입력 14,296건의 Python–JS 최대 예측 오차 0, 전체 추천 66조건의 구조·순위 일치. Chrome에서 하위 경로(`/demo/`) 검색·필터·키 없는 장소 선택과 분석·출발지 변경 후 재검색, 320~1440px 소개 화면과 실제 예보의 브라우저 직접 조회를 확인했습니다. 실제 Pages 게시와 지도 도메인 설정 확인은 수행하지 않았습니다.
-
-## 기존 Python 웹 로컬 실행
-
-**Kakao 키 설정:** `web/config.example.js`를 `web/config.local.js`로 복사하고 JavaScript 키를 넣습니다. `config.local.js`는 gitignore 대상이라 커밋되지 않습니다. 키가 없으면 지도 대신 노선도 대체 화면이 표시됩니다.
-
-프로젝트 루트에서 Python3.12 환경 `.venv/Scripts/python.exe`를 사용합니다. 웹 페이지와 API는 **하나의 프로세스, 5500 포트**로 함께 제공됩니다(Live Server 불필요). 먼저 5500의 기존 서버를 확인하고 중복 기동하지 마세요.
+**기존 Python 웹** — 프로젝트 루트에서 `.venv`에 의존성을 설치한 뒤 `run_web.bat`을 실행합니다. 로컬 지도에 Kakao JavaScript 키를 쓰려면 `web/config.example.js`를 `web/config.local.js`로 복사해 설정합니다. 키가 없으면 노선도 대체 화면이 표시됩니다. 직접 실행할 때는 5500 포트의 기존 서버를 먼저 확인합니다.
 
 ```powershell
 Get-NetTCPConnection -LocalPort 5500 -State Listen -ErrorAction SilentlyContinue
 .venv/Scripts/python.exe prediction_api.py --port 5500
 ```
 
-페이지: [127.0.0.1:5500/web/index.html](http://127.0.0.1:5500/web/index.html). API(`/api/*`)는 같은 주소·같은 출처로 동작해 CORS가 필요 없습니다. `web/` 폴더의 파일만 정적으로 제공하며 `.env`, `outputs/`, 원본 `data/`는 제공하지 않습니다. 정적 소스만 수정했으면 브라우저를 새로고침하고, 역 좌표를 수정했으면 API 프로세스도 재시작하세요. 공개배포·ONNX·브라우저 직접 joblib 추론은 구현하지 않았습니다.
+페이지는 `http://127.0.0.1:5500/web/index.html`입니다.
 
-정적 파일 `web/data/station_profile.json`(실제 평균 승하차)은 `.venv/Scripts/python.exe scripts/build_web_station_profile.py`로 다시 만들 수 있습니다(원본 `data/processed/subway/`는 읽기만 합니다).
+**Node 테스트** — `node --test scripts/`(Node 22 기준). Worker는 `worker/`에서 `npm test`를 실행합니다.
+
+자세한 실행·배포 절차, 지도 설정, 파일별 역할은 [인수인계](docs/HANDOFF.md)(§8~§9, §12)와 [웹 연결](docs/AI/WEB_INTEGRATION_DESIGN.md)을 참고하세요.
+
+## T04 정보판과 배포
+
+- **승하차** — `#t04`에서 날짜를 고르면 기준일을 포함한 7일의 실측 총 승하차와 비·눈을 그래프와 표로 봅니다. 운행일 D는 D일 05~23시와 D+1일 00시를 합산합니다. 과제용 `daily.json`은 조회한 KST 날짜별 기록이며, 날짜 선택 그래프의 과거 이력은 `business_days.json`에서 가져옵니다.
+- **수동 기록** — 루트 `.env`에 `SUBWAY_API_KEY`를 설정하고 Node 22에서 `node --env-file=.env scripts/t04_daily_record.mjs all`을 실행합니다. 승하차 원본이 이미 있으면 재사용하므로, 실행 날짜에 실제로 API를 다시 조회했다는 확인에는 캐시 사용 여부를 먼저 확인해야 합니다. 명령별 동작과 검증 방법은 [인수인계 §12](docs/HANDOFF.md#12-외부-과제-요구-aleph-t04-외부-데이터-모니터링-대시보드-2026-11-23-정리)에 있습니다.
+- **Pages** — 일일 수집 워크플로는 삭제했습니다. 배포는 `pages.yml`이 담당하며, `data/raw/`에서 공개용 날씨와 기록에 필요한 XML을 만들어 `static-web/`만 게시합니다.
+
+## 모델 한계
+
+production 모델은 2026-11-19부터 **열차 단위 OD 라벨 61일**로 학습한 HistGradientBoosting 모델입니다([D-027](docs/DECISIONS.md)). 검증 MAE 23.94명/R² 0.838은 **추정 라벨 재현성**이며 실제 승객 정확도가 아닙니다.
+
+- **절대 인원 수는 신뢰할 수 없습니다.** 수준은 기준 분포 q가 정하며 검증되지 않았습니다. 그래서 웹은 인원 수치를 보이지 않고 같은 구간의 시간대 상대 순위만 보입니다([D-028](docs/DECISIONS.md)).
+- 믿을 수 있는 것은 시간대·역의 상대 순서뿐이며 근거는 항저우 C선 정답 비교입니다. 열차 한 대 단위 구분은 복원되지 않았습니다.
+- 대전 자체 검증은 실제 피크 18건뿐이며 한산한 쪽 순서는 검증되지 않았습니다([E-40](docs/EXPERIMENTS.md)).
+- 장소 방문객 수나 장소 자체의 혼잡도는 예측하지 않습니다. 도보 시간은 직선거리 어림이고 운영시간·실제 보행 경로는 없습니다.
+- 지도·선로 정합, 모바일·터치 환경은 최종 확인하지 않았습니다.
+
+이전 production(Adam 라벨 731일)은 `outputs/backup_before_od_swap_20261119/`와 git 이력에 있고, 되돌리는 법은 [HANDOFF §4](docs/HANDOFF.md)에 있습니다. 상세는 [방법론](docs/AI/METHODOLOGY.md)과 [모델 개요](docs/AI/MODEL.md)를 보세요.
 
 ## 문서
 
-- [인수인계·확정요구·백업·남은일](docs/HANDOFF.md), [로드맵](ROADMAP.md)
-- [방법론](docs/AI/METHODOLOGY.md), [모델 개요](docs/AI/MODEL.md), [웹 연결](docs/AI/WEB_INTEGRATION_DESIGN.md)
-- [추출기](docs/AI/EXTRACT_TRAIN_LOADS.md), [승하차](docs/AI/SUBWAY.md), [날씨](docs/AI/WEATHER.md), [POI](docs/AI/POI_COLLECTION_TASK.md)
-- [항저우 태그 시간표 복원 지침](docs/AI/HANGZHOU_TIMETABLE_BRIEF.md)(진행 중단, [E-22](docs/EXPERIMENTS.md)), [재차인원 역산 실행 지침서](docs/AI/LOAD_ESTIMATION_RUNBOOK.md)
+**현황·계획**
+- [인수인계](docs/HANDOFF.md): 확정 요구, production·후보, 파일 안내, T04 과제 요구와 구현 상태(정본)
+- [로드맵](ROADMAP.md): 진행 중인 일, 완료 기록, 다음 후보
+- [리뷰](docs/REVIEW.md): D-028~D-030 변경에 대한 코드 리뷰 기록
+
+**기록**
 - [가정](docs/ASSUMPTIONS.md), [결정](docs/DECISIONS.md), [실패 기록](docs/FAILURES.md), [시도·실험 기록](docs/EXPERIMENTS.md)
 
-지도는Kakao이고 `best_model.pt`는 이전모델입니다. `.env`의 키값을 출력하거나 문서·로그에 복사하지 마세요.
+**모델·방법**
+- [방법론](docs/AI/METHODOLOGY.md), [모델 개요](docs/AI/MODEL.md), [재차인원 역산 실행 지침서](docs/AI/LOAD_ESTIMATION_RUNBOOK.md), [열차별 재차 추출기](docs/AI/EXTRACT_TRAIN_LOADS.md)
+- 항저우 태그 실험: [시간표 복원 지침](docs/AI/HANGZHOU_TIMETABLE_BRIEF.md)(보류, [E-22](docs/EXPERIMENTS.md)), [OD 시험 메모](docs/AI/HANGZHOU_OD_TEST_BRIEF.md)
+
+**웹·자료**
+- [웹 연결·정적 웹](docs/AI/WEB_INTEGRATION_DESIGN.md), [역 좌표](docs/AI/STATION_COORDINATES.md), [지도 Worker](worker/README.md)
+- [승하차](docs/AI/SUBWAY.md), [시간별 승하차(이전 경로)](docs/AI/SUBWAY_HOURLY.md), [날씨](docs/AI/WEATHER.md), [POI 수집](docs/AI/POI_COLLECTION_TASK.md), [자료 흐름도](docs/AI/PROJECT_DATA_FLOW.svg)

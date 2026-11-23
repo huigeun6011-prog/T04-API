@@ -45,3 +45,38 @@
 }
 .t04-msg-warn { border-left: 4px solid var(--q4); margin: 8px 0; }
 .t04-restitle:focus { outline: none; }
+/* 운행일 총 승하차: 미집계는 오류가 아닌 정상 상태이므로 실패(붉은색)와 다른 중립 색·점선 테두리로 구분한다. */
+.t04-pending { display: inline-block; font-weight: 700; padding: 2px 8px; border: 1px dashed var(--ink-2); background: var(--bg-2); color: var(--ink-2); border-radius: var(--r-sm); }
+.t04-none { color: var(--ink-2); }
+.t04-days th[scope=row] { width: 9em; }
+.t04-day-pending td, .t04-day-not_recorded td { color: var(--ink-2); }
+.t04-details { margin: 10px 0; border: 1px solid var(--hair); padding: 6px 10px; }
+.t04-details summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+.t04-details summary:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.t04-rawlinks { margin: 4px 0; padding-left: 1.4em; font-size: .9rem; }
+.t04-statusline { margin: 4px 0; min-height: 1.4em; }
+.weather-meta { margin: 6px 0 0; padding: 0; list-style: none; font-size: 11px; line-height: 1.6; color: var(--text-3); }
+.weather-error { margin: 0 0 6px; font-size: 13px; }
+/* 기준일 선택 + 7일 선 그래프. 색은 style.css 변수만 쓰고 비/눈 여부는 반드시 글자로도 쓴다. */
+.t04-datepick { margin-top: 4px; }
+.t04-datepick input[type=date] { font: inherit; padding: 8px; min-height: 40px; border: 1px solid var(--line-dk); border-radius: var(--r-sm); background: var(--paper); color: var(--ink); }
+.t04-datepick input[type=date]:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.t04-chart-scroll { overflow-x: auto; border: 1px solid var(--hair); background: var(--paper); }
+.t04-chart { display: block; width: 100%; min-width: 560px; height: auto; }
+.t04-chart text { font-family: inherit; fill: var(--ink); }
+.t04-axis-text { font-size: 11px; fill: var(--ink-2) !important; }
+.t04-tick-date { font-weight: 600; fill: var(--ink) !important; }
+.t04-grid-line { stroke: var(--hair); stroke-width: 1; }
+.t04-axis-line { stroke: var(--ink-2); stroke-width: 1.5; }
+.t04-line { stroke: var(--line-dk); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.t04-dot { fill: var(--paper); stroke: var(--line-dk); stroke-width: 2.5; }
+.t04-hit { fill: transparent; }
+.t04-point { outline: none; cursor: pointer; }
+.t04-point:hover .t04-dot, .t04-point:focus .t04-dot { fill: var(--line-dk); }
+.t04-point:focus .t04-hit { stroke: var(--focus-ring); stroke-width: 3; }
+.t04-value-text { font-size: 11px; font-weight: 700; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; stroke-linejoin: round; }
+.t04-gap-text { font-size: 12px; font-weight: 700; fill: var(--ink-2) !important; }
+.t04-weather-band { fill: var(--bg-2); stroke: var(--hair); }
+.t04-weather-text { font-size: 11px; font-weight: 600; }
+.t04-weather-none { fill: var(--ink-2) !important; font-weight: 400; }
+.t04-detail { min-height: 1.5em; margin: 8px 0; padding: 6px 10px; background: var(--bg-2); font-weight: 600; }

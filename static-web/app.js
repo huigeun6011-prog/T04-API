@@ -615,7 +615,7 @@ async function loadWeather(date) {
     const result = await engine.fetchWeatherForDate(date, { signal: controller.signal });
     if (id !== state.weatherRequestId) return;
     controller.signal.throwIfAborted();
-    if (!result?.available) throw new Error(result?.reason || '선택한 날짜의 날씨가 아직 제공되지 않거나 연결이 원활하지 않습니다.');
+    if (!result?.available) throw Object.assign(new Error(result?.reason || '선택한 날짜의 날씨가 아직 제공되지 않거나 연결이 원활하지 않습니다.'), { kind: result?.error_kind });
     state.weather = result;
     renderHourlyWeather();
     const following = await engine.fetchWeatherForDate(nextDate(date), { signal: controller.signal });
@@ -632,7 +632,10 @@ async function loadWeather(date) {
       const message = timedOut ? '날씨 조회가 오래 걸리고 있습니다. 잠시 후 다시 시도해 주세요.'
         : error.name === 'AbortError' ? '날씨 조회를 중단했습니다. 다시 시도할 수 있습니다.'
         : '선택한 날짜의 날씨를 불러오지 못했습니다. 제공 범위나 연결 상태를 확인한 뒤 다시 시도해 주세요.';
-      box.innerHTML = `<span class="placeholder-text" role="status">${escapeHtml(message)}</span>`;
+      // 오류 유형(timeout/auth/rate_limit/offline/schema_error)을 구분해 보여 준다. 원인 문구는 t04-core 의 ERROR_INFO 를 쓴다.
+      const kind = timedOut ? 'timeout' : error.name === 'AbortError' ? null : (error.kind || 'schema_error');
+      const info = kind && window.T04Core?.ERROR_INFO?.[kind];
+      box.innerHTML = `<span class="placeholder-text weather-error" role="status">${info ? `<strong>${escapeHtml(info.label)} (${kind})</strong> — ${escapeHtml(info.cause)} ` : ''}${escapeHtml(message)}</span>`;
       const retry = document.createElement('button');
       retry.type = 'button';
       retry.className = 'update-retry';
@@ -649,6 +652,17 @@ async function loadWeather(date) {
   }
 }
 
+const WEATHER_SOURCE_LABEL = { forecast: 'Open-Meteo 예보', archive: 'Open-Meteo 과거 관측(archive)', local_archive: 'Open-Meteo 과거 자료(저장본)' };
+const weatherKstFormat = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+function weatherMetaHtml(weather) {
+  const fetched = weather.fetched_at && !Number.isNaN(Date.parse(weather.fetched_at)) ? `${weatherKstFormat.format(new Date(weather.fetched_at))} KST` : '알 수 없음';
+  return `<ul class="weather-meta"><li>출처: ${escapeHtml(WEATHER_SOURCE_LABEL[weather.source] || 'Open-Meteo')}</li>`
+    + `<li>값과 단위: 기온 °C · 강수 mm · 적설 cm</li>`
+    + `<li>출처 시각: ${escapeHtml(weather.date)} 00시~23시 시간별 값(원천이 따로 발표 시각을 주지 않음)</li>`
+    + `<li>조회 시각: ${escapeHtml(fetched)}${weather.cached ? ' (저장해 둔 조회 결과)' : ''}</li>`
+    + `<li>기준 시간대: Asia/Seoul</li></ul>`;
+}
+
 function weatherNumber(value, unit) {
   return typeof value === 'number' && Number.isFinite(value) ? `${value.toFixed(1)}${unit}` : '자료 없음';
 }
@@ -661,7 +675,7 @@ function renderHourlyWeather() {
     const h = day?.hourly, i = h?.time?.indexOf(key) ?? -1;
     rows.push(`<tr><th>${hour === 24 ? '24시 (익일 00시)' : `${hour}시`}</th><td>${weatherNumber(h?.temperature_2m?.[i], '°C')}</td><td>${weatherNumber(h?.precipitation?.[i], 'mm')}</td><td>${weatherNumber(h?.snowfall?.[i], 'cm')}</td></tr>`);
   }
-  document.getElementById('weatherBox').innerHTML = `<div class="weather-badge">Open-Meteo · ${['archive', 'local_archive'].includes(state.weather.source) ? '과거 날씨' : '예보'}</div><div class="weather-hourly"><table><caption>선택한 시간대의 대전 날씨</caption><thead><tr><th>시간</th><th>기온</th><th>강수</th><th>적설</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>${state.endHour === 24 && !state.nextWeather?.available ? `<p class="control-help">${state.nextWeather ? '익일 00시 날씨는 불러오지 못했거나 제공 범위 밖입니다.' : '익일 00시 날씨를 조회 중입니다…'}</p>` : ''}`;
+  document.getElementById('weatherBox').innerHTML = `<div class="weather-badge">Open-Meteo · ${['archive', 'local_archive'].includes(state.weather.source) ? '과거 날씨' : '예보'}</div><div class="weather-hourly"><table><caption>선택한 시간대의 대전 날씨</caption><thead><tr><th>시간</th><th>기온</th><th>강수</th><th>적설</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>${weatherMetaHtml(state.weather)}${state.endHour === 24 && !state.nextWeather?.available ? `<p class="control-help">${state.nextWeather ? '익일 00시 날씨는 불러오지 못했거나 제공 범위 밖입니다.' : '익일 00시 날씨를 조회 중입니다…'}</p>` : ''}`;
 }
 
 function initRecommendationControls() {

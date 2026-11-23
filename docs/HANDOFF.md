@@ -4,10 +4,10 @@
 
 ## 1. 목표와 확정한 요구
 
-- **정적 웹 전환(2026-11-23, D-030):** 사용자 요청으로 작업 전 `c786ca4`를 GitHub·GitLab 양쪽에 푸시한 뒤 별도 `static_src/`·`static-web/`을 만들었다. `.venv/Scripts/python.exe scripts/build_static_web.py`로 현재 모델을 다시 내보낼 수 있고 이미 생성된 정적 웹 운영에는 Python API·YML·재학습이 필요 없다. 원본 `web/`·Python 모델/운영 파일은 보존했다. README의 정적 웹 절과 WEB_INTEGRATION_DESIGN D-030을 먼저 읽고, 아래 기존 Python API 설명과 구분한다. 모델 예측 14,296건 오차 0·전체 추천 66조건 일치를 확인했으며 실제 Pages 게시와 지도 키·도메인 설정은 별도다.
+- **정적 웹(D-030)·T04 공개 구성(D-031):** 완료됐다. 경위·검증은 [D-030](DECISIONS.md), [D-031](DECISIONS.md), [ROADMAP 완료 기록](../ROADMAP.md), 실행은 [README](../README.md)를 본다. 정적 웹 운영에 Python API·YML·재학습은 필요 없고 원본 `web/`·Python 파일은 보존돼 있다.
 
 - 대전 1호선으로 이동할 때 덜 붐비는 시간·이용 역·목적지를 추천한다. 모델은 장소 자체의 방문객 수를 예측하지 않는다.
-- 지도는 Kakao Maps, 주소 좌표 변환은 VWorld다. `best_model.pt`는 이전 모델이고 공식 추론 파일은 `outputs/load_predictor.joblib`이다.
+- 지도는 Kakao Maps(기존 `web/`은 JS SDK, 정적 웹은 `worker/`의 REST 이미지 프록시), 주소 좌표 변환은 VWorld다. `best_model.pt`는 이전 모델이고 공식 추론 파일은 `outputs/load_predictor.joblib`이다.
 - 실제 POI와 Open-Meteo 날씨를 사용한다. 날짜 선택 시 시간별 날씨를 조회하고 캐시·호출 간격으로 중복 호출을 줄인다.
 - 사용자가 출발점·운행일·시간 범위·카테고리를 고른다(한산함/거리 비중 슬라이더는 D-028로 제거). 웹은 재차인원 수치·건수를 보이지 않고 같은 구간(승차역→하차역, 방향)의 시간대 상대 순위(1..N, 순위 차 2 이하는 같은 수준)만 보인다([D-028](DECISIONS.md)). 각 시간 h는 h:00~h+1:00 구간이다.
 - 전체 재학습 범위는 **2024-11-01 05시~2026-11-02 00시 버킷**이다. 운행일로는 2024-11-01~2026-11-01, 731일이다. 마지막 00시 버킷은 00:00~00:59에 해당하며 00:00 한 순간을 뜻하지 않는다.
@@ -102,9 +102,9 @@ production 전체 감사에서도 저장 load≥0·종점0은 만족했지만 �
 - 변수는 계속 하루800개(731일584,800개)다. 부분공유를 넣었다고 일별 변수가 없어지지 않는다. 1000회 중앙 실행시간 기본1.67초/전부2.25초였다.
 - 세 가정은 코드 옵션으로 구현했지만 기본 활성화·전체 all 재학습·production 교체는 하지 않았다. **baseline 대비 smooth+pooling 두 개만 묶은 실험과 가중치 탐색은 아직 안 했다.** 다음 권고안일 뿐 실행 승인으로 간주하지 않는다.
 
-### 열차 단위 OD (E-13~E-38, 2026-11-19 production으로 교체됨, 위 §4)
+### 열차 단위 OD (E-13~E-38)
 
-헤드웨이·정원·도착률 곡선은 실패했고(E-13, E-15), 열차 단위 OD 변수(E-16)가 피크 추정/실제를 0.51→0.62로 올린 가장 나은 후보다. 열차별 재차는 합계만으로 식별되지 않고(E-17), 열차 계수 w_k는 조건부로만 복원된다(E-18~19). 61일 표본 점검(E-20)에서 추천 상위10 겹침 0.76, 피크 19건 MAE 322(production 376)였고 합성 정답에서 순위는 잘 복원하나 수준은 prior에 좌우됐다. 사용자는 2026-11-17에 Step 4의 A(교체 안 함)·B(731일 재생성)를 모두 고르지 않고 보류했다. **production은 그대로다.** 상세는 [EXPERIMENTS](EXPERIMENTS.md), 진행·다음 후보는 [ROADMAP](../ROADMAP.md).
+2026-11-19에 production으로 교체됐다(§4, [D-027](DECISIONS.md)). 시도별 결과·수치는 [EXPERIMENTS](EXPERIMENTS.md), 이후 후보는 [ROADMAP](../ROADMAP.md)에 있다. 2026-11-17 당시 사용자가 Step 4(교체 여부)를 보류했던 경위는 ROADMAP의 지금 진행 중·사용자 결정 항목에 남아 있다.
 
 ## 6. 실제 피크와 정확도 해석
 
@@ -118,7 +118,7 @@ production 전체 감사에서도 저장 load≥0·종점0은 만족했지만 �
 
 ## 7. 웹 구현과 중요한 미해결 항목
 
-- **모델 소개(2026-11-23, D-029):** 방문자용 쉬운 설명을 먼저 두고 개발 과정·용어·수치는 선택해서 펼친다. 사용자 화면에는 실험 ID와 문장별 저장소 문서 참조를 넣지 않는다. OD 추정값 생성 → HGB 학습·예측의 두 단계와 두 종류의 비교를 구분하고, 실측 정답과 학습용 추정값을 혼동하지 않는다. 표의 짧은 상태·숫자 줄바꿈을 막는다. 상세 결정은 DECISIONS D-029, 작업·검증 기록은 ROADMAP에 있다. 이 탭의 확인 결과를 다른 탭·지도 전체의 검증으로 확대하지 않는다.
+- 모델 소개 탭(D-029) 개편은 완료됐다. 결정은 [D-029](DECISIONS.md), 작업·검증 기록은 [ROADMAP](../ROADMAP.md) 완료 기록에 있다.
 
 웹 변경 이력은 [DECISIONS](DECISIONS.md) D-010~D-028, 현재 코드 설명과 검증 구분은 [웹 연결](AI/WEB_INTEGRATION_DESIGN.md)이 정본이다. 아래는 `web/`과 `prediction_api.py`를 직접 읽어 확인한 상태다.
 
@@ -126,9 +126,9 @@ production 전체 감사에서도 저장 load≥0·종점0은 만족했지만 �
 - `prediction_api.py`는 표준 `ThreadingHTTPServer`로 기본 포트 5500에서 웹과 API를 함께 제공한다. 경로는 `GET /api/health`, `/api/stations`, `/api/predict`(웹은 쓰지 않음), `POST /api/recommend`다(`/api/profile`은 D-028로 제거). FastAPI/ONNX는 사용하지 않는다.
 - 추천은 Open-Meteo 날씨, 시간표, `outputs/load_predictor.joblib`, POI와 출발지 좌표를 사용한다. 순위는 구간별 시간대 상대 순위이며 `quiet_weight`는 없다(D-028). 도보는 직선거리 기반 추정이며 실제 보행 경로·운영시간은 없다. 열차 ETA는 걷기와 열차 이동만 포함하고 대기·환승은 포함하지 않는다. API 성공이 추천 효용이나 실제 승객 수 정확도를 증명하지 않는다.
 - UI(D-028, 2026-11-23): 장소 목록은 직선거리·카테고리·도보 시간으로 정렬하고 인원·건수를 보이지 않는다. 장소를 고르면 구간별 시간대 순위와 행별 순위 히트맵을 보이고, 선택한 시간대는 그 시간 열차 출발 시각을 시간순으로 보인다. 가장 한산한 열차 한 대를 고르지 않으며 '더 나은 시간' 안내와 인접 시간 목록은 없다. 가까운 곳/지하철로 멀리 탭, 걷는 시간 합계 한도, 분석·모델 소개 화면은 유지한다. 도보 전용 장소에는 순위가 없다. 개편 후 브라우저 시각 확인은 하지 않았다(사용자 확인 예정). `scripts/data_prep/compare_od_vs_production_recommend.py`는 응답 필드 제거로 깨져 있다(ROADMAP 9번).
-- 저장소: 로컬 `main`은 `origin`(GitHub)을 추적하고 이전 GitLab은 `old-origin`이다. GitHub `main`은 dd0a296까지 올렸다(2026-11-23). 공개 저장소이며 Kakao 키가 커밋 `a3b6bc9`에 있다(콘솔 조치 안 함, ROADMAP 사용자 결정).
+- 저장소의 로컬 `main`은 GitHub `origin`을 추적하고 이전 GitLab은 `old-origin`이다. 승하차 전환 전의 로컬 기준 커밋은 `a351d72`다. 승하차 전환 및 수집 워크플로 삭제는 작업 트리 변경이다. 공개 저장소 이력의 Kakao 키 폐기 상태는 확인하지 않았다([ROADMAP](../ROADMAP.md)의 사용자 결정 참고).
 - 지도 선로 자료는 OSM 양방향 관계에서 뽑은 42개 구간이며, 곡선 끝점을 사용자 제공 역 좌표에 맞췄다. 코드상 22개 역과 구간 끝점 연결은 확인했다. 최근 좌표 보정 후 지도 정합, 터치·모바일 최종 확인은 미완료다. D-015~D-020에는 그 당시 핀·카드·패널·시간 막대·탭 등의 브라우저 확인 기록이 있으므로 최근 변경 검증과 혼동하지 않는다.
-- `prediction_api.py` 254·285행의 `dict(**base, walking_distance_km=...)`는 중복 키워드가 있으면 예외가 나 추천이 400으로 실패할 수 있어, 사용자가 `dict(base, walking_distance_km=...)`로 고쳤다(D-026). 현재 수정된 코드 형태를 확인했다.
+- 추천 400 오류(중복 키워드)는 수정 완료했다([D-026](DECISIONS.md)).
 - `extract_train_loads.py`의 출력 종점 0 보정은 개선 GT의 raw 잔차 정책과 다르며, 이를 raw 물리 검증으로 간주하지 않는다.
 - SVG는 자료 흐름 설명용이며 현행 웹 배포 상태의 정본은 아니다.
 
@@ -146,6 +146,8 @@ Invoke-RestMethod http://127.0.0.1:5500/api/health
 ```
 
 페이지는 `http://127.0.0.1:5500/web/index.html`이고 API도 같은 5500(`/api/*`, 같은 출처)이다. `web/` 아래 파일만 GET/HEAD로 정적 제공하고 그 밖(`.env`, `outputs/`, `data/` 등)은 404이다. 예전 2포트 방식(Live Server 5500 + API 8000, `--port 8000`)을 쓰려면 `web/config.local.js` 등에서 `window.RECOMMENDATION_API_BASE = 'http://127.0.0.1:8000'`을 지정하면 되고, CORS는 5500의 localhost/127.0.0.1을 허용한다. 미리보기 도구용 설정은 `.claude/launch.json`(이름 `app`)이다. 현재 프로세스가 실행 중이라는 상태는 시간이 지나면 바뀌므로 이 문서만 보고 가정하지 않는다. 재시작은 해당 서버 터미널에서 종료한 후 같은 명령으로 한다.
+
+정적 웹은 브라우저에서 계산한다. 로컬에서는 `run_static.bat`으로 정적 파일 서버를 시작한다. 변환·검증 명령은 [README](../README.md)에 있다. T04 Node 테스트는 `node --test scripts/`(Node 22 기준), Worker 테스트는 `worker/`의 `npm test`다.
 
 ## 9. 파일 안내
 
@@ -172,6 +174,10 @@ Invoke-RestMethod http://127.0.0.1:5500/api/health
 | `scripts/data_prep/gt_train_factor.py`, `gt_train_factor_v2.py`, `experiment_train_factor_synth.py`, `experiment_train_factor_v2.py` | 열차 계수 합성 복원(E-18, E-19). |
 | `scripts/data_prep/make_od_labels.py`, `compare_od_vs_production_recommend.py`, `experiment_synthetic_od.py` | OD 라벨 생성·조립기, 추천 민감도 비교, 합성 정답 복원(E-20). 실행 절차는 [LOAD_ESTIMATION_RUNBOOK](AI/LOAD_ESTIMATION_RUNBOOK.md). |
 | `scripts/hangzhou/`(+`LINE_C_PROTOCOL.md`), `outputs/hangzhou/`, `data/external/hangzhou/`(gitignore) | 항저우 태그 자료 시간표 복원 시도(E-22). §11 참고. |
+| `static_src/`, `static-web/`, `scripts/build_static_web.py`, `scripts/validate_static_web.py` | 정적 웹 소스, Pages 배포 폴더, 빌더, Python–JS 동등성 검증(D-030). `static-web/data/t04/`에 T04 공개 자산, `daily.json`, `business_days.json`이 있다. |
+| `scripts/t04_daily_record.mjs`, `scripts/utils/backfill_subway.py`, `scripts/utils/backfill_weather.py` | 수동 일별 기록, 운행일 이력 생성, 과거 승하차·날씨 백필. §12 참고. |
+| `scripts/sync_static_data.mjs`, `run_static.bat`, `.github/workflows/pages.yml` | 공개용 데이터 생성, 로컬 정적 웹 실행, GitHub Pages 배포. |
+| `worker/`, `scripts/check_map_proxy.mjs`, `scripts/validate_map_projection.js` | Kakao REST 지도 이미지 프록시 Worker와 정렬 검증 도구. [worker/README](../worker/README.md). |
 | `design/` | 항저우 노선도 시각화(`hangzhou_network.html`, `hangzhou_overlay.html`, `gen_network.js`)와 웹 디자인 프로토타입(`prototype_ab.html`, D-018). 현상태의 정본이 아니다. |
 | `scripts/analysis/` | 독립분석/과거실험.미참조가미실행증거는아님. |
 
@@ -201,6 +207,31 @@ Invoke-RestMethod http://127.0.0.1:5500/api/health
 
 출처는 ALEPH 학생 대시보드(`aleph-omega.vercel.app/cortex?panel=tasks`)의 "과제 4. 외부 데이터 모니터링 대시보드 개발" 안내 카드 1~5와 제출 양식이다(화면을 그대로 읽은 것이며 강사가 따로 알려 준 내용은 반영하지 않았다). 사용자 말에 따르면 이 저장소의 프로젝트는 이 과제를 위해 시작했다(2026-11-23). 계획시간 6~7h, 실제 날짜 2일이며 날짜가 바뀔 때까지 기다리는 시간은 작업시간에 넣지 않는다.
 
+### 현행 구현과 이어받을 작업
+
+- **기록 대상** — 대전교통공사의 공공데이터포털 `getTicketTypeTraffic01`에서 얻는 1호선 실측 총 승하차(명)로 전환했다. 운행일 D의 모든 역·승하차·티켓 구분을 합산하되, D일 05~23시와 D+1일 00시를 사용한다. D일 00~04시는 집계 범위에서 빠진다. `record_date`는 작업을 실행한 KST 날짜 T이고 `business_day`는 T−2일이다. 같은 신호와 조회 날짜에 다시 기록하면 그 행을 갱신한다. 원본 두 날짜의 자료가 준비되지 않았으면 미집계로 처리한다. `source_time`에는 마지막 집계 구간의 끝(D+1 00:59:59 KST), `fetched_at`에는 정제 실행 시각을 저장한다. 출처 URL에는 서비스 키를 넣지 않는다.
+- **정보판** — `#t04`의 날짜 선택은 기준일을 포함한 7일 그래프와 표에 적용된다. 최신 완성 운행일 뒤의 날짜는 미집계로 표시한다. 05~23시의 과거 날씨에서 강수(mm)·적설(cm)을 요약해 함께 보여 준다. 대표값, 두 기록의 차이, 시간·역별 합계와 원본 XML 대조는 `daily.json`을 사용한다. 추천 화면에서는 Open-Meteo 날씨를 계속 사용한다. 실패 5종·마지막 정상값·다시 시도·복구의 합성 재생은 `#t04-lab`에서 열리며 실제 기록과 별도다.
+- **로컬 데이터(전환 작업 직후)** — `data/raw/subway/`와 `data/raw/weather/`에 각각 2024-11-01~2026-11-22의 752일치 원본이 있다. 11월 3~22일의 승하차·Open-Meteo Archive 날씨를 백필했다. `business_days.json`은 2024-11-01~2026-11-21의 완성 운행일 751건이다. 사용자 승인으로 기존 날씨 행 두 건을 삭제한 뒤 `daily.json`은 0건이다. 백필과 합성 재생은 C22~C24에서 요구하는 서로 다른 실제 KST 날짜의 두 조회 기록과 별개다.
+- **배포 상태** — 기존 날씨 버전은 Pages에서 HTTP 200으로 확인한 이력이 있다([D-031](DECISIONS.md)). 승하차 전환과 사본 정리는 로컬 변경 단계에서 확인했다. 새 버전 GitHub Pages 실행, 브라우저에서 승하차 기록 2건의 XML·저장값·화면 대조, 제출 글(C27·C28), 기존 Kakao JS 키 폐기 여부 확인이 남았다.
+
+#### 수동 수집과 검증
+
+프로젝트 루트에서 Node 22를 사용한다. 로컬 `.env`에 `SUBWAY_API_KEY`가 설정돼 있으면 다음 명령으로 읽을 수 있다. 이미 환경변수로 주입한 경우 `--env-file=.env`를 생략한다.
+
+```powershell
+node --env-file=.env scripts/t04_daily_record.mjs all
+node scripts/sync_static_data.mjs
+```
+
+- `all`은 `collect`와 `refine`으로 승하차 기록을 만들고, Open-Meteo Archive의 최근 누락 날씨를 채운 뒤 `history`로 `business_days.json`을 다시 만든다. 승하차 원본을 기다리는 상태는 `PENDING`, 기록 완료는 `RECORDED`로 출력한다. `refine`은 기존 XML만 정제하고 `history`는 저장된 원본만 집계한다. `weather`는 Archive에서 자료가 아직 없을 때 다음 수집까지 비워 두며, 예보로 채우지 않는다.
+- **실제 조회 증거** — `collect`는 대상 날짜 XML이 이미 있으면 그 파일을 재사용한다. `fetched_at`은 정제 시각이므로 기존 XML을 사용한 `RECORDED` 출력만으로 당일 API 호출을 확인할 수 없다. 과제 증거를 만들 때는 실행 전 해당 날짜 원본의 유무와 새로 수집된 파일을 확인하고, 서로 다른 KST 날짜의 실제 조회 결과와 화면값을 대조한다.
+- **백필 도구** — `scripts/utils/backfill_subway.py`와 `scripts/utils/backfill_weather.py`에서 날짜 범위를 지정할 수 있다. 승하차 Python 백필은 `totalCount`가 비어 있는 응답을 처리하고 일시적 503을 재시도하도록 보완했다. 백필 뒤 `node scripts/t04_daily_record.mjs history`로 그래프 데이터를 갱신한다.
+- **정적 데이터와 Pages** — `run_static.bat`과 `pages.yml`은 `sync_static_data.mjs`로 `static-web/data/weather/`와 `daily.json`이 참조하는 `static-web/data/t04/raw/` XML을 생성한다. 이 사본 디렉터리는 Git에서 제외한다. `daily.json`과 `business_days.json`, `data/raw/` 원본은 커밋 대상이다. 일일 수집 워크플로는 삭제하고 `pages.yml`이 `static-web/`을 게시한다. Pages는 `main`의 `static-web/**`, `data/raw/weather/**`, `scripts/sync_static_data.mjs` 변경 또는 수동 실행으로 시작한다. 승하차 원본만 바뀐 경우에는 수동 배포가 필요하다. 로컬 배치는 Node가 없으면 동기화를 건너뛰고, 동기화 오류가 나도 파일 서버를 계속 시작한다. 공개 사본을 확인할 때는 `node scripts/sync_static_data.mjs`의 종료 코드도 확인한다.
+- **검증 기록** — Claude 세션에서 Node 테스트 4개 파일 통과, `sync` 두 번 실행, 날씨 사본 752개와 Python 빌더 결과의 바이트 일치, 임시 폴더의 참조 XML 복사·미참조 XML 정리·원본 누락 오류를 보고했다. 승하차 전환 버전의 공개 배포와 실제 2일 기록 검증은 별도로 남아 있다.
+
+### 과제 요구와 초기 날씨 구현 기록
+
+아래의 기온·예보·일일 Actions 관련 구현 내용은 전환 전의 이력이다. 사용자 지시에 따라 카드 원문과 직접 합의한 내용을 작업 기준으로 삼았다. 외부 패키지는 스키마와 합성 재생 자산 확인에 사용했고, 패키지 문서의 ‘봉인 영수증’과 ‘조건 35개’ 해석은 작업 기준에서 제외했다.
 - **과제:** 날씨·환율·교통·게임 상태 등 공개 동적 데이터 하나를 조회·저장하고 일별 변화량을 비교하는 대시보드. 응답 실패 시 오류 유형과 마지막 정상값을 보이는 폴백을 구현한다.
 - **제출(필수):** 결과물 URL(공개 심사 화면), 소스 URL(40/64자리 소문자 full commit이 든 HTTPS 고정 URL, 브랜치·저장소 첫 화면은 불가). 권장: "재현·통과 확인 4가지"(어디로 가나 / 3단계 이내 무엇을 하나 / 무엇이 보이면 통과 / 안 될 때 무엇이 보이나)와 "AI와 내 판단 3줄"(AI에게 맡긴 일 / 내가 판단한 일 / 따르지 않은 AI 제안, 없으면 그 이유). 각 6,000자까지이며 비워도 제출은 막히지 않지만 후행 채점에 '기록 없음'으로 반영된다. 파일은 선택(10개·합계 8MB). 날짜·해시·과제 버전은 플랫폼이 기록하고, 제출 뒤 강사 승인→마스터 승인 순서다.
 - **모든 제출 URL:** 계정 생성·로그인·인증·초대·비밀번호·OAuth·CAPTCHA 없이 새 시크릿 창에서 열려야 한다(T04-C01).
@@ -216,7 +247,7 @@ Invoke-RestMethod http://127.0.0.1:5500/api/health
 - **기준 목록 전체:** C01, C03~C28 중 화면에 있는 것은 위 표와 같고, 공통으로 C25(공개 화면·제출 파일에 실제 개인정보·개인 기록 0건)와 C26(실패 재생은 합성 테스트 데이터만 사용)이 카드 1에 붙어 있다. C02는 화면에 없었다.
 - **지켜야 할 금지:** 합성 D1/D2 기록으로 실제 공개 데이터 기록 2건을 대신하지 않는다. 둘째 날 기록이 없으면 임의 생성·수정하지 않고 다음 실제 날짜에 다시 확인한다. 노출된 키는 폐기(revoke)하고 재발급 키는 서버 환경변수에만 둔다.
 - **고정 자산:** 카드 3의 `assets/studio-task-assets/t04-real-information-board/`(README·public-contract.json·asset-manifest 등)와 "T04 공개 합성 테스트 패키지 ZIP(fixtures 9종·criterion-registry·schema)"을 받아 쓴다. 받지 않았고 내용은 읽지 않았다.
-- **검수(2026-11-23, 코드·원격 직접 확인; 모델 정확도는 검수 대상 아님):** 이 웹은 혼잡 추천 도구이고 과제는 '값 하나를 매일 추적'하는 모니터링이다. 현재 충족 근거가 있는 것은 Open-Meteo 시간별 날씨 조회(`static_src/static-engine.js` 96~97행, 기준 시간대 Asia/Seoul 지정)와 날씨 재시도 버튼(`static_src/app.js` 636~641행)뿐이다.
+- **검수(2026-11-23 오후, 푸시 전 시점의 기록; 모델 정확도는 검수 대상 아님):** 이 웹은 혼잡 추천 도구이고 과제는 '값 하나를 매일 추적'하는 모니터링이다. 현재 충족 근거가 있는 것은 Open-Meteo 시간별 날씨 조회(`static_src/static-engine.js` 96~97행, 기준 시간대 Asia/Seoul 지정)와 날씨 재시도 버튼(`static_src/app.js` 636~641행)뿐이다.
   - 없음: 일별 기록 저장소·날짜 고유키(C20·C21·C22~C24), 원본·저장·화면 3자 대조(C10), 실패 5유형 합성 fixture·유형별 상태(C12~C16), 마지막 정상값 stale 표시(C17·C18; `setStale`은 추천 결과 화면용), `T04-RECOVER-D2` 복구(C19), 확인 방법 4구분·AI 판단 3구분 글(C27·C28), 출처 시각·조회 시각 표시(C07·C08는 확인 못함).
   - 막힘: 공개 결과물 URL이 없다(`huigeun6011-prog.github.io`와 `/T04-API/` 모두 404). 소스 URL용 full commit에는 `static_src/`·`static-web/`·`worker/`가 없다(미추적, 마지막 커밋 `c786ca4`). 공개 저장소 이력(`a3b6bc9`)에 Kakao JS 키가 있어 C11 위반이다(키는 재발급됐다고 기록돼 있으나 폐기 여부는 확인하지 못함). 현재 작업 트리의 `web/config.local.js`는 gitignore되어 있다.
   - 지도 Worker는 REST 키를 Worker Secret에만 두므로 C11 방향과 맞고, 브라우저에는 키가 가지 않는다(2026-11-23 실제 응답으로 확인).
@@ -226,7 +257,7 @@ Invoke-RestMethod http://127.0.0.1:5500/api/health
 - **정규화 형식(`normalized-reading.schema.json`):** `signal_id`, `normalized_value`, `unit`, `source_name`, `source_url`(HTTPS), `source_time`(null 가능), `fetched_at`, `record_timezone`('Asia/Seoul' 고정), `record_date`(fetched_at의 KST 날짜와 일치) 아홉 개만 허용한다. 같은 `signal_id+record_date`는 원자적 갱신, 오류 코드는 `timeout|auth|rate_limit|offline|schema_error`, 상태는 `fresh/none` 또는 `stale/오류`다. fixture 9개는 `virtual_now`·`transport`·`payload`·`expected`를 갖는 결정론 재생 입력이다.
 - **C22~C24의 증거:** 앱이 직접 만드는 기록이 아니라 ALEPH가 봉인하는 `t04_day` 영수증 정확히 2건(`server_created_at`의 KST 날짜가 서로 다름)과 앱에 **보존된 일별 저장값·화면값**을 대조한다. 영수증을 언제·어떻게 받는지(제출 양식의 '선택 과정 기록 남기기'와 관련 있어 보이나 확인 못함)는 사용자가 확인해야 한다. 따라서 일별 저장값은 다른 브라우저에서 심사해도 보여야 하므로 브라우저 localStorage만으로는 부족하다.
 - **결정(2026-11-23):** 추적 값은 대전 Open-Meteo 날씨로 한다.
-- **일별 기록 구현(2026-11-23, 푸시·실행 전):** 저장은 Worker KV가 아니라 GitHub Actions로 정했다. `scripts/t04_daily_record.mjs`가 Open-Meteo 대전 현재 기온 1건을 조회해 `{reading(아홉 필드), raw(응답 원본)}`을 `static-web/data/t04/daily.json`에 KST 날짜 키로 갱신·추가한다(조회 실패·형식 오류 시 파일 불변, 임시 파일 후 교체). `.github/workflows/t04-daily-record.yml`이 매일 03:10 UTC(12:10 KST)와 수동 실행으로 돌려 커밋한다. 테스트 `scripts/t04_daily_record.test.mjs` 1건 통과, 실제 API 1회 시험 성공(저장소 파일에는 쓰지 않음). 아직 푸시하지 않았으므로 워크플로는 돌지 않았고 `daily.json`은 없다. 화면 표시(C04~C10)와 fixture 재생(C12~C19)은 미구현이다.
+- **일별 기록 구현(2026-11-23, 푸시·실행 전):** 저장은 Worker KV가 아니라 GitHub Actions로 정했다. `scripts/t04_daily_record.mjs`가 Open-Meteo 대전 현재 기온 1건을 조회해 `{reading(아홉 필드), raw(응답 원본)}`을 `static-web/data/t04/daily.json`에 KST 날짜 키로 갱신·추가한다(조회 실패·형식 오류 시 파일 불변, 임시 파일 후 교체). `.github/workflows/t04-daily-record.yml`이 매일 03:10 UTC(12:10 KST)와 수동 실행으로 돌려 커밋한다. 테스트 `scripts/t04_daily_record.test.mjs` 1건 통과, 실제 API 1회 시험 성공(저장소 파일에는 쓰지 않음). 당시에는 푸시 전이라 워크플로가 돌지 않았고 `daily.json`이 없었다(현재는 위 현재 상태 요약 참고). 화면 표시(C04~C10)와 fixture 재생(C12~C19)은 이 항목 시점에는 미구현이었고 바로 아래 항목에서 구현했다.
 - **T04 화면·재생 구현(2026-11-23, 푸시 전):** 기존 웹에 탭 '오늘의 정보판'(`data-tab="t04"`, 공개 주소 `…/#t04`)을 추가했다. 새 파일 `static_src/t04-core.js`(참조 어댑터를 옮긴 순수 로직, `T04Core`), `t04-board.js`, `t04-board.css`와 `index.html`의 탭·로드 줄만 바꿨고 `app.js`는 그대로다. 탭은 ① 실제 기록(`data/t04/daily.json`: 값·단위·출처·출처 시각·조회 시각·KST·전일 대비·원본/저장/화면 3자 대조, 이틀 이상 지나면 안내)과 ② 합성 재생(fixture 9종, 실패 5유형 별도 상태·마지막 정상값 보존·다시 시도·복구, 메모리 상태만 사용)으로 나뉜다. `scripts/build_static_web.py`가 외부 공개 패키지(`data/external/t04_assets/extracted/…`, gitignore)의 17개 해시를 검증해 12개를 `static-web/data/t04/`로 복사하며 `daily.json`은 건드리지 않는다. 검증: `node --test scripts/t04_core.test.mjs scripts/t04_daily_record.test.mjs` 20건 통과, 임시 폴더 빌드와 로컬 정적 서버에서 브라우저로 확인(탭 진입, 실제 기록 3자 일치 11.1°C, 정상·실패(429)·다시 시도로 stale/rate_limit 행 1 → fresh/none 행 2·2026-08-25·120·+15 전이). 독립 검토(Reviewer)의 심각도 1 지적은 없었고, 2 지적(쓰기 전 검증 통일, push 재시도, 자동 재생 실패 시 상태 초기화, 포커스·라이브 영역, 오래됨 안내)은 반영했다.
   - **미확인·남은 것:** 이 수정 뒤 브라우저 확인은 합성 영역 위주이며 좁은 화면·스크린리더·`daily.json` 오래됨 안내는 직접 보지 않았다. 워크플로(`.github/workflows/t04-daily-record.yml`)는 GitHub에서 한 번도 실행하지 않았고, `daily.json`은 아직 없다. **`t04_daily_record.mjs`가 `../static_src/t04-core.js`를 불러오므로 워크플로만 먼저 푸시하면 Actions가 실패한다. `static_src/t04-core.js`(와 스크립트·워크플로)를 함께 올려야 한다.** C22~C24 실제 2일 증거, 공개 URL·소스 commit(C01·C02·C29~C35), 글(C27·C28), Kakao JS 키 폐기는 그대로 남았다. 모델 패리티 전체 검증(`validate_static_web.py`)은 돌리지 않았다.
 - **Pages 배포 준비(2026-11-23, 푸시 전):** `static-web/`을 `.venv/Scripts/python.exe scripts/build_static_web.py`로 재빌드해 적용했다(적용 전 백업: `outputs/backup_before_rebuild_t04_static/`, gitignore 대상. 바뀐 것은 `index.html`과 새 파일 15개뿐이고 `validate_static_web.py` 전체 검증 통과: 14,296행 오차 0, 66개 추천 일치, 하위 경로 URL 확인). `.github/workflows/pages.yml`은 `static-web/`을 Actions 방식으로 배포하고(push 경로 `static-web/**`, 수동 실행, `workflow_call`), `t04-daily-record.yml`은 기록·커밋 뒤 같은 실행에서 `pages.yml`을 호출한다(`GITHUB_TOKEN` 푸시는 다른 워크플로를 깨우지 않기 때문). 액션 버전(checkout v7.0.1, setup-node v7.1.0, configure-pages v6.0.0, upload-pages-artifact v5.0.0, deploy-pages v5.0.1)은 Implementer가 공식 릴리스를 확인했다고 보고했고 root는 확인하지 못했다. 둘 다 GitHub에서 실행해 본 적 없다. **사용자가 할 설정:** 저장소 Settings → Pages → Source를 'GitHub Actions'로, 정책이 막으면 Settings → Actions → General의 쓰기 권한. `.gitignore`에 `outputs/map-proxy-qa/`(자동화 스크립트·탭 정보), `.env.*`, `.dev.vars`, `.wrangler/`, `node_modules/`, `artifacts/`, `*.pem`, `*.key`를 추가했다.

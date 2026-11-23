@@ -51,85 +51,353 @@
     return `${c.direction === 'increase' ? '+' : '−'}${num(c.magnitude, digits)} ${c.unit}`;
   }
 
-  /* ───────── ① 실제 기록 ───────── */
-  async function renderReal() {
-    const box = $('t04Real');
-    box.textContent = '';
-    let rows;
+  /* ───────── ① 운행일 총 승하차(실제 기록) ───────── */
+  const fmt = (n) => Number(n).toLocaleString('ko-KR');
+  const nowIso = () => new Date().toISOString();
+  const KIND_NOTE = '이 화면의 기록 파일 조회 실패입니다. 앱 로그인과는 관계없습니다.';
+  let lastGood = null;   // 마지막으로 정상 불러온 {rows, at}. 실패해도 이 값을 계속 보여 준다.
+  let loadError = null;  // 마지막 조회가 실패했다면 오류 유형(ERROR_INFO 키)
+  let daysGood = null;   // 마지막으로 정상 불러온 business_days.json 의 {days, at}
+  let daysError = null;  // business_days.json 조회 실패 유형
+  let baseDate = null;   // 사용자가 고른 기준일(화면 안에서만 유지, null 이면 최근 완성 운행일)
+
+  async function loadDaily() {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
     try {
-      const res = await fetch('data/t04/daily.json', { cache: 'no-store' });
-      if (res.status === 404) rows = [];
-      else if (!res.ok) throw new Error(String(res.status));
-      else {
-        rows = (await res.json()).rows;
-        if (!Array.isArray(rows)) throw new Error('rows');
-        rows.forEach((r) => Core.validateNormalizedReading(r.reading));
-      }
-    } catch (_) {
-      box.appendChild(el('p', 't04-msg t04-msg-err',
-        '기록 파일을 불러오지 못했습니다. 파일로 직접 열었다면 정적 서버로 여세요.'));
-      return;
-    }
-    if (!rows.length) {
-      box.appendChild(el('p', 't04-msg', '아직 실제 기록이 없습니다. 하루 1회 자동 기록 뒤 표시됩니다.'));
-      return;
-    }
-    rows.sort((a, b) => a.reading.record_date.localeCompare(b.reading.record_date));
-    const last = rows[rows.length - 1];
-    const { reading: r, raw } = last;
-    const sameRows = rows.filter((x) => x.reading.signal_id === r.signal_id);
-    const cmp = Core.comparisonFor(sameRows.map((x) => x.reading), r);
-    const age = Math.round((Date.parse(Core.kstDate(new Date().toISOString())) - Date.parse(r.record_date)) / 86400000);
-
-    if (last.hourly && last.target_date) { renderForecast(box, sameRows, last, age); return; }
-    const value = el('p', 't04-bigvalue');
-    const vSpan = el('span', null, String(r.normalized_value)); vSpan.id = 't04ScreenVal';
-    const uSpan = el('span', 't04-unit', r.unit); uSpan.id = 't04ScreenUnit';
-    value.append(vSpan, ' ', uSpan);
-    box.appendChild(value);
-    if (age >= 2) {
-      box.appendChild(el('p', 't04-msg t04-msg-warn', `마지막 기록이 ${age}일 전입니다. 자동 기록이 멈췄을 수 있습니다.`));
-    }
-    box.appendChild(el('p', 't04-note', '마지막 조회 값입니다. 같은 날 다시 조회하면 값이 바뀔 수 있고, 그것이 정상입니다.'));
-
-    box.appendChild(table([
-      ['출처', r.source_name],
-      ['출처 URL', link(r.source_url)],
-      ['출처 시각(source_time)', r.source_time ? `${r.source_time} (${toKst(r.source_time)})` : '원천이 시각을 주지 않음'],
-      ['조회 시각(fetched_at)', `${r.fetched_at} (UTC) = ${toKst(r.fetched_at)}`],
-      ['기준 시간대', r.record_timezone],
-      ['기록 날짜(record_date)', r.record_date],
-      ['전일 대비', cmpText(cmp, 1)]
-    ]));
-
-    // 3자 대조: 화면값은 위에서 그린 DOM 숫자를 다시 읽는다.
-    const rawVal = raw?.current?.temperature_2m;
-    const rawUnit = raw?.current_units?.temperature_2m;
-    const screenVal = parseFloat(vSpan.textContent);
-    const screenUnit = uSpan.textContent;
-    const same = rawVal === r.normalized_value && screenVal === r.normalized_value &&
-      rawUnit === r.unit && screenUnit === r.unit;
-    const t = el('table', 't04-table t04-three');
-    t.appendChild(el('caption', null, '값 대조(원본 · 저장값 · 화면값)'));
-    const head = el('thead'); const hr = el('tr');
-    ['원본(raw.current.temperature_2m, raw.current_units.temperature_2m)',
-      '저장값(reading.normalized_value, unit)', '화면값(DOM에 그려진 숫자를 다시 읽은 값)']
-      .forEach((h) => hr.appendChild(el('th', null, h)).scope = 'col');
-    head.appendChild(hr); t.appendChild(head);
-    const tb = el('tbody'); const tr = el('tr');
-    [`${rawVal} ${rawUnit}`, `${r.normalized_value} ${r.unit}`, `${screenVal} ${screenUnit}`]
-      .forEach((v) => tr.appendChild(el('td', null, v)));
-    tb.appendChild(tr); t.appendChild(tb);
-    const wrap = el('div', 't04-scroll'); wrap.tabIndex = 0; wrap.setAttribute('role', 'region');
-    wrap.setAttribute('aria-label', '값 대조 표'); wrap.appendChild(t);
-    box.appendChild(wrap);
-    box.appendChild(el('p', `t04-verdict ${same ? 't04-ok' : 't04-bad'}`, `세 값 ${same ? '일치' : '불일치'}`));
-    box.appendChild(el('p', 't04-msg', '이 기록에는 시간별 예보가 없습니다.'));
+      const res = await fetch('data/t04/daily.json', { cache: 'no-store', signal: controller.signal });
+      if (res.status === 404) return [];
+      if (!res.ok) throw Object.assign(new Error(`http_${res.status}`), { status: res.status });
+      let rows;
+      try { rows = (await res.json()).rows; } catch (e) { throw Object.assign(e, { status: 200 }); }
+      // 형식이 틀린 파일은 네트워크 오류(offline)가 아니라 schema_error 로 분류되도록 status 를 붙인다.
+      if (!Array.isArray(rows)) throw Object.assign(new Error('rows'), { status: 200 });
+      try { rows.forEach((r) => Core.validateNormalizedReading(r.reading)); } catch (e) { throw Object.assign(e, { status: 200 }); }
+      return rows;
+    } finally { clearTimeout(timer); }
   }
 
-  const ITEMS = [['temperature_2m', '기온'], ['precipitation', '강수'], ['snowfall', '적설']];
-  const r2 = (x) => +Number(x).toFixed(2);
-  const arrow = (d) => (d > 0 ? `▲ +${r2(d)}` : d < 0 ? `▼ −${r2(-d)}` : '＝ 0');
+  // 운행일별 총 승하차 + 날씨(고정 형식). 404 는 '자료 없음'(빈 목록)으로 취급한다.
+  async function loadBusinessDays() {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    try {
+      const res = await fetch('data/t04/business_days.json', { cache: 'no-store', signal: controller.signal });
+      if (res.status === 404) return [];
+      if (!res.ok) throw Object.assign(new Error(`http_${res.status}`), { status: res.status });
+      let days;
+      try { days = Core.validateBusinessDays(await res.json()); } catch (e) { throw Object.assign(e, { status: 200 }); }
+      return days;
+    } finally { clearTimeout(timer); }
+  }
+
+  async function refreshReal() {
+    const box = $('t04Real');
+    box.setAttribute('aria-busy', 'true');
+    const [daily, bdays] = await Promise.allSettled([loadDaily(), loadBusinessDays()]);
+    if (daily.status === 'fulfilled') { lastGood = { rows: daily.value, at: nowIso() }; loadError = null; }
+    else loadError = Core.classifyLoadError(daily.reason);
+    if (bdays.status === 'fulfilled') { daysGood = { days: bdays.value, at: nowIso() }; daysError = null; }
+    else daysError = Core.classifyLoadError(bdays.reason);
+    drawReal();
+    box.removeAttribute('aria-busy');
+  }
+
+  function drawReal() {
+    const box = $('t04Real');
+    box.textContent = '';
+    if (loadError) {
+      const info = Core.ERROR_INFO[loadError];
+      const e = el('div', 't04-errbox');
+      e.appendChild(el('h3', null, `기록 조회 실패: ${info.label} (${loadError})`));
+      e.appendChild(el('p', null, `원인: ${info.cause}`));
+      e.appendChild(el('p', null, `조치: ${info.action}`));
+      e.appendChild(el('p', 't04-note', KIND_NOTE));
+      if (lastGood) {
+        e.appendChild(el('p', 't04-stale', `오래된 값(stale): 아래는 ${toKst(lastGood.at)}에 마지막으로 정상 조회한 기록입니다.`));
+      } else {
+        e.appendChild(el('p', 't04-stale', '정상 조회한 기록이 아직 없어 보여 줄 값이 없습니다. 파일로 직접 열었다면 정적 서버로 여세요.'));
+      }
+      const b = el('button', 't04-btn t04-btn-primary', '다시 시도');
+      b.type = 'button';
+      b.addEventListener('click', refreshReal);
+      e.appendChild(b);
+      box.appendChild(e);
+    }
+    if (lastGood) drawBoard(box, lastGood.rows);
+    else box.appendChild(trendSection());
+  }
+
+  /* ───────── 기준일 선택 + 최근 7일 선 그래프(순수 SVG) ───────── */
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  function svg(tag, attrs, text) {
+    const e = document.createElementNS(SVG_NS, tag);
+    for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, String(v));
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  const currentBase = () => baseDate || Core.latestCompleteDay(nowIso());
+  const dayDetail = (p) => (p.state === 'recorded'
+    ? `${p.date} (${p.weekday}) 승하차 ${fmt(p.value)}명 · 날씨 ${Core.weatherText(p.weather)}`
+    : `${p.date} (${p.weekday}) ${p.label} · ${p.state === 'pending' ? '아직 집계 전(오류 아님)' : '집계 완료일이지만 이 파일에 값이 없음'}`);
+
+  // 그래프를 그려 반환한다. detail 은 포커스·호버 때 상세를 보여 줄 요소.
+  function drawChart(series, detail) {
+    const L = Core.chartLayout(series);
+    const H = L.bottom + 96;
+    const root = svg('svg', { class: 't04-chart', viewBox: `0 0 ${L.width} ${H}`, role: 'img', 'aria-label': Core.trendSummary(series), preserveAspectRatio: 'xMidYMid meet' });
+    root.appendChild(svg('title', {}, '기준일을 포함한 최근 7일 승하차 인원 선 그래프'));
+    // 세로축: 눈금선과 값
+    for (const t of L.yTicks) {
+      root.appendChild(svg('line', { class: 't04-grid-line', x1: L.left, x2: L.width - L.right, y1: t.y, y2: t.y }));
+      root.appendChild(svg('text', { class: 't04-axis-text', x: L.left - 6, y: t.y + 4, 'text-anchor': 'end' }, fmt(t.value)));
+    }
+    root.appendChild(svg('text', { class: 't04-axis-text', x: 4, y: 14 }, '승하차 인원(명)'));
+    root.appendChild(svg('line', { class: 't04-axis-line', x1: L.left, x2: L.width - L.right, y1: L.bottom, y2: L.bottom }));
+    // 선: 값이 이어지는 구간만. 미집계·자료 없는 날에서 끊는다.
+    for (const d of L.paths) root.appendChild(svg('path', { class: 't04-line', d, fill: 'none' }));
+    // 가로축 라벨, 미집계 표시, 날씨 띠
+    const bandY = L.bottom + 40;
+    root.appendChild(svg('rect', { class: 't04-weather-band', x: L.left, y: bandY, width: L.plotW, height: 52 }));
+    root.appendChild(svg('text', { class: 't04-axis-text', x: 4, y: bandY + 20 }, '날씨'));
+    for (const p of L.points) {
+      root.appendChild(svg('text', { class: 't04-axis-text t04-tick-date', x: p.x, y: L.bottom + 16, 'text-anchor': 'middle' }, p.mmdd));
+      root.appendChild(svg('text', { class: 't04-axis-text', x: p.x, y: L.bottom + 31, 'text-anchor': 'middle' }, `(${p.weekday})`));
+      const lines = Core.weatherLines(p.weather);
+      const wt = svg('text', { class: `t04-weather-text${p.weather ? '' : ' t04-weather-none'}`, x: p.x, y: bandY + (lines.length > 1 ? 20 : 30), 'text-anchor': 'middle' });
+      lines.forEach((ln, i) => wt.appendChild(svg('tspan', { x: p.x, dy: i ? 15 : 0 }, ln)));
+      root.appendChild(wt);
+      if (p.state !== 'recorded') {
+        root.appendChild(svg('text', { class: 't04-gap-text', x: p.x, y: L.bottom - 8, 'text-anchor': 'middle' }, p.label));
+      }
+    }
+    // 점(마커)과 값. 포커스·호버 때 상세를 보인다.
+    for (const p of L.points.filter((q) => q.state === 'recorded')) {
+      const g = svg('g', { class: 't04-point', tabindex: 0, role: 'img', 'aria-label': dayDetail(p) });
+      g.appendChild(svg('circle', { class: 't04-hit', cx: p.x, cy: p.y, r: 14 }));
+      g.appendChild(svg('circle', { class: 't04-dot', cx: p.x, cy: p.y, r: 5 }));
+      g.appendChild(svg('text', { class: 't04-value-text', x: p.x, y: p.y - 11, 'text-anchor': 'middle' }, fmt(p.value)));
+      const show = () => { detail.textContent = dayDetail(p); };
+      g.addEventListener('focus', show); g.addEventListener('mouseenter', show);
+      root.appendChild(g);
+    }
+    return root;
+  }
+
+  function trendTable(series) {
+    const t = el('table', 't04-table t04-days');
+    t.appendChild(el('caption', null, '기준일을 포함한 최근 7일 운행일별 총 승하차와 날씨(그래프와 같은 값)'));
+    const hr = el('tr');
+    ['운행일', '요일', '총 승하차', '날씨'].forEach((h) => { hr.appendChild(el('th', null, h)).scope = 'col'; });
+    t.appendChild(el('thead')).appendChild(hr);
+    const tb = el('tbody');
+    for (const p of series) {
+      const tr = el('tr', `t04-day-${p.state}`);
+      tr.appendChild(el('th', null, p.date)).scope = 'row';
+      tr.appendChild(el('td', null, p.weekday));
+      const td = el('td');
+      if (p.state === 'recorded') td.textContent = `${fmt(p.value)} 명`;
+      else if (p.state === 'pending') td.append(pendingBadge(), ' 데이터 공개 전');
+      else td.appendChild(el('span', 't04-none', '자료 없음'));
+      tr.appendChild(td);
+      tr.appendChild(el('td', null, p.state === 'recorded' ? Core.weatherText(p.weather) : '—'));
+      tb.appendChild(tr);
+    }
+    t.appendChild(tb);
+    return scrollWrap(t, '최근 7일 표');
+  }
+
+  function trendSection() {
+    const sec = el('div', 't04-trend');
+    sec.id = 't04Trend';
+    sec.appendChild(el('h3', null, '기준일 선택 · 최근 7일 승하차'));
+    if (daysError) {
+      const info = Core.ERROR_INFO[daysError];
+      const e = el('div', 't04-errbox');
+      e.appendChild(el('h3', null, `일별 자료 조회 실패: ${info.label} (${daysError})`));
+      e.appendChild(el('p', null, `원인: ${info.cause}`));
+      e.appendChild(el('p', null, `조치: ${info.action}`));
+      e.appendChild(el('p', 't04-note', KIND_NOTE));
+      e.appendChild(el('p', 't04-stale', daysGood
+        ? `오래된 값(stale): 아래는 ${toKst(daysGood.at)}에 마지막으로 정상 조회한 자료입니다.`
+        : '정상 조회한 일별 자료가 아직 없어 보여 줄 값이 없습니다.'));
+      const b = el('button', 't04-btn t04-btn-primary', '다시 시도');
+      b.type = 'button'; b.addEventListener('click', refreshReal);
+      e.appendChild(b);
+      sec.appendChild(e);
+    }
+    const days = daysGood ? daysGood.days : [];
+    if (!days.length) {
+      if (!daysError) sec.appendChild(el('p', 't04-msg', '자료 없음: 운행일별 승하차·날씨 자료가 아직 없습니다. 자료가 쌓이면 여기에 그래프가 표시됩니다.'));
+      return sec;
+    }
+
+    const controls = el('div', 't04-controls t04-datepick');
+    const prev = el('button', 't04-btn', '◀ 이전 날');
+    const next = el('button', 't04-btn', '다음 날 ▶');
+    prev.type = 'button'; next.type = 'button';
+    const label = el('label', 't04-sel');
+    label.appendChild(el('span', null, '기준일 '));
+    const input = el('input'); input.type = 'date'; input.id = 't04BaseDate';
+    input.min = days[0].business_day; // max 는 두지 않는다: 미집계 날짜도 고를 수 있다
+    label.appendChild(input);
+    controls.append(prev, label, next);
+    sec.appendChild(controls);
+    sec.appendChild(el('p', 't04-note', '기준일을 포함한 7일의 그래프와 표만 바뀝니다. 위의 대표값·전일 대비·원본 대조는 그대로입니다. 최근 완성 운행일 이후 날짜는 “미집계”로 보입니다.'));
+
+    const out = el('div', 't04-trend-out');
+    sec.appendChild(out);
+    const redraw = () => {
+      const series = Core.trendSeries(days, currentBase(), nowIso());
+      out.textContent = '';
+      input.value = currentBase();
+      prev.disabled = currentBase() <= input.min;
+      const detail = el('p', 't04-detail', '점에 마우스를 올리거나 Tab 으로 이동하면 날짜·인원·날씨가 여기에 표시됩니다.');
+      detail.setAttribute('role', 'status');
+      const wrap = el('div', 't04-chart-scroll');
+      wrap.appendChild(drawChart(series, detail));
+      out.append(wrap, detail, trendTable(series));
+      out.appendChild(el('p', 't04-note',
+        '날씨는 운행일 05~23시 합입니다. 비는 눈이 오지 않은 시각의 강수(mm), 눈은 적설량(cm)입니다. 끊긴 선은 그 날 값이 없다는 뜻입니다(보간하지 않음). 요일에 따라 값이 크게 다릅니다.'));
+    };
+    const set = (v) => { const d = Core.parseDateInput(v); if (d) { baseDate = d; redraw(); } };
+    input.addEventListener('change', () => set(input.value));
+    prev.addEventListener('click', () => set(Core.addDaysStr(currentBase(), -1)));
+    next.addEventListener('click', () => set(Core.addDaysStr(currentBase(), 1)));
+    redraw();
+    return sec;
+  }
+
+  function pendingBadge() {
+    const s = el('span', 't04-pending', '미집계');
+    s.title = '정상 상태: 데이터가 아직 공개되기 전입니다. 오류가 아닙니다.';
+    return s;
+  }
+
+  function drawBoard(box, rows) {
+    const now = nowIso();
+    const list = Core.businessRows(rows);
+    const last = list[list.length - 1];
+
+    // ── 대표값
+    if (!last) {
+      box.appendChild(el('p', 't04-msg', '기록 없음: 아직 저장된 운행일 총 승하차 기록이 없습니다. 기록이 쌓이면 여기에 표시됩니다.'));
+    } else {
+      const r = last.reading;
+      box.appendChild(el('p', 't04-note', `운행일 ${last.business_day} (${Core.weekdayKo(last.business_day)}) 총 승하차 합계`));
+      const value = el('p', 't04-bigvalue');
+      const vSpan = el('span', null, fmt(r.normalized_value)); vSpan.id = 't04ScreenVal';
+      const uSpan = el('span', 't04-unit', r.unit); uSpan.id = 't04ScreenUnit';
+      value.append(vSpan, ' ', uSpan);
+      box.appendChild(value);
+      box.appendChild(el('p', 't04-note',
+        '합계 = 승차+하차, 모든 권종·모든 역. 운행일 05~23시 + 다음 날 00시(운행일 자신의 00시는 제외). 실측 집계입니다.'));
+      box.appendChild(table([
+        ['출처', r.source_name],
+        ['운행일(출처 시각)', `${last.business_day} (${Core.weekdayKo(last.business_day)}) · 자료 마지막 시각 ${r.source_time ? toKst(r.source_time) : '원천이 시각을 주지 않음'}`],
+        ['조회 시각(fetched_at)', `${r.fetched_at} (UTC) = ${toKst(r.fetched_at)}`],
+        ['기준 시간대', r.record_timezone],
+        ['조회 날짜(record_date)', r.record_date],
+        ['출처 URL(키 없음)', link(r.source_url)]
+      ]));
+    }
+
+    // ── 기준일 + 최근 7일 그래프·표
+    box.appendChild(trendSection());
+
+    // ── 전일 대비
+    box.appendChild(el('h3', null, '전일 대비 변화'));
+    const c = Core.dayOverDay(rows);
+    if (c.state === 'no_previous') {
+      box.appendChild(el('p', 't04-msg', '비교할 이전 기록 없음(저장된 운행일이 2일 이상 쌓이면 표시됩니다).'));
+    } else if (c.state === 'unit_mismatch') {
+      box.appendChild(el('p', 't04-msg', '단위가 달라 비교하지 않음'));
+    } else {
+      const sign = c.delta > 0 ? '+' : c.delta < 0 ? '−' : '';
+      const rowsCmp = [
+        ['변화', c.delta === 0 ? '0 명 (변화 없음)' : `${sign}${fmt(Math.abs(c.delta))} ${c.unit} (${c.direction === 'increase' ? '증가' : '감소'})`],
+        ['계산식', `${fmt(c.last.value)} − ${fmt(c.prev.value)} = ${c.delta < 0 ? '−' : ''}${fmt(Math.abs(c.delta))}`],
+        ['입력값 1(이전)', `${c.prev.business_day} (${c.prev.weekday}) ${fmt(c.prev.value)} ${c.unit}`],
+        ['입력값 2(최근)', `${c.last.business_day} (${c.last.weekday}) ${fmt(c.last.value)} ${c.unit}`]
+      ];
+      if (!c.consecutive) rowsCmp.push(['일수 차이', `연속된 운행일이 아닙니다: ${c.days_apart}일 차이`]);
+      if (c.prev.weekday !== c.last.weekday) rowsCmp.push(['요일 주의', `${c.prev.weekday}요일과 ${c.last.weekday}요일을 비교합니다. 요일 효과가 클 수 있습니다.`]);
+      box.appendChild(table(rowsCmp));
+    }
+
+    if (!last) return;
+
+    // ── 시간별·역별(접이식)
+    const hourDet = el('details', 't04-details');
+    hourDet.appendChild(el('summary', null, '시간별 합계 (5시~24시)'));
+    const hourRows = Core.BUSINESS_HOUR_KEYS.map((k) => [k === '24' ? '24시 (익일 00시)' : `${k}시`, fmt(last.hourly?.[k] ?? 0)]);
+    hourRows.push(['합계', fmt(Core.BUSINESS_HOUR_KEYS.reduce((a, k) => a + (last.hourly?.[k] ?? 0), 0))]);
+    hourDet.appendChild(scrollWrap(gridTable(`${last.business_day} 시간별 승하차(명)`, ['시각', '승하차(명)'], hourRows), '시간별 합계 표'));
+    box.appendChild(hourDet);
+
+    const stDet = el('details', 't04-details');
+    stDet.appendChild(el('summary', null, '역별 합계'));
+    const stEntries = Object.entries(last.stations || {}).sort(([x], [y]) => x.localeCompare(y));
+    const stRows = stEntries.map(([no, v]) => [Core.stationLabel(no), fmt(v.boardings), fmt(v.alightings), fmt(v.boardings + v.alightings)]);
+    stRows.push(['합계', fmt(stEntries.reduce((a, [, v]) => a + v.boardings, 0)), fmt(stEntries.reduce((a, [, v]) => a + v.alightings, 0)),
+      fmt(stEntries.reduce((a, [, v]) => a + v.boardings + v.alightings, 0))]);
+    stDet.appendChild(scrollWrap(gridTable(`${last.business_day} 역별(역번호·역 이름)`, ['역', '승차', '하차', '합계'], stRows), '역별 합계 표'));
+    box.appendChild(stDet);
+
+    // ── 원본 XML 링크와 대조
+    const rawBox = el('div', 't04-rawbox');
+    rawBox.appendChild(el('h3', null, '원본 XML과 값 대조'));
+    const refs = Array.isArray(last.raw_xml) ? last.raw_xml.filter((x) => /^data\/t04\/raw\/\d{4}-\d{2}-\d{2}\.xml$/.test(x)) : [];
+    const ul = el('ul', 't04-rawlinks');
+    refs.forEach((ref) => {
+      const li = el('li'); const a = el('a', null, ref);
+      a.href = ref; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      li.appendChild(a); ul.appendChild(li);
+    });
+    rawBox.appendChild(refs.length ? ul : el('p', 't04-msg', '이 기록에는 원본 XML 경로가 없습니다.'));
+    const status = el('p', 't04-note', '원본 XML을 불러와 다시 계산하는 중…');
+    rawBox.appendChild(status);
+    box.appendChild(rawBox);
+    verify(rawBox, status, last, refs);
+  }
+
+  async function verify(rawBox, status, row, refs) {
+    const r = row.reading;
+    let sums = null;
+    let why = '';
+    try {
+      if (refs.length !== 2) throw new Error('raw_xml');
+      const texts = [];
+      for (const ref of refs) {
+        const res = await fetch(ref, { cache: 'no-store' });
+        if (!res.ok) throw new Error(String(res.status));
+        texts.push(await res.text());
+      }
+      sums = Core.sumBusinessDayXml(texts[0], texts[1], row.business_day);
+      if (!sums) why = '원본 XML이 비어 있어 계산할 수 없습니다.';
+    } catch (_) { why = '원본 XML을 불러오거나 해석하지 못해 대조할 수 없습니다(불일치와는 다릅니다).'; }
+    if (!rawBox.isConnected) return;
+    const screenVal = Number($('t04ScreenVal')?.textContent.replace(/,/g, ''));
+    const screenUnit = $('t04ScreenUnit')?.textContent;
+    const rawText = sums ? `${fmt(sums.total)} 명` : '대조 불가';
+    const t = el('table', 't04-table t04-three');
+    t.appendChild(el('caption', null, '값 대조(원본 · 저장값 · 화면값)'));
+    const hr = el('tr');
+    ['원본(XML을 다시 계산)', '저장값(reading.normalized_value, unit)', '화면값(DOM에 그려진 숫자를 다시 읽은 값)']
+      .forEach((h) => hr.appendChild(el('th', null, h)).scope = 'col');
+    t.appendChild(el('thead')).appendChild(hr);
+    const tr = el('tr');
+    [rawText, `${fmt(r.normalized_value)} ${r.unit}`, `${fmt(screenVal)} ${screenUnit}`].forEach((v) => tr.appendChild(el('td', null, v)));
+    t.appendChild(el('tbody')).appendChild(tr);
+    status.replaceWith(scrollWrap(t, '값 대조 표'));
+    if (!sums) { rawBox.appendChild(el('p', 't04-msg', why)); return; }
+    const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+    const totalSame = sums.total === r.normalized_value && screenVal === r.normalized_value && screenUnit === r.unit;
+    const partsSame = same(sums.hourly, row.hourly) && same(sums.stations, row.stations);
+    rawBox.appendChild(el('p', `t04-verdict ${totalSame ? 't04-ok' : 't04-bad'}`, `합계 대조: 세 값 ${totalSame ? '일치' : '불일치'}`));
+    rawBox.appendChild(el('p', `t04-verdict ${partsSame ? 't04-ok' : 't04-bad'}`, `시간별·역별 저장값과 원본 재계산 대조: ${partsSame ? '일치' : '불일치'}`));
+  }
+
   function scrollWrap(t, label) {
     const w = el('div', 't04-scroll'); w.tabIndex = 0; w.setAttribute('role', 'region');
     w.setAttribute('aria-label', label); w.appendChild(t); return w;
@@ -154,95 +422,7 @@
     return t;
   }
 
-  const REASON = {
-    no_previous: '비교할 이전 날짜 없음(기록 2일째부터 표시)',
-    unit_mismatch: '단위가 달라 비교하지 않음',
-    incomplete: '시간별 값이 24칸이 아니거나 비어 있어 비교하지 않음'
-  };
-
-  function renderCompare(box, sameRows, last, u, hh) {
-    box.appendChild(el('h3', null, '전일 예보와 24시간 비교'));
-    if (typeof Core.compareHourly !== 'function' || typeof Core.previousRow !== 'function') {
-      box.appendChild(el('p', 't04-msg t04-msg-err', '비교 기능을 불러오지 못했습니다.'));
-      return;
-    }
-    const prev = Core.previousRow(sameRows, last);
-    const c = prev ? Core.compareHourly(prev, last) : { comparable: false, reason: 'no_previous' };
-    if (!c.comparable) {
-      box.appendChild(el('p', 't04-msg', REASON[c.reason] || '비교할 수 없음'));
-      return;
-    }
-    box.appendChild(el('p', 't04-note',
-      `비교 대상: 이전 예보(조회 ${prev.reading.record_date}, 대상일 ${prev.target_date})와 이번 예보(대상일 ${last.target_date})`));
-    const s = c.summary;
-    const tu = u('temperature_2m');
-    box.appendChild(table([
-      ['평균 기온 차이(시간별 차이의 평균)', `${arrow(s.mean_delta)} ${tu}`],
-      ['저장한 대표값(소수 첫째 자리) 차이', `${arrow(+(last.reading.normalized_value - prev.reading.normalized_value).toFixed(1))} ${tu} (${prev.reading.normalized_value} → ${last.reading.normalized_value})`],
-      ['가장 크게 달라진 시각', `${hh(s.hour_of_max_abs)} (기온 차이 ${arrow(c.hours[s.hour_of_max_abs]?.delta?.temperature_2m ?? 0)} ${tu})`]
-    ]));
-    for (const [k, n] of ITEMS) {
-      box.appendChild(scrollWrap(gridTable(`${n} 비교(${u(k)})`, ['시각', '이전 예보', '이번 예보', '차이'],
-        c.hours.map((x) => [hh(x.hour), x.prev[k], x.curr[k], arrow(x.delta[k])])), `${n} 비교 표`));
-    }
-  }
-
-  function renderForecast(box, sameRows, last, age) {
-    const { reading: r, raw, hourly: h, target_date: td } = last;
-    const u = (k) => (last.hourly_units || {})[k] || '';
-    const hh = (i) => `${String(i).padStart(2, '0')}시`;
-
-    const value = el('p', 't04-bigvalue');
-    const vSpan = el('span', null, String(r.normalized_value)); vSpan.id = 't04ScreenVal';
-    const uSpan = el('span', 't04-unit', r.unit); uSpan.id = 't04ScreenUnit';
-    value.append(vSpan, ' ', uSpan);
-    box.appendChild(el('p', 't04-note', '대상일 24시간 평균 기온(예보)'));
-    box.appendChild(value);
-    if (age >= 2) box.appendChild(el('p', 't04-msg t04-msg-warn', `마지막 기록이 ${age}일 전입니다. 자동 기록이 멈췄을 수 있습니다.`));
-    box.appendChild(el('p', 't04-note',
-      `예보 대상일은 ${td}이고, 조회한 날(${r.record_date})과 다릅니다. 같은 날 다시 조회하면 예보 값이 바뀔 수 있고, 그것이 정상입니다.`));
-    box.appendChild(table([
-      ['예보 대상일(target_date)', td],
-      ['출처', r.source_name],
-      ['출처 URL', link(r.source_url)],
-      ['예보 기준 시각(대상일 00:00 KST)', r.source_time ? `${r.source_time} (${toKst(r.source_time)})` : '원천이 시각을 주지 않음'],
-      ['조회 시각(fetched_at)', `${r.fetched_at} (UTC) = ${toKst(r.fetched_at)}`],
-      ['기준 시간대', r.record_timezone],
-      ['조회 날짜(record_date)', r.record_date]
-    ]));
-
-    box.appendChild(el('h3', null, `${td} 24시간 예보`));
-    box.appendChild(scrollWrap(gridTable(`${td} 시간별 예보`,
-      ['시각', ...ITEMS.map(([k, n]) => `${n}(${u(k)})`)],
-      Array.from({ length: 24 }, (_, i) => [hh(i), ...ITEMS.map(([k]) => (h[k] ? h[k][i] : '—'))])), '24시간 예보 표'));
-
-    renderCompare(box, sameRows, last, u, hh);
-
-    // 3자 대조: 화면 평균은 위에 그린 DOM 숫자를 다시 읽는다.
-    const rt = raw?.hourly?.time || [];
-    const idx = rt.map((t, i) => (String(t).startsWith(td) ? i : -1)).filter((i) => i >= 0);
-    const rawCol = (k) => idx.map((i) => raw.hourly[k]?.[i]);
-    const have24 = idx.length === 24;
-    const rawMean = have24 ? rawCol('temperature_2m').reduce((a, b) => a + b, 0) / 24 : NaN;
-    const screenVal = parseFloat(vSpan.textContent);
-    const screenUnit = uSpan.textContent;
-    const cellsSame = have24 && ITEMS.every(([k]) => Array.isArray(h[k]) && h[k].length === 24 &&
-      rawCol(k).every((v, i) => v === h[k][i]));
-    const canRound = typeof Core.roundToTenth === 'function';
-    const rounded = have24 && canRound ? Core.roundToTenth(rawMean) : null;
-    const meanSame = have24 && canRound && rounded === r.normalized_value && screenVal === r.normalized_value &&
-      screenUnit === r.unit && raw.hourly_units?.temperature_2m === r.unit;
-    box.appendChild(scrollWrap(gridTable('값 대조(원본 · 저장값 · 화면값)',
-      ['원본(raw.hourly 대상일 24칸 평균)', '저장값(reading.normalized_value, unit)', '화면값(DOM에서 다시 읽은 값)'],
-      [[!have24 ? '대상일 24칸을 찾지 못함' : !canRound ? '반올림 기능을 불러오지 못했습니다'
-          : `${r2(rawMean)} → 소수 첫째 자리 반올림 → ${rounded} ${raw.hourly_units?.temperature_2m ?? ''}`,
-        `${r.normalized_value} ${r.unit}`, `${screenVal} ${screenUnit}`]]), '값 대조 표'));
-    box.appendChild(el('p', `t04-verdict ${meanSame ? 't04-ok' : 't04-bad'}`, canRound ? `평균 대조: ${meanSame ? '일치' : '불일치'}` : '평균 대조: 비교 불가(반올림 기능을 불러오지 못했습니다)'));
-    box.appendChild(el('p', `t04-verdict ${cellsSame ? 't04-ok' : 't04-bad'}`,
-      `저장한 24칸(기온·강수·적설)과 원본 같은 날짜 칸 대조: ${cellsSame ? '일치' : '불일치'}`));
-  }
-
-  /* ───────── ② 합성 재생 ───────── */
+  /* ───────── ② 합성 재생: #t04-lab 일 때만 나타난다. 실제 기록과 별도 메모리 상태를 쓴다. ───────── */
   let state = Core.resetState();   // 메모리 객체만 사용. 저장소·daily.json 쓰기 없음.
   let stage = 0;                   // 순서대로 재생한 정상 fixture 수(0~3)
   let log = [];
@@ -314,6 +494,7 @@
   }
 
   function render() {
+    if (!labMounted) return;
     const d = Core.describe(state);
     const cur = state.current_reading;
     const unit = cur?.unit || '';
@@ -387,7 +568,13 @@
     box.appendChild(log.length ? logBox : el('p', 't04-note', '아직 재생한 단계가 없습니다.'));
   }
 
-  function wire() {
+  let labMounted = false;
+  function mountLab() {
+    const mount = $('t04LabMount');
+    const tpl = $('t04LabTemplate');
+    if (labMounted || !mount || !tpl) return;
+    mount.appendChild(tpl.content.cloneNode(true));
+    labMounted = true;
     $('t04Reset').addEventListener('click', () => manual(async () => reset()));
     $('t04D1A').addEventListener('click', () => manual(() => playStage(1, SHORT.D1A)));
     $('t04D1B').addEventListener('click', () => manual(() => playStage(2, SHORT.D1B)));
@@ -396,21 +583,25 @@
     $('t04AutoOk').addEventListener('click', () => manual(() => auto(Core.FIXTURE_ORDER.success, 3)));
     $('t04AutoFail').addEventListener('click', () => manual(() => auto([...Core.FIXTURE_ORDER.baseline, ...Core.FIXTURE_ORDER.failures], 2)));
     $('t04AutoRec').addEventListener('click', () => manual(() => auto(Core.FIXTURE_ORDER.recovery, 3)));
-    // 라이브 영역은 짧은 요약 한 줄만 둔다. 표·로그는 읽어 주지 않는다.
-    for (const id of ['t04Synth', 't04Real']) { $(id).removeAttribute('role'); $(id).removeAttribute('aria-live'); }
-    const live = el('p', 't04-statusline'); live.id = 't04Live';
-    live.setAttribute('role', 'status'); live.setAttribute('aria-live', 'polite');
-    $('t04Synth').before(live);
     render();
-    renderReal();
   }
-
+  function unmountLab() {
+    if (!labMounted) return;
+    $('t04LabMount').textContent = '';
+    labMounted = false;
+  }
+  function syncLab() {
+    if (Core.isLabHash(location.hash)) mountLab(); else unmountLab();
+  }
   function openFromHash() {
-    if (location.hash === '#t04') document.querySelector('.tab-nav-btn[data-tab="t04"]')?.click();
+    if (location.hash === '#t04' || Core.isLabHash(location.hash)) {
+      document.querySelector('.tab-nav-btn[data-tab="t04"]')?.click();
+    }
+    syncLab();
   }
   function init() {
     if (!$('t04Real')) return;
-    wire();
+    refreshReal();
     openFromHash();
     window.addEventListener('hashchange', openFromHash);
   }

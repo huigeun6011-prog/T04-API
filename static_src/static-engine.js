@@ -70,7 +70,7 @@
       const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? 25000);
       try {
         const response = await fetcher(new URL(path, base).href, {signal: controller.signal});
-        if (!response.ok) throw new Error('자료를 불러오지 못했습니다.');
+        if (!response.ok) throw Object.assign(new Error('자료를 불러오지 못했습니다.'), {status: response.status});
         return await response.json();
       } finally { clearTimeout(timer); }
     }
@@ -82,11 +82,11 @@
     async function loadWeather(day) {
       if (options.weather) {
         const w = await options.weather(day);
-        return w.available !== undefined ? w : {available: true, date: day, source: 'local_archive', cached: false, hourly: w.hourly || w};
+        return w.available !== undefined ? w : {available: true, date: day, source: 'local_archive', cached: false, fetched_at: new Date().toISOString(), hourly: w.hourly || w};
       }
       try {
         const local = await json(`data/weather/${day}.json`);
-        return {available: true, date: day, source: 'local_archive', cached: false, hourly: local.hourly};
+        return {available: true, date: day, source: 'local_archive', cached: false, fetched_at: new Date().toISOString(), hourly: local.hourly};
       } catch (_) { /* A missing archive falls through to the public weather service. */ }
       if (day > addDays(today(), 15)) throw new Error('예보는 오늘부터 15일 후까지 제공됩니다.');
       const task = queue.then(async () => {
@@ -100,10 +100,21 @@
         const indices = raw.time.map((t, i) => t.startsWith(day + 'T') ? i : -1).filter(i => i >= 0);
         if (indices.length !== 24) throw new Error('선택한 날짜의 시간별 날씨가 없습니다.');
         const hourly = Object.fromEntries(['time', 'temperature_2m', 'precipitation', 'snowfall'].map(k => [k, indices.map(i => raw[k][i])]));
-        return {available: true, date: day, source, cached: false, hourly};
+        return {available: true, date: day, source, cached: false, fetched_at: new Date().toISOString(), hourly};
       });
       queue = task.catch(() => {});
       return task;
+    }
+    // 표시용 분류만 한다(추천 계산에는 쓰이지 않음): timeout / auth / rate_limit / offline / schema_error.
+    function weatherErrorKind(e) {
+      const status = e && e.status;
+      if (status === 401 || status === 403) return 'auth';
+      if (status === 429) return 'rate_limit';
+      if (status === 408 || status === 504) return 'timeout';
+      if (typeof status === 'number') return status >= 500 ? 'offline' : 'schema_error';
+      if (e && (e.name === 'AbortError' || e.name === 'TimeoutError')) return 'timeout';
+      if (e instanceof TypeError) return 'offline';
+      return 'schema_error';
     }
     async function fetchWeatherForDate(day, {signal} = {}) {
       check(signal);
@@ -114,7 +125,7 @@
         pending.set(day, loadWeather(day).then(value => {
           if (value.available) cache.set(day, {value, expires: Date.now() + (value.source === 'local_archive' ? Infinity : day < today() ? 7 * 86400000 : 3600000)});
           return value;
-        }).catch(e => ({available: false, date: day, reason: e.message})).finally(() => pending.delete(day)));
+        }).catch(e => ({available: false, date: day, reason: e.message, error_kind: weatherErrorKind(e)})).finally(() => pending.delete(day)));
       }
       return subscribed(pending.get(day), signal);
     }
