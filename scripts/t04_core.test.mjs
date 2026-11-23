@@ -152,6 +152,81 @@ test('C26 replay failures and reset use only synthetic state, independent of the
   assert.deepEqual(liveRows, saved);
 });
 
+function hourlyRow(recordDate, targetDate) {
+  return {
+    reading: {
+      ...mockReading(`${recordDate}T00:00:00Z`, 0),
+      signal_id: 'daejeon-forecast-mean-temp-2m'
+    },
+    target_date: targetDate,
+    hourly_units: { temperature_2m: '°C', precipitation: 'mm', snowfall: 'cm' },
+    hourly: {
+      time: Array.from({ length: 24 }, (_, hour) => `${targetDate}T${String(hour).padStart(2, '0')}:00`),
+      temperature_2m: Array(24).fill(0.2),
+      precipitation: Array(24).fill(0.3),
+      snowfall: Array(24).fill(0.1)
+    }
+  };
+}
+
+test('compareHourly aligns 24 local hours and rounds signed differences and their summary', () => {
+  const earlier = hourlyRow('2026-11-23', '2026-11-24');
+  const later = hourlyRow('2026-11-24', '2026-11-25');
+  later.hourly.temperature_2m.fill(0.3);
+  later.hourly.temperature_2m[4] = 0.7;
+  later.hourly.temperature_2m[8] = 0.7;
+  later.hourly.precipitation.fill(0.195);
+  later.hourly.snowfall.fill(0.105);
+  const result = core.compareHourly(earlier, later);
+  assert.equal(result.comparable, true);
+  assert.equal(result.reason, null);
+  assert.deepEqual(result.hours.map(({ hour }) => hour), Array.from({ length: 24 }, (_, hour) => hour));
+  assert.deepEqual(result.hours[0], {
+    hour: 0,
+    prev: { temperature_2m: 0.2, precipitation: 0.3, snowfall: 0.1 },
+    curr: { temperature_2m: 0.3, precipitation: 0.195, snowfall: 0.105 },
+    delta: { temperature_2m: 0.1, precipitation: -0.11, snowfall: 0.01 }
+  });
+  assert.deepEqual(result.summary, { mean_delta: 0.13, max_abs_delta_temperature: 0.5, hour_of_max_abs: 4 });
+});
+
+test('compareHourly reports unavailable comparisons without producing partial deltas', () => {
+  const earlier = hourlyRow('2026-11-23', '2026-11-24');
+  const later = hourlyRow('2026-11-24', '2026-11-25');
+  const changedUnits = { ...earlier, hourly_units: { ...earlier.hourly_units, snowfall: 'mm' } };
+  const old = { reading: mockReading('2026-11-23T00:00:00Z', 5) };
+  const missingHourly = { reading: earlier.reading };
+  const badSlots = structuredClone(earlier);
+  badSlots.hourly.temperature_2m[1] = null;
+  for (const [previous, reason] of [
+    [null, 'no_previous'], [changedUnits, 'unit_mismatch'], [old, 'incomplete'],
+    [missingHourly, 'incomplete'], [badSlots, 'incomplete'], [later, 'incomplete']
+  ]) {
+    assert.deepEqual(core.compareHourly(previous, later), { comparable: false, reason, hours: [], summary: null });
+  }
+});
+
+test('daily row helpers select the latest signal and its nearest strictly earlier record', () => {
+  const oldest = hourlyRow('2026-11-21', '2026-11-22');
+  const previous = hourlyRow('2026-11-22', '2026-11-23');
+  const latest = hourlyRow('2026-11-24', '2026-11-25');
+  const oldSignal = { reading: mockReading('2026-11-23T00:00:00Z', 5) };
+  const rows = [previous, oldSignal, oldest, latest];
+  assert.deepEqual(core.latestSignalRows(rows), [oldest, previous, latest]);
+  assert.deepEqual(core.latestSignalRows([]), []);
+  assert.equal(core.previousRow(rows, latest), previous);
+  assert.equal(core.previousRow(rows, oldest), null);
+  assert.deepEqual(rows, [previous, oldSignal, oldest, latest]);
+});
+
+test('roundToTenth rounds ties away from zero and returns positive zero', () => {
+  for (const [value, expected] of [
+    [2.15, 2.2], [-2.15, -2.2], [2.05, 2.1], [0.04, 0], [-0.04, 0], [3, 3], [-3, -3], [-0, 0]
+  ]) {
+    assert.equal(core.roundToTenth(value), expected, `roundToTenth(${value})`);
+  }
+});
+
 test('the browser build exposes the same API on T04Core', async () => {
   const source = await readFile(new URL('../static_src/t04-core.js', import.meta.url), 'utf8');
   const browser = {};

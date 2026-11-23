@@ -75,10 +75,13 @@
       return;
     }
     rows.sort((a, b) => a.reading.record_date.localeCompare(b.reading.record_date));
-    const { reading: r, raw } = rows[rows.length - 1];
-    const cmp = Core.comparisonFor(rows.map((x) => x.reading).filter((x) => x.signal_id === r.signal_id), r);
+    const last = rows[rows.length - 1];
+    const { reading: r, raw } = last;
+    const sameRows = rows.filter((x) => x.reading.signal_id === r.signal_id);
+    const cmp = Core.comparisonFor(sameRows.map((x) => x.reading), r);
     const age = Math.round((Date.parse(Core.kstDate(new Date().toISOString())) - Date.parse(r.record_date)) / 86400000);
 
+    if (last.hourly && last.target_date) { renderForecast(box, sameRows, last, age); return; }
     const value = el('p', 't04-bigvalue');
     const vSpan = el('span', null, String(r.normalized_value)); vSpan.id = 't04ScreenVal';
     const uSpan = el('span', 't04-unit', r.unit); uSpan.id = 't04ScreenUnit';
@@ -121,6 +124,122 @@
     wrap.setAttribute('aria-label', '값 대조 표'); wrap.appendChild(t);
     box.appendChild(wrap);
     box.appendChild(el('p', `t04-verdict ${same ? 't04-ok' : 't04-bad'}`, `세 값 ${same ? '일치' : '불일치'}`));
+    box.appendChild(el('p', 't04-msg', '이 기록에는 시간별 예보가 없습니다.'));
+  }
+
+  const ITEMS = [['temperature_2m', '기온'], ['precipitation', '강수'], ['snowfall', '적설']];
+  const r2 = (x) => +Number(x).toFixed(2);
+  const arrow = (d) => (d > 0 ? `▲ +${r2(d)}` : d < 0 ? `▼ −${r2(-d)}` : '＝ 0');
+  function scrollWrap(t, label) {
+    const w = el('div', 't04-scroll'); w.tabIndex = 0; w.setAttribute('role', 'region');
+    w.setAttribute('aria-label', label); w.appendChild(t); return w;
+  }
+  function gridTable(caption, heads, bodyRows) {
+    const t = el('table', 't04-table t04-grid');
+    t.appendChild(el('caption', null, caption));
+    const hr = el('tr');
+    heads.forEach((h) => { hr.appendChild(el('th', null, h)).scope = 'col'; });
+    t.appendChild(el('thead')).appendChild(hr);
+    const tb = el('tbody');
+    bodyRows.forEach((cells) => {
+      const tr = el('tr');
+      cells.forEach((c, i) => {
+        const x = el(i === 0 ? 'th' : 'td', null, String(c));
+        if (i === 0) x.scope = 'row';
+        tr.appendChild(x);
+      });
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    return t;
+  }
+
+  const REASON = {
+    no_previous: '비교할 이전 날짜 없음(기록 2일째부터 표시)',
+    unit_mismatch: '단위가 달라 비교하지 않음',
+    incomplete: '시간별 값이 24칸이 아니거나 비어 있어 비교하지 않음'
+  };
+
+  function renderCompare(box, sameRows, last, u, hh) {
+    box.appendChild(el('h3', null, '전일 예보와 24시간 비교'));
+    if (typeof Core.compareHourly !== 'function' || typeof Core.previousRow !== 'function') {
+      box.appendChild(el('p', 't04-msg t04-msg-err', '비교 기능을 불러오지 못했습니다.'));
+      return;
+    }
+    const prev = Core.previousRow(sameRows, last);
+    const c = prev ? Core.compareHourly(prev, last) : { comparable: false, reason: 'no_previous' };
+    if (!c.comparable) {
+      box.appendChild(el('p', 't04-msg', REASON[c.reason] || '비교할 수 없음'));
+      return;
+    }
+    box.appendChild(el('p', 't04-note',
+      `비교 대상: 이전 예보(조회 ${prev.reading.record_date}, 대상일 ${prev.target_date})와 이번 예보(대상일 ${last.target_date})`));
+    const s = c.summary;
+    const tu = u('temperature_2m');
+    box.appendChild(table([
+      ['평균 기온 차이(시간별 차이의 평균)', `${arrow(s.mean_delta)} ${tu}`],
+      ['저장한 대표값(소수 첫째 자리) 차이', `${arrow(+(last.reading.normalized_value - prev.reading.normalized_value).toFixed(1))} ${tu} (${prev.reading.normalized_value} → ${last.reading.normalized_value})`],
+      ['가장 크게 달라진 시각', `${hh(s.hour_of_max_abs)} (기온 차이 ${arrow(c.hours[s.hour_of_max_abs]?.delta?.temperature_2m ?? 0)} ${tu})`]
+    ]));
+    for (const [k, n] of ITEMS) {
+      box.appendChild(scrollWrap(gridTable(`${n} 비교(${u(k)})`, ['시각', '이전 예보', '이번 예보', '차이'],
+        c.hours.map((x) => [hh(x.hour), x.prev[k], x.curr[k], arrow(x.delta[k])])), `${n} 비교 표`));
+    }
+  }
+
+  function renderForecast(box, sameRows, last, age) {
+    const { reading: r, raw, hourly: h, target_date: td } = last;
+    const u = (k) => (last.hourly_units || {})[k] || '';
+    const hh = (i) => `${String(i).padStart(2, '0')}시`;
+
+    const value = el('p', 't04-bigvalue');
+    const vSpan = el('span', null, String(r.normalized_value)); vSpan.id = 't04ScreenVal';
+    const uSpan = el('span', 't04-unit', r.unit); uSpan.id = 't04ScreenUnit';
+    value.append(vSpan, ' ', uSpan);
+    box.appendChild(el('p', 't04-note', '대상일 24시간 평균 기온(예보)'));
+    box.appendChild(value);
+    if (age >= 2) box.appendChild(el('p', 't04-msg t04-msg-warn', `마지막 기록이 ${age}일 전입니다. 자동 기록이 멈췄을 수 있습니다.`));
+    box.appendChild(el('p', 't04-note',
+      `예보 대상일은 ${td}이고, 조회한 날(${r.record_date})과 다릅니다. 같은 날 다시 조회하면 예보 값이 바뀔 수 있고, 그것이 정상입니다.`));
+    box.appendChild(table([
+      ['예보 대상일(target_date)', td],
+      ['출처', r.source_name],
+      ['출처 URL', link(r.source_url)],
+      ['예보 기준 시각(대상일 00:00 KST)', r.source_time ? `${r.source_time} (${toKst(r.source_time)})` : '원천이 시각을 주지 않음'],
+      ['조회 시각(fetched_at)', `${r.fetched_at} (UTC) = ${toKst(r.fetched_at)}`],
+      ['기준 시간대', r.record_timezone],
+      ['조회 날짜(record_date)', r.record_date]
+    ]));
+
+    box.appendChild(el('h3', null, `${td} 24시간 예보`));
+    box.appendChild(scrollWrap(gridTable(`${td} 시간별 예보`,
+      ['시각', ...ITEMS.map(([k, n]) => `${n}(${u(k)})`)],
+      Array.from({ length: 24 }, (_, i) => [hh(i), ...ITEMS.map(([k]) => (h[k] ? h[k][i] : '—'))])), '24시간 예보 표'));
+
+    renderCompare(box, sameRows, last, u, hh);
+
+    // 3자 대조: 화면 평균은 위에 그린 DOM 숫자를 다시 읽는다.
+    const rt = raw?.hourly?.time || [];
+    const idx = rt.map((t, i) => (String(t).startsWith(td) ? i : -1)).filter((i) => i >= 0);
+    const rawCol = (k) => idx.map((i) => raw.hourly[k]?.[i]);
+    const have24 = idx.length === 24;
+    const rawMean = have24 ? rawCol('temperature_2m').reduce((a, b) => a + b, 0) / 24 : NaN;
+    const screenVal = parseFloat(vSpan.textContent);
+    const screenUnit = uSpan.textContent;
+    const cellsSame = have24 && ITEMS.every(([k]) => Array.isArray(h[k]) && h[k].length === 24 &&
+      rawCol(k).every((v, i) => v === h[k][i]));
+    const canRound = typeof Core.roundToTenth === 'function';
+    const rounded = have24 && canRound ? Core.roundToTenth(rawMean) : null;
+    const meanSame = have24 && canRound && rounded === r.normalized_value && screenVal === r.normalized_value &&
+      screenUnit === r.unit && raw.hourly_units?.temperature_2m === r.unit;
+    box.appendChild(scrollWrap(gridTable('값 대조(원본 · 저장값 · 화면값)',
+      ['원본(raw.hourly 대상일 24칸 평균)', '저장값(reading.normalized_value, unit)', '화면값(DOM에서 다시 읽은 값)'],
+      [[!have24 ? '대상일 24칸을 찾지 못함' : !canRound ? '반올림 기능을 불러오지 못했습니다'
+          : `${r2(rawMean)} → 소수 첫째 자리 반올림 → ${rounded} ${raw.hourly_units?.temperature_2m ?? ''}`,
+        `${r.normalized_value} ${r.unit}`, `${screenVal} ${screenUnit}`]]), '값 대조 표'));
+    box.appendChild(el('p', `t04-verdict ${meanSame ? 't04-ok' : 't04-bad'}`, canRound ? `평균 대조: ${meanSame ? '일치' : '불일치'}` : '평균 대조: 비교 불가(반올림 기능을 불러오지 못했습니다)'));
+    box.appendChild(el('p', `t04-verdict ${cellsSame ? 't04-ok' : 't04-bad'}`,
+      `저장한 24칸(기온·강수·적설)과 원본 같은 날짜 칸 대조: ${cellsSame ? '일치' : '불일치'}`));
   }
 
   /* ───────── ② 합성 재생 ───────── */

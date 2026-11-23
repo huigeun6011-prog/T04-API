@@ -13,6 +13,7 @@
     'signal_id', 'normalized_value', 'unit', 'source_name', 'source_url',
     'source_time', 'fetched_at', 'record_timezone', 'record_date'
   ].sort();
+  const HOURLY_METRICS = ['temperature_2m', 'precipitation', 'snowfall'];
   const ERROR_INFO = Object.freeze({
     timeout: Object.freeze({
       label: '제한시간 초과',
@@ -147,6 +148,103 @@
     return { state: 'comparable', direction, magnitude: Math.abs(signed), unit: current.unit };
   }
 
+  function latestSignalRows(rows) {
+    const latest = rows.at(-1)?.reading;
+    if (!latest) return [];
+    return rows.filter((row) => row.reading.signal_id === latest.signal_id)
+      .sort((left, right) => left.reading.record_date.localeCompare(right.reading.record_date));
+  }
+
+  function previousRow(rows, current) {
+    const { signal_id, record_date } = current.reading;
+    let previous = null;
+    for (const row of rows) {
+      if (row.reading.signal_id === signal_id && row.reading.record_date < record_date &&
+          (!previous || row.reading.record_date > previous.reading.record_date)) {
+        previous = row;
+      }
+    }
+    return previous;
+  }
+
+  function hasCompleteHourly({ target_date: date, hourly, hourly_units: units }) {
+    if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+        !Array.isArray(hourly?.time) || hourly.time.length !== 24) {
+      return false;
+    }
+    for (const metric of HOURLY_METRICS) {
+      if (typeof units?.[metric] !== 'string' || units[metric].trim() === '' ||
+          !Array.isArray(hourly[metric]) || hourly[metric].length !== 24) {
+        return false;
+      }
+    }
+    for (let hour = 0; hour < 24; hour += 1) {
+      if (hourly.time[hour] !== `${date}T${String(hour).padStart(2, '0')}:00` ||
+          !HOURLY_METRICS.every((metric) => Number.isFinite(hourly[metric][hour]))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function roundToTenth(value) {
+    // Round to tenths, with ties away from zero and a tolerance for binary arithmetic.
+    const rounded = Math.round(Math.abs(value) * 10 + 1e-9) / 10;
+    return rounded === 0 ? 0 : Math.sign(value) * rounded;
+  }
+
+  function roundDelta(value) {
+    // Round to hundredths, with ties away from zero and a tolerance for binary arithmetic.
+    const magnitude = Math.round(Math.abs(value) * 100 + 1e-9) / 100;
+    return magnitude === 0 ? 0 : Math.sign(value) * magnitude;
+  }
+
+  function compareHourly(previous, current) {
+    const unavailable = (reason) => ({ comparable: false, reason, hours: [], summary: null });
+    if (!previous) return unavailable('no_previous');
+    if (!previous.reading || !current?.reading ||
+        previous.reading.signal_id !== current.reading.signal_id ||
+        previous.reading.record_date === current.reading.record_date ||
+        !hasCompleteHourly(previous) || !hasCompleteHourly(current)) {
+      return unavailable('incomplete');
+    }
+    if (previous.reading.unit !== current.reading.unit ||
+        HOURLY_METRICS.some((metric) => previous.hourly_units[metric] !== current.hourly_units[metric])) {
+      return unavailable('unit_mismatch');
+    }
+
+    let temperatureDeltaTotal = 0;
+    let maxAbsDelta = -1;
+    let hourOfMax = null;
+    const hours = current.hourly.time.map((_, hour) => {
+      const prev = {};
+      const curr = {};
+      const delta = {};
+      for (const metric of HOURLY_METRICS) {
+        prev[metric] = previous.hourly[metric][hour];
+        curr[metric] = current.hourly[metric][hour];
+        delta[metric] = roundDelta(curr[metric] - prev[metric]);
+      }
+      temperatureDeltaTotal += curr.temperature_2m - prev.temperature_2m;
+      const absDelta = Math.abs(delta.temperature_2m);
+      if (absDelta > maxAbsDelta) {
+        maxAbsDelta = absDelta;
+        hourOfMax = hour;
+      }
+      return { hour, prev, curr, delta };
+    });
+    return {
+      comparable: true,
+      reason: null,
+      hours,
+      summary: {
+        mean_delta: roundDelta(temperatureDeltaTotal / hours.length),
+        max_abs_delta_temperature: maxAbsDelta,
+        hour_of_max_abs: hourOfMax
+      }
+    };
+  }
+
   function applySuccessfulReading(inputState, reading, meta = {}) {
     validateNormalizedReading(reading);
     const state = clone(inputState);
@@ -243,6 +341,7 @@
 
   return {
     resetState, runFixture, applySuccessfulReading, applyError, comparisonFor,
-    validateNormalizedReading, kstDate, FIXTURE_ORDER, ERROR_INFO, describe
+    validateNormalizedReading, kstDate, FIXTURE_ORDER, ERROR_INFO, describe,
+    compareHourly, latestSignalRows, previousRow, hasCompleteHourly, roundToTenth
   };
 });
