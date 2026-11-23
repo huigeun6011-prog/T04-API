@@ -4,14 +4,16 @@
 
 ## 두 단계
 
-1. `generate_ground_truth.py`: 방향없는 역별 승하차와 열차시간표로 일별p/q 분배율을 Adam으로 추정한다. 라벨은 실측정답이 아니며 물리적soft penalty를 쓴다.
-2. `train_predict_model.py`: 추정라벨을 HistGradientBoostingRegressor로 학습해 역·시간·방향·요일binary·날씨·시간표버전 조건부 재차인원을 예측한다.
+1. `scripts/data_prep/make_od_labels.py`·`gt_train_od.py`: 방향 없는 역별·시간별 승하차 합계와 열차 시간표로 열차별 출발역·도착역 승객 수를 추정한다(열차 단위 OD). 승차량을 가능한 열차와 이후 하차역으로 나누는 균일 배분 기준 q, λ=0.01, L-BFGS-B를 사용한다. 이 결과는 실측 정답이 아니라 학습용 추정값이다.
+2. `train_predict_model.py`: 위 OD 추정값을 HistGradientBoostingRegressor(HGB)로 학습해 역·시간·방향·평일/휴일·날씨·시간표 버전 조건의 열차 안 인원을 예측한다. 웹은 예측 인원 수 대신 같은 이용 구간의 시간대 상대 순위를 표시한다.
+
+OD와 HGB는 이어지는 단계다. 이전 배분 방식(Adam으로 방향별 몫을 조정)과 OD의 비교는 학습용 추정값 생성 방식을 고르기 위한 것이었다. OD 직접 계산과 HGB 예측의 대전 피크 비교(E-40)는 계산 단계와 서비스 예측 단계를 각각 평가한 것이며 경쟁 모델 선택 시험이 아니다. Adam은 이전 방식 안의 최적화 알고리즘 이름이다.
 
 출력은 정차 후 재차인원으로 해석하는 작업가정이다. 실제피크 CSV의 측정시점은 아직 공식확인하지 못했다. 열차번호·출발분·월~일은 현모델 입력에 없으므로 같은역·시간·방향·날씨면 같은예측이다.
 
 ## 파일 상태
 
-- API가 읽는 production은 `outputs/load_predictor.joblib`이다.731일·3,733,691행, 이전200회solver라벨,24시날씨수정후전체refit이다.
+- API가 읽는 production은 `outputs/load_predictor.joblib`이다. 2026-11-19부터 OD 라벨 61일(312,637행) 기반 HGB이며 앞 80% 날짜로 학습·뒤 20%로 검증한 뒤 전체 61일로 refit했다. 이전 Adam 라벨 731일 모델은 백업과 git 이력에 있다([HANDOFF §4](../HANDOFF.md)).
 - `outputs/diagnostics/candidate_training/`은 feasible배분·1000회·raw잔차보존 후보다.production에 미적용이다.
 - `gt_assumptions.py`의 시간/요일/headway옵션은 구현·검증했지만 기본비활성이고 전체all모델도 만들지 않았다.
 - `train_load_model.py`와 `outputs/best_model.pt`는 이전PyTorch 예측모델이다. 현재HGB와혼용하지 않는다.
@@ -26,4 +28,6 @@
 
 ## 성능 해석
 
-production 날짜holdout MAE20.14/R²0.8766과 실제피크MAE375.99는 서로다른평가다. 전자는추정라벨재현성이고 후자는선택된실제극단사례비교다. 실제정확도와추천순위는확보되지않았다. 후보별수치·hash·한계는[HANDOFF](../HANDOFF.md)를참고한다.
+현재 production의 날짜 holdout MAE 23.94/R² 0.838은 OD 추정값 재현성 지표이며 실제 승객 정확도가 아니다. 라벨 정의가 달라 이전 모델의 MAE 20.14와 직접 비교하지 않는다.
+
+대전 실제 피크 18건(E-40)에서 OD 직접 계산과 HGB 예측은 시간대 순위의 요약 성적이 같았다(1위 14/18, 상위 3위 18/18, 평균 순위 1.22). 전체 예측이 동일하다는 뜻은 아니다. HGB의 열차별 평가는 같은 시간 예측값을 해당 시간의 모든 열차에 붙인 것이므로 열차 개별 예측 능력을 뜻하지 않는다. 사례 날짜 1건은 학습 표본에 포함됐고 사례가 반복되어 독립 검증이 아니다. 단순 방법 대비 우월성과 대전의 한산한 시간대 순서는 확보되지 않았다. 항저우의 비교 기준도 승객 태그와 추정 시간표로 구성되어 독립 실측 열차별 정답은 아니다. 후보별 수치·hash·한계는 [HANDOFF](../HANDOFF.md)와 [EXPERIMENTS E-34~E-40](../EXPERIMENTS.md)을 참고한다.

@@ -34,8 +34,6 @@ CHANGE = '2026-03-30'
 WALK_KMH = 4.5
 WALK_DETOUR = 1.3
 WALK_MIN_PER_KM = WALK_DETOUR / WALK_KMH * 60
-# 가까운 곳 / 지하철로 멀리를 나누는 총 소요(분) 경계. 임의로 정한 값이다(D-020). 바꾸려면 이 숫자만 고치면 된다.
-NEAR_MAX_MINUTES = 30
 STATIONS = []
 _model = None
 _model_stamp = None
@@ -197,23 +195,40 @@ def clock_minutes(text):
     return int(h) * 60 + int(m)       # 24시 이후 표기(24:05 등)도 그대로 분으로 환산
 
 
+def plain_ranks(loads):
+    """hour -> 예상 재차 로 같은 구간 안의 시간대 순위(정수 1..N, 1 = 가장 한산). 값이 정확히 같으면 이른 시간이 앞선다. 수치는 밖으로 내보내지 않는다(D-028).
+    순위 차이 2 이하를 같은 수준으로 보는 규칙은 두 시간대를 비교할 때만 쓰며(화면), 여기서는 묶지 않는다."""
+    return {h: r for r, h in enumerate(sorted(loads, key=lambda k: (loads[k], k)), 1)}
+
+
+def stop_limit(value, label):
+    """지하철 이동 구간 수(역과 역 사이 한 칸 = 1) 한도. 비어 있으면 제한 없음."""
+    if value is None or value == '':
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
+        raise ValueError(f'지하철 이동 구간({label})은 정수여야 합니다.')
+    try:
+        number = float(value)
+    except ValueError:
+        raise ValueError(f'지하철 이동 구간({label})은 정수여야 합니다.') from None
+    if not number.is_integer() or not 1 <= number <= len(stations()) - 1:
+        raise ValueError(f'지하철 이동 구간({label})은 1~{len(stations()) - 1} 사이의 정수여야 합니다.')
+    return int(number)
+
+
 def recommend(payload):
     day = date.fromisoformat(str(payload['date'])).isoformat()
     start, end = int(payload.get('start_hour', 5)), int(payload.get('end_hour', 24))
     if not (5 <= start <= end <= 24):
         raise ValueError('시작·종료 시간은 05~24시이며 시작은 종료보다 늦을 수 없습니다.')
-    weight = float(payload.get('quiet_weight', 50))
-    if not 0 <= weight <= 100 or weight % 10:
-        raise ValueError('한산함 비율은 0~100 사이의 10% 단위여야 합니다.')
     origin = {k: float(payload['origin'][k]) for k in ('lat','lng')}
     if not all(math.isfinite(v) for v in origin.values()) or not (-90 <= origin['lat'] <= 90 and -180 <= origin['lng'] <= 180):
         raise ValueError('출발 좌표가 올바르지 않습니다.')
     board = nearest(origin)
     trains, loads, weather_sources = predict_profile(day, range(start, end+1), board['name'])
     pois = json.loads((ROOT/'web/data/pois.json').read_text(encoding='utf-8'))
-    candidates = []
-    # Best timetable-feasible train per hour and alighting station; all segment post-stop loads.
-    trips = {}
+    # 승차역 출발 열차를 (하차역, 시간)별로 모은다. 한 열차만 고르지 않고 시간대 값은 그 열차들의 평균이다(D-028).
+    pending = {}
     for train in trains:
         stops = train['stops']
         names = [s['station'] for s in stops]
@@ -229,16 +244,30 @@ def recommend(payload):
             for stop in stops[i:j]:
                 sh = int(stop['time'].split(':')[0]) or 24
                 segment.append(loads[(stop['station'], sh, train['direction'])])
-            trip = dict(hour=hour, departure_time=departure, arrival_time=stops[j]['time'], direction=train['direction'], train_id=train['train_id'], mean_load=round(sum(segment)/len(segment),1), max_load=round(max(segment),1), no_train=False)
-            key = (names[j], hour)
-            if key not in trips or (trip['mean_load'], trip['departure_time']) < (trips[key]['mean_load'], trips[key]['departure_time']):
-                trips[key] = trip
+            ride = clock_minutes(stops[j]['time']) - clock_minutes(departure)
+            pending.setdefault((names[j], hour), []).append((sum(segment)/len(segment), ride % 1440, dict(departure_time=departure, arrival_time=stops[j]['time']), train['direction']))
+    trips, route_ranks = {}, {}
+    for (name, hour), rows in pending.items():
+        trips[(name, hour)] = dict(hour=hour, direction=rows[0][3], trains=sorted((r[2] for r in rows), key=lambda t: t['departure_time']), mean_load=round(sum(r[0] for r in rows)/len(rows),1), ride_minutes=round(sum(r[1] for r in rows)/len(rows)), no_train=False)
+        route_ranks.setdefault(name, {})[hour] = trips[(name, hour)]['mean_load']
+    # 순위는 고른 시간 범위 전체에서 먼저 매기고, 그 뒤에 도보·구간 수 필터를 적용한다. 그래서 필터가 순위를 바꾸지 않는다.
+    route_ranks = {name: plain_ranks(v) for name, v in route_ranks.items()}
     category = payload.get('category','all')
     max_walk = payload.get('max_walk_minutes')
     if max_walk is not None:
         max_walk = float(max_walk)
         if not 1 <= max_walk <= 240:
             raise ValueError('최대 도보 시간은 1~240분이어야 합니다.')
+    min_stops, max_stops = stop_limit(payload.get('min_stops'), '이상'), stop_limit(payload.get('max_stops'), '이하')
+    if min_stops is not None and max_stops is not None and min_stops > max_stops:
+        raise ValueError('지하철 이동 구간의 이상 값은 이하 값보다 클 수 없습니다.')
+    # 경로(하차역) 단위 자료: 순위는 고른 시간 범위 전체에서 한 번 매기고 필터와 무관하다. 도보 대 열차 판단도 경로 단위(시간대 평균 소요)로 한다.
+    routes = {}
+    for name, ranks in route_ranks.items():
+        hours = sorted(ranks)
+        routes[name] = dict(hour_ranks=[dict(hour=h, rank=ranks[h], trains=trips[(name, h)]['trains']) for h in hours], rank_n=len(hours),
+                            ride=round(sum(trips[(name, h)]['ride_minutes'] for h in hours)/len(hours)), direction=trips[(name, hours[0])]['direction'])
+    members = {}     # 묶음 키 -> 장소 목록. 키는 하차역 이름 또는 None(걸어서)
     for poi in pois:
         if not poi.get('has_coordinates') or (category != 'all' and poi['facility_type'] != category):
             continue
@@ -246,148 +275,47 @@ def recommend(payload):
         alight = nearest(point)
         direct_km = km(origin,point)
         direct_walk = round(direct_km * WALK_MIN_PER_KM)
-        base = dict(poi=poi, boarding_station=board, alighting_station=alight, distance_km=round(direct_km,3), walking_distance_km=round(km(origin,board)+km(point,alight),3), opening_hours=None)
-        if alight['idx'] == board['idx']:
-            # 가까운 역이 같으면 기존처럼 대중교통 후보 대신 출발지에서 바로 걷는 후보를 만든다.
-            if max_walk is not None and direct_walk > max_walk:
-                continue
-            walk_base = dict(base, walking_distance_km=round(direct_km,3), walk_access_minutes=direct_walk, walk_egress_minutes=0, walk_total_minutes=direct_walk, walk_minutes=direct_walk)
-            candidates.append(dict(**walk_base,hour=None,departure_time=None,arrival_time=None,direction=None,train_id=None,mean_load=None,max_load=None,no_train=True,ride_minutes=0,total_minutes=direct_walk))
+        place = dict(poi=poi, distance_km=round(direct_km,3))
+        stops = abs(alight['idx'] - board['idx'])
+        direct_allowed = max_walk is None or direct_walk <= max_walk
+        walk_place = dict(place, walking_distance_km=round(direct_km,3), walk_access_minutes=direct_walk, walk_egress_minutes=0, walk_total_minutes=direct_walk)
+        if stops == 0:
+            # 같은 역이면 열차 없이 걷는다(0구간). 이상(min_stops)을 정하면 제외된다.
+            if min_stops is None and direct_allowed and (max_stops is None or 0 <= max_stops):
+                members.setdefault(None, []).append(walk_place)
             continue
-
-        # 한도는 직접 걷기와 열차 접근·이탈 도보를 각각 판단한다. 한쪽이 초과해도
-        # 다른 쪽의 유효한 선택지를 함께 버리지 않는다.
+        if (min_stops is not None and stops < min_stops) or (max_stops is not None and stops > max_stops):
+            continue                                   # 구간 수 조건을 벗어나는 경로의 장소는 걸어서 가는 후보로도 넣지 않는다
+        route = routes.get(alight['name'])
         access = round(km(origin,board)*WALK_MIN_PER_KM)
         egress = round(km(point,alight)*WALK_MIN_PER_KM)
-        transit_walk_total = access + egress
-        direct_allowed = max_walk is None or direct_walk <= max_walk
-        transit_allowed = max_walk is None or transit_walk_total <= max_walk
-
-        transit_options = []
-        if transit_allowed:
-            transit_base = dict(**base, walk_access_minutes=access, walk_egress_minutes=egress, walk_total_minutes=transit_walk_total)
-            for (station,h),trip in trips.items():
-                if station != alight['name']:
-                    continue
-                ride = clock_minutes(trip['arrival_time']) - clock_minutes(trip['departure_time'])
-                if ride < 0:
-                    ride += 1440                       # 자정을 넘는 운행
-                transit_options.append(dict(**transit_base,**trip,ride_minutes=ride,total_minutes=transit_walk_total+ride))
-
-        # 직접 걷기가 허용되면 걷기 ETA 이하인 열차 후보만 남긴다.
-        # ETA는 Python round() (0.5 동률은 ties-to-even)으로 정수 분 반올림된 값이다.
-        # 동률은 열차를 유지하고, 더 빠르거나 같은 ETA 열차가 하나도 없으면 도보만 둔다.
-        if direct_allowed:
-            faster_transit = [c for c in transit_options if c['total_minutes'] <= direct_walk]
-            if faster_transit:
-                candidates.extend(faster_transit)
-                continue
-            walk_base = dict(base, walking_distance_km=round(direct_km,3), walk_access_minutes=direct_walk, walk_egress_minutes=0, walk_total_minutes=direct_walk, walk_minutes=direct_walk)
-            candidates.append(dict(**walk_base,hour=None,departure_time=None,arrival_time=None,direction=None,train_id=None,mean_load=None,max_load=None,no_train=True,ride_minutes=0,total_minutes=direct_walk))
+        transit_ok = route is not None and (max_walk is None or access + egress <= max_walk)
+        # 이상(min_stops)을 정하면 걷는 편이 빨라도 열차 후보를 보여 준다. 정하지 않으면 걷는 편이 빠를 때(경로 평균 소요 기준) 걸어서 묶음으로 보낸다.
+        walk_wins = min_stops is None and direct_allowed and (not transit_ok or access + egress + route['ride'] > direct_walk)
+        if walk_wins:
+            members.setdefault(None, []).append(walk_place)
+        elif transit_ok:
+            members.setdefault(alight['name'], []).append(dict(place, walking_distance_km=round(km(origin,board)+km(point,alight),3), walk_access_minutes=access, walk_egress_minutes=egress, walk_total_minutes=access+egress))
+    order = {'library': 0, 'park': 1, 'bookstore': 2}
+    groups = []
+    for name, places in members.items():
+        cats = {}
+        for pl in sorted(places, key=lambda x: (x['distance_km'], x['poi'].get('name') or '')):
+            cats.setdefault(pl['poi'].get('facility_type'), []).append(pl)
+        group = dict(kind='walk' if name is None else 'route', categories=[dict(category=c, places=cats[c]) for c in sorted(cats, key=lambda c: (order.get(c, 9), str(c)))],
+                     nearest_km=min(pl['distance_km'] for pl in places))
+        if name is None:
+            group.update(id='walk')
         else:
-            candidates.extend(transit_options)
-    limit = max(1,min(200,int(payload.get('limit',30))))
-    include_matrix = payload.get('include_matrix') is True
-    for c in candidates:
-        c['group'] = 'near' if c['total_minutes'] <= NEAR_MAX_MINUTES else 'far'
-
-    def rank_group(cands):
-        """한 그룹 안에서 점수 정규화(거리·재차 최댓값을 그룹 안에서 구함) -> 장소별 묶기 -> 상한 적용."""
-        max_distance = max((c['distance_km'] for c in cands), default=1) or 1
-        max_load = max((c['mean_load'] or 0 for c in cands), default=1) or 1
-        for c in cands:
-            quiet = 0.5 if c['no_train'] else 1-c['mean_load']/max_load
-            near = 1-c['distance_km']/max_distance
-            c['quiet_score'] = round(quiet*100,1)
-            c['distance_score'] = round(near*100,1)
-            c['score'] = round(weight*quiet+(100-weight)*near,2)
-            c['service_date'] = day
-            c['calendar_departure'] = actual_time(day,c['hour'],int(c['departure_time'].split(':')[1])).isoformat(timespec='minutes') if c['hour'] is not None else None
-        cands.sort(key=lambda c:(-c['score'],c['distance_km'],c['hour'] or 0,c['poi']['name']))
-        # 장소별로 묶어 가장 점수가 높은 후보만 결과로 두고, 같은 장소의 다른 선택지는 alt_times(최대 3개)로 붙인다.
-        grouped = {}
-        for c in cands:
-            poi = c['poi']
-            key = poi.get('id') if poi.get('id') not in (None, '') else (poi.get('name'), poi.get('address'))
-            grouped.setdefault(key, []).append(c)
-        places, place_keys, walk_only = [], [], []
-        for key, options in grouped.items():
-            place_keys.append(key)
-            best = dict(options[0])
-            walk_only.append(bool(best['no_train']))
-            best['alt_times'] = [dict(departure_time=o['departure_time'],arrival_time=o['arrival_time'],boarding_station=o['boarding_station']['name'],alighting_station=o['alighting_station']['name'],mean_load=o['mean_load'],score=o['score'],total_minutes=o['total_minutes']) for o in options[1:4] if not o['no_train']]
-            places.append(best)
-        # 도보 전용 후보가 목록을 채우지 않도록 limit 의 1/3 까지만 먼저 담고, 자리가 남으면 나머지로 채운다(원래 순위 유지).
-        walk_cap = max(1, limit // 3)
-        chosen, skipped = [], []
-        for i in range(len(places)):
-            if len(chosen) >= limit:
-                break
-            if walk_only[i] and sum(walk_only[j] for j in chosen) >= walk_cap:
-                skipped.append(i)
-            else:
-                chosen.append(i)
-        chosen = sorted(chosen + skipped[:max(0, limit - len(chosen))])
-        rows = []
-        if include_matrix:
-            # 상위 장소(그룹마다 최대 15곳)의 시간대별 최선 후보를 이미 계산된 후보에서 그대로 꺼낸다(그룹 안 정규화 점수).
-            for i in chosen[:15]:
-                by_hour = {}
-                for c in grouped[place_keys[i]]:
-                    if c['hour'] is not None:
-                        by_hour.setdefault(c['hour'], c)  # grouped 는 점수 내림차순이므로 첫 항목이 그 시간의 최선
-                cells = [dict(hour=h, departure_time=by_hour[h]['departure_time'], mean_load=by_hour[h]['mean_load'], score=by_hour[h]['score'], total_minutes=by_hour[h]['total_minutes']) if h in by_hour else dict(hour=h, departure_time=None, mean_load=None, score=None, total_minutes=None) for h in range(start, end+1)]
-                rows.append(dict(poi_id=places[i]['poi'].get('id'), name=places[i]['poi'].get('name'), no_train=places[i]['no_train'], group=places[i]['group'], cells=cells))
-        return [places[i] for i in chosen], rows, len(places)
-
-    near_results, near_rows, near_total = rank_group([c for c in candidates if c['group'] == 'near'])
-    far_results, far_rows, far_total = rank_group([c for c in candidates if c['group'] == 'far'])
-    matrix = dict(hours=list(range(start, end+1)), rows=near_rows + far_rows) if include_matrix else None
-    response = dict(results=near_results + far_results, results_near=near_results, results_far=far_results, total=len(candidates), place_total=near_total + far_total,
-                    meta=dict(service_date=day,boarding_station=board,quiet_weight=weight,weather_source=weather_sources,model_updated_at=datetime.fromtimestamp(MODEL_PATH.stat().st_mtime).isoformat(),distance_basis='출발 위치에서 장소까지 직선거리',load_basis='승차 후부터 하차 전까지 구간별 예상 재차인원 평균',limitations=['장소 자체의 방문객 혼잡도를 예측하지 않습니다.','운영시간 자료가 없어 장소 개방 여부는 확인되지 않았습니다.','같은 역 주변 장소는 열차 이동이 없어 한산함 점수를 중립값으로 표시합니다.','시간별 순위는 해당 시간대에 운행하는 열차 중 예상 구간 평균이 가장 낮은 열차 기준입니다.','직접 걷기가 max_walk_minutes 안이면 분 단위 ETA가 같거나 짧은 열차 후보만 남깁니다. 그런 열차가 없을 때만 도보 직행을 추천하며, 반올림 후 동률은 열차를 유지합니다.','소요 시간은 직선거리 기반 걷기 추정과 열차 운행 시간의 합이며 대기·환승 시간은 포함하지 않습니다.','점수의 거리·한산함은 가까운 곳/지하철로 멀리 그룹 안에서 각각 따로 비교한 값입니다.']))
-    response['meta']['groups'] = dict(near=dict(places=near_total, shown=len(near_results)), far=dict(places=far_total, shown=len(far_results)))
-    response['meta']['near_max_minutes'] = NEAR_MAX_MINUTES
-    if matrix is not None:
-        response['matrix'] = matrix
-    response['meta']['max_walk_minutes'] = max_walk
-    response['meta']['walk_basis'] = f'걷는 시간은 직선거리 x {WALK_DETOUR} / {WALK_KMH}km/h 추정이며 실제 길이 아닙니다. 직접 걷기와 열차 접근·이탈 도보에 max_walk_minutes 를 각각 적용합니다. 직접 걷기가 한도 안이면 분 단위 반올림 ETA가 같거나 짧은 열차 후보만 남깁니다(접근·이탈 도보+운행시간, 대기 제외). 그런 열차가 없을 때만 도보 직행을 추천하며 ETA 동률은 열차를 유지합니다.'
+            alight = next(x for x in stations() if x['name'] == name)
+            group.update(id=f"{board['name']}->{name}", boarding_station=board, alighting_station=alight, stops=abs(alight['idx'] - board['idx']), direction=routes[name]['direction'], rank_n=routes[name]['rank_n'], hour_ranks=routes[name]['hour_ranks'])
+        groups.append(group)
+    groups.sort(key=lambda g: (g['nearest_km'], g['id']))
+    response = dict(groups=groups,
+                    meta=dict(service_date=day,boarding_station=board,weather_source=weather_sources,model_updated_at=datetime.fromtimestamp(MODEL_PATH.stat().st_mtime).isoformat(),distance_basis='출발 위치에서 장소까지 직선거리',rank_basis='같은 승차역 -> 하차역, 같은 방향에서 사용자가 고른 시간 범위 안의 시간대끼리만 매긴 상대 순서(1 = 가장 한산). 인원 수는 보여 주지 않습니다.',tie_rule='순위는 정수 1..N이며 값이 같으면 이른 시간이 앞섭니다. 묶지 않고 그대로 보여 줍니다. 두 시간대를 비교할 때 순위 차이가 2 이하이면 실제 차이로 보지 않고, 3 이상이면 순위 숫자가 작은 쪽이 더 한산합니다.',limitations=['장소 자체의 방문객 혼잡도를 예측하지 않습니다.','운영시간 자료가 없어 장소 개방 여부는 확인되지 않았습니다.','시간대 순위는 그 시간대 열차들의 예상 평균으로 같은 구간의 시간대끼리만 비교한 것이며 열차 한 대의 순서가 아닙니다. 장소 사이 비교가 아닙니다.','순위는 피크 시간 사례에서만 검증되었습니다. 한산한 쪽 순서는 대전에서 검증되지 않았습니다.','이상 구간을 정하지 않으면 걷는 편이 더 빠를 때(구간 평균 소요 기준) 걸어서 묶음으로 보냅니다. 이상을 정하면 걸어서 가는 장소는 빠지고 열차 후보를 보여 줍니다.','걷는 시간은 직선거리 기반 추정이며 대기·환승 시간은 포함하지 않습니다.'],
+                    min_stops=min_stops, max_stops=max_stops, max_walk_minutes=max_walk))
+    response['meta']['walk_basis'] = f'걷는 시간은 직선거리 x {WALK_DETOUR} / {WALK_KMH}km/h 추정이며 실제 길이 아닙니다. 최대 도보 시간은 승차역까지와 하차역에서 걷는 시간의 합(걸어서 가면 곧바로 걷는 시간)에 적용됩니다.'
     return response
-
-
-@lru_cache(maxsize=32)
-def _profile_cached(day, boarding, alighting):
-    names = list(STATION_NAMES)
-    trains, loads, sources = predict_profile(day, range(5, 25), boarding)
-    by_hour = {h: [] for h in range(5, 25)}
-    for train in trains:
-        stops = train['stops']
-        stop_names = [x['station'] for x in stops]
-        if alighting not in stop_names or stop_names.index(boarding) >= stop_names.index(alighting):
-            continue
-        i, j = stop_names.index(boarding), stop_names.index(alighting)
-        segment = []
-        for stop in stops[i:j]:
-            sh = int(stop['time'].split(':')[0]) or 24
-            segment.append(loads[(stop['station'], sh, train['direction'])])
-        hour = int(stops[i]['time'].split(':')[0]) or 24
-        if 5 <= hour <= 24:
-            by_hour[hour].append(dict(departure_time=stops[i]['time'], arrival_time=stops[j]['time'], direction=train['direction'], train_id=train['train_id'], mean_load=round(sum(segment)/len(segment), 1), max_load=round(max(segment), 1)))
-    hours = []
-    for h in range(5, 25):
-        rows = sorted(by_hour[h], key=lambda t: t['departure_time'])
-        means = sorted(t['mean_load'] for t in rows)
-        n = len(means)
-        median = None if not n else round(means[n//2] if n % 2 else (means[n//2-1] + means[n//2]) / 2, 1)
-        hours.append(dict(hour=h, count=n, min=means[0] if n else None, median=median, max=means[-1] if n else None, trains=rows))
-    return dict(service_date=day, boarding=boarding, alighting=alighting, holiday=holiday(day), weather_source=sources, hours=hours)
-
-
-def profile(query):
-    day = date.fromisoformat(query['date'][0]).isoformat()
-    boarding, alighting = query['boarding'][0], query['alighting'][0]
-    if boarding not in STATION_NAMES or alighting not in STATION_NAMES or boarding == alighting:
-        raise ValueError('승차·하차 역이 올바르지 않습니다.')
-    return _profile_cached(day, boarding, alighting)
 
 
 WEB_ROOT = (ROOT / 'web').resolve()
@@ -478,8 +406,6 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json(dict(ok=True,model='load_predictor.joblib'))
             if path.path == '/api/stations':
                 return self.send_json(dict(stations=stations()))
-            if path.path == '/api/profile':
-                return self.send_json(profile(parse_qs(path.query)))
             if path.path == '/api/predict':
                 q=parse_qs(path.query)
                 service_date,hour=service_time(q['date'][0],int(q['hour'][0]))

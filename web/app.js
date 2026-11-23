@@ -40,7 +40,6 @@ const state = {
   weatherRequestId: 0,
   startHour: 5,
   endHour: 24,
-  quietWeight: 0.5,
   recommendationRequestId: 0,
   recommendationController: null,
   researchTimer: null,
@@ -49,17 +48,14 @@ const state = {
   results: [],
   lastMeta: null,
   selectedItem: null,
-  activeHour: null,   // null = 장소별 최적 시간, 숫자 = 그 시간 기준 서버 재계산
   chipRange: null,    // 마지막 '장소별 최적 시간' 검색의 시간 범위
-  matrix: null,
-  tab: 'near',        // 'near'(가까운 곳) | 'far'(지하철로 멀리): 결과는 한 번에 받고 탭 전환은 브라우저에서만 한다(D-020)
-  viewHour: null,     // 시간 막대로 보고 있는 시간(선택한 장소의 표시만 바뀜, 서버 재순위 없음). null = 그 장소의 최적(원래) 시간
+  groupHours: {},      // 구간 묶음 id -> 그 묶음에서 고른 시간(막대). 순위·목록 순서는 바뀌지 않는다
+  floatMode: false,    // 순위 막대를 떠 있는 창으로 보기(검색 화면 설정, localStorage 에 저장)
+  floatGid: null,      // 떠 있는 창이 보여 주는 구간 묶음 id
+  floatPos: null,      // 창의 마지막 위치(메모리에만 저장)
+  open: null,          // 펼친 카테고리 구역 키 집합. null 이면 다음 그리기에서 첫 묶음만 펼친다
   listed: [],
-  rowCtx: { lo: 0, hi: 1 },
   mapPickMode: false,
-  timeStripCollapsed: false,
-  timeStripPosition: null,
-  timeStripDrag: null,
 };
 
 const WALK_KMH = 4.5, WALK_DETOUR = 1.3; // 서버와 같은 도보 시간 어림값(D-014)
@@ -109,6 +105,7 @@ function initTabs() {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+    renderFloat();   // 추천 탭이 아니면 숨기고, 돌아오면 같은 자리에 다시 보인다(상태는 유지)
   }));
 }
 
@@ -145,7 +142,7 @@ function initMap() {
     if (state.mapPickMode) setDeparture(e.latLng.getLat(), e.latLng.getLng());
   });
 
-  renderPoiMarkers(visibleResults());
+  renderPoiMarkers(state.listed);
 }
 
 function setDeparture(lat, lng, label = null) {
@@ -193,17 +190,18 @@ function setDeparture(lat, lng, label = null) {
     state.lastMeta = null;
     state.selectedItem = null;
     state.listed = [];
-    state.matrix = null;
+    state.groupHours = {};
+    state.open = null;
+    state.floatGid = null;
+    renderFloat();
     clearRoute();
     renderPoiMarkers([]);
-    renderGroupTabs();
     document.getElementById('resultsMeta').textContent = '출발지가 바뀌어 추천이 초기화되었습니다';
     document.getElementById('resultsCards').innerHTML = '<p class="empty-state" role="status">출발지가 바뀌었어요. 다시 찾기를 눌러 주세요.</p>';
     document.getElementById('predictionAnalysis').textContent = '출발지가 바뀌었어요. 다시 찾기를 누르면 분석 결과를 볼 수 있습니다.';
     const viewStatus = document.getElementById('viewStatus');
     if (viewStatus) viewStatus.textContent = '';
     showUpdateNote('출발지가 바뀌었어요. 다시 찾기를 눌러 주세요.');
-    renderTimeStrip();
     window.Analysis?.setSelected(null);
     window.Analysis?.refreshHeatmap();
   } else if (!previousDeparture) {
@@ -272,10 +270,8 @@ async function loadMetroLineGeometry() {
 function showPlaceRoute(item, isRecommendation = false, adjustBounds = true) {
   if (!state.map) return;
   clearRoute();
-  const prevPlaceId = state.selectedItem?.poi?.id;
   state.selectedItem = item;
-  if (isRecommendation && item.poi?.id !== prevPlaceId) state.viewHour = null;
-  if (isRecommendation) { window.Analysis?.setSelected(item); syncViewHour(); }
+  if (isRecommendation) window.Analysis?.setSelected(item);
 
   const poi = isRecommendation ? (item.poi || {}) : item;
   const poiLat = Number(poi.latitude);
@@ -633,24 +629,6 @@ function initRecommendationControls() {
     });
   }
 
-  // 💡 슬라이더: 이전에 계산된 결과가 있으면 결과를 날리지 않고 즉시 가중치를 재계산해 재정렬!
-  document.getElementById('quietWeight').addEventListener('input', e => {
-    const val = Number(e.target.value);
-    state.quietWeight = val / 100;
-    document.getElementById('quietWeightLabel').textContent = `한산함 ${val}%`;
-    document.getElementById('distanceWeightLabel').textContent = `거리 ${100 - val}%`;
-
-    if (state.results && state.results.length > 0) {
-      const w = state.quietWeight;
-      state.results.forEach(r => {
-        const qScore = typeof r.quiet_score === 'number' ? r.quiet_score : 50;
-        const dScore = typeof r.distance_score === 'number' ? r.distance_score : 50;
-        r.score = Number((w * qScore + (1 - w) * dScore).toFixed(1));
-      });
-      state.results.sort((a, b) => (b.score - a.score) || (a.distance_km - b.distance_km));
-      renderRecommendations({ results: state.results, meta: state.lastMeta });
-    }
-  });
 }
 
 function initFilters() {
@@ -664,7 +642,8 @@ function initFilters() {
 
     if (state.results && state.results.length > 0) {
       // 추천 결과 모드일 때: 현재 카테고리에 맞게 필터링 렌더링 (지도 마커도 함께 갱신)
-      renderRecommendations({ results: state.results, meta: state.lastMeta });
+      state.open = null;
+      renderRecommendations({ meta: state.lastMeta });
     } else {
       // 검색 전: 장소를 지도에 쏟아내지 않고 안내만 유지
       renderEmptyState();
@@ -675,18 +654,12 @@ function initFilters() {
   });
 }
 
-function visibleResults() {
-  const results = (state.results || []).filter(r => !r.group || r.group === state.tab);
-  return state.selectedCategory === 'all' ? results : results.filter(r => r.poi?.facility_type === state.selectedCategory);
-}
-
 // ─────────────────────────────────────────────
 // 검색 전 안내 (장소 마커/카드를 미리 보여주지 않음)
 // ─────────────────────────────────────────────
 function renderEmptyState() {
   renderPoiMarkers([]);
   state.results = state.results || [];
-  renderGroupTabs();
   document.getElementById('resultsMeta').textContent = '추천 결과 대기 중';
   document.getElementById('resultsCards').innerHTML = `<div class="empty-state empty-guide" role="status">
     <strong>추천을 받을 준비가 되었어요</strong>
@@ -698,14 +671,14 @@ function renderEmptyState() {
   </div>`;
 }
 
-// 추천된 장소만 지도에 표시한다 (같은 장소의 여러 열차 후보는 가장 높은 순위 하나만 마커로 표시).
-function renderPoiMarkers(results = visibleResults()) {
+// 추천된 장소만 지도에 표시한다.
+function renderPoiMarkers(results = state.listed) {
   state.poiMarkers.forEach(m => m.setMap(null));
   state.poiMarkers = [];
   if (!state.map) return;
 
   const seen = new Set();
-  results.forEach((r, idx) => {
+  results.forEach(r => {
     const p = r.poi || {};
     if (!hasCoords(p)) return;
     const key = p.name || `${p.latitude},${p.longitude}`;
@@ -719,14 +692,7 @@ function renderPoiMarkers(results = visibleResults()) {
     node.setAttribute('aria-label', p.name || '장소');
     node.addEventListener('click', e => {
       e.stopPropagation();
-      showPlaceRoute(r, true);
-      const cards = document.querySelectorAll('#resultsCards .result-card');
-      cards.forEach(c => c.classList.remove('selected'));
-      const card = document.querySelector(`#resultsCards .result-card[data-index="${idx}"]`);
-      if (card) {
-        card.classList.add('selected');
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      }
+      selectPlace(r, true);
     });
 
     const overlay = new kakao.maps.CustomOverlay({
@@ -739,14 +705,6 @@ function renderPoiMarkers(results = visibleResults()) {
     overlay.setMap(state.map);
     state.poiMarkers.push(overlay);
   });
-}
-
-// 같은 장소의 다른 시간 선택지를 한 줄로 (최대 2개)
-function altLine(r) {
-  const alts = Array.isArray(r.alt_times) ? r.alt_times.slice(0, 2) : [];
-  if (!alts.length) return '';
-  const text = alts.map(a => `${formatTrainTime(a.departure_time)}${typeof a.mean_load === 'number' ? ` · ${Math.round(a.mean_load)}명` : ''}`).join(', ');
-  return `<div class="result-alt">다른 시간 ${escapeHtml(text)}</div>`;
 }
 
 // 카카오맵 길찾기 링크 (공식 지도 URL 링크 형식: /link/by/{walk|traffic}/이름,위도,경도/이름,위도,경도, 출발지가 없으면 /link/to/이름,위도,경도)
@@ -776,204 +734,250 @@ function formatTrainTime(time) {
   return Number(h) >= 24 ? `익일 ${String(Number(h) - 24).padStart(2, '0')}:${m}` : String(time);
 }
 
-function countLabel(value) {
-  return typeof value === 'number' && Number.isFinite(value) ? `${value.toFixed(1)}명` : '예측 없음';
-}
-
 // ─────────────────────────────────────────────
-// 🏆 실제 추천 결과 렌더링
+// 결과 목록: 구간 묶음(승차역 -> 하차역) > 카테고리 > 장소 (D-028)
+// 순위는 장소가 아니라 구간의 속성이다. 구간 묶음 맨 위의 막대에 한 번만 보이고 장소 행에는 붙이지 않는다.
 // ─────────────────────────────────────────────
-// 결과 행 내부. view = {hour, cell}이면 시간 막대로 고른 시간의 값(출발·재차·점수)으로 표시하고, 목록 순서·구성은 건드리지 않는다.
-function rowInner(r, i, view) {
-  const p = r.poi || {}, noTrain = r.no_train;
-  const { lo, hi } = state.rowCtx, span = hi - lo || 1;
-  const qOf = v => `var(--q${Math.max(1, Math.min(5, 1 + Math.floor(((v - lo) / span) * 4.999)))})`;
-  const cell = view?.cell;
-  const missing = !!view && !noTrain && typeof cell?.mean_load !== 'number';
-  const dep = view && !missing ? cell.departure_time : r.departure_time;
-  const load = view ? cell?.mean_load : r.mean_load;
-  const score = view ? cell?.score : r.score;
-  const hasLoad = !noTrain && !missing && typeof load === 'number';
-  const wa = r.walk_access_minutes, we = r.walk_egress_minutes, wt = r.walk_total_minutes;
-  const haveWalk = typeof wt === 'number';
-  const total = view && !missing && typeof cell?.total_minutes === 'number' ? cell.total_minutes : r.total_minutes;
-  const ride = haveWalk && typeof total === 'number' ? total - wt : r.ride_minutes;
-  const route = `${escapeHtml(stationName(r.boarding_station))} → ${escapeHtml(stationName(r.alighting_station))}`;
-  // 걷는 시간은 직선거리로 어림한 추정치라 항상 "추정"을 붙인다. 대기·환승 시간은 포함하지 않는다.
-  const walkLine = !haveWalk ? ''
-    : noTrain ? `<span class="rt">${ICON.walk}걷기 약 ${wt}분 (추정) · 열차 없음</span>`
-    : `<span class="rt">${ICON.walk}걷기 ${wa}분 + ${we}분 = ${wt}분${typeof ride === 'number' && !missing ? ` · 지하철 ${ride}분 · 총 ${total}분` : ''} (추정)</span>`;
-  const meta = noTrain
-    ? walkLine
-    : missing
-      ? `<span class="rt">${ICON.train}${route} · ${view.hour}시에는 맞는 열차 없음</span>${walkLine}`
-      : `<span class="rt">${ICON.train}${route} · ${escapeHtml(formatTrainTime(dep))} 출발</span>${walkLine}`;
-  // 직선으로 걷는 편이 더 가까울 수 있을 때의 참고 안내(순위·점수에는 영향 없음)
-  const advice = (!noTrain && typeof r.distance_km === 'number' && typeof r.walking_distance_km === 'number' && r.distance_km < r.walking_distance_km * 0.85)
-    ? `<div class="walk-advice">걸어서 바로 가는 편이 더 가까울 수 있어요 (직선 약 ${Math.round(r.distance_km * 1000)}m)</div>` : '';
-  const tag = view ? `<div class="view-tag">${view.hour}시 기준</div>` : '';
-  return `
-        <div class="rank">${i + 1}</div>
-        <div class="row-main">
-          <div class="name">${catIcon(p.facility_type)}<span class="name-text">${escapeHtml(p.name)}</span><span class="cat-text">${catLabel(p.facility_type)}</span></div>
-          ${tag}
-          <div class="meta">${meta}</div>
-          ${advice}
-          ${view ? '' : altLine(r)}
-          <div class="addr">${escapeHtml(p.address || '주소 정보 없음')}${typeof r.distance_km === 'number' ? ` · 직선 ${r.distance_km.toFixed(1)}km` : ''}</div>
-          <div class="row-foot">${typeof score === 'number' ? `<span class="result-score">추천점수 ${score.toFixed(1)}</span>` : '<span></span>'}${kakaoRouteLink(p, noTrain)}</div>
-        </div>
-        <div class="q">${hasLoad ? `<b>${Math.round(load)}</b><small>예상 재차 · 명</small><div class="meter" aria-hidden="true"><i style="width:${Math.min(100, Math.max(8, Math.round((load / hi) * 100)))}%;background:${qOf(load)}"></i></div>` : '<b>–</b><small>열차 없음</small>'}</div>
-  `;
+const placeKey = p => String(p?.id ?? `${p?.name}|${p?.address}`);
+
+function windowHours() {
+  const r = state.chipRange || { start: state.startHour, end: state.endHour };
+  return Array.from({ length: r.end - r.start + 1 }, (_, i) => r.start + i);
 }
 
-// 가까운 곳 / 지하철로 멀리 탭 (탭 전환은 브라우저에서만 처리: 서버 재순위 없음)
-const GROUP_LABEL = { near: '가까운 곳', far: '지하철로 멀리' };
-function groupCount(g) {
-  const list = (state.results || []).filter(r => r.group === g && (state.selectedCategory === 'all' || r.poi?.facility_type === state.selectedCategory));
-  const more = state.selectedCategory === 'all' && (state.lastMeta?.groups?.[g]?.places || 0) > list.length;
-  return `${list.length}${more ? '+' : ''}`;
-}
-function renderGroupTabs() {
-  const box = document.getElementById('groupTabs');
-  if (!box) return;
-  const has = (state.results || []).some(r => r.group);
-  box.hidden = !has;
-  document.getElementById('groupNote').hidden = !has;
-  if (!has) return;
-  box.querySelectorAll('[role="tab"]').forEach(t => {
-    const g = t.dataset.group, on = g === state.tab;
-    t.setAttribute('aria-selected', String(on));
-    t.tabIndex = on ? 0 : -1;
-    t.querySelector('.cnt').textContent = `(${groupCount(g)})`;
-  });
-  document.getElementById('resultsBody')?.setAttribute('aria-labelledby', state.tab === 'near' ? 'tabNear' : 'tabFar');
-  document.getElementById('groupNote').textContent = state.tab === 'near'
-    ? '총 30분 이하(걷기 + 지하철, 대기·환승 시간 제외, 추정)인 장소예요.'
-    : '총 30분을 넘는 장소예요. 점수(거리·한산함)는 이 탭 안의 장소끼리만 비교한 값입니다.';
-}
-function switchTab(name) {
-  if (state.tab === name) return;
-  state.tab = name;
-  state.viewHour = null;
-  showUpdateNote('');
-  clearRoute();
-  state.selectedItem = null;
-  window.Analysis?.setSelected(null);
-  renderRecommendations({ results: state.results, meta: state.lastMeta });
-  if (state.listed.length) {
-    document.querySelector('#resultsCards .result-card[data-index="0"]')?.classList.add('selected');
-    showPlaceRoute(state.listed[0], true);
-  } else {
-    renderTimeStrip();
-  }
-  window.Analysis?.refreshHeatmap();
-}
-function initGroupTabs() {
-  const box = document.getElementById('groupTabs');
-  if (!box) return;
-  const tabs = [...box.querySelectorAll('[role="tab"]')];
-  tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.group)));
-  box.addEventListener('keydown', e => {
-    const i = tabs.findIndex(t => t === document.activeElement);
-    if (i < 0) return;
-    const next = { ArrowRight: (i + 1) % tabs.length, ArrowLeft: (i - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 }[e.key];
-    if (next === undefined) return;
-    e.preventDefault();
-    switchTab(tabs[next].dataset.group);
-    tabs[next].focus();
-  });
+// 카테고리 필터를 적용한 구간 묶음 목록(장소가 없어진 묶음은 뺀다)
+function visibleGroups() {
+  return (state.results || [])
+    .map(g => ({ ...g, categories: g.categories.filter(c => state.selectedCategory === 'all' || c.category === state.selectedCategory) }))
+    .filter(g => g.categories.length);
 }
 
-// 선택한 장소의 matrix 행과 보고 있는 시간의 칸
-function viewTarget() {
-  const m = state.matrix, id = state.selectedItem?.poi?.id;
-  if (!m || id == null) return null;
-  const row = m.rows.find(r => r.poi_id === id && (!r.group || r.group === state.tab));
-  if (!row) return null;
-  const usable = row.cells.some(c => typeof c.mean_load === 'number');
-  const i = state.viewHour === null ? -1 : m.hours.indexOf(state.viewHour);
-  return { row, usable, cell: i >= 0 ? row.cells[i] : null };
+function groupTitle(g) {
+  return g.kind === 'walk' ? '걸어서' : `${stationName(g.boarding_station)}역 → ${stationName(g.alighting_station)}역 · ${g.stops}구간`;
 }
 
-// 보고 있는 시간이 바뀌었을 때: 이전에 바꾼 행을 되돌리고 선택한 행만 갱신한다. 순서·구성은 그대로.
-function syncViewHour() {
-  document.querySelectorAll('#resultsCards .result-card[data-view]').forEach(card => {
-    const i = Number(card.dataset.index);
-    card.removeAttribute('data-view');
-    if (state.listed[i]) card.innerHTML = rowInner(state.listed[i], i, null);
-  });
-  const t = viewTarget();
-  if (state.viewHour !== null && !(t && t.cell)) state.viewHour = null;
-  let announce = '';
-  if (state.viewHour !== null && t && t.cell && state.selectedItem) {
-    const i = state.listed.findIndex(r => r.poi?.id === state.selectedItem.poi?.id);
-    const card = document.querySelector(`#resultsCards .result-card[data-index="${i}"]`);
-    if (card && i >= 0) {
-      card.dataset.view = String(state.viewHour);
-      card.innerHTML = rowInner(state.listed[i], i, { hour: state.viewHour, cell: t.cell });
-      const c = t.cell;
-      announce = `${state.selectedItem.poi.name} ${state.viewHour}시 기준: ` + (typeof c.mean_load === 'number' ? `${formatTrainTime(c.departure_time)} 출발, 예상 재차 ${Math.round(c.mean_load)}명` : '맞는 열차 없음');
+// 장소 + 묶음 정보를 지도(showPlaceRoute)와 분석 탭이 쓰는 한 항목으로 합친다
+function itemFor(g, place) {
+  return { ...place, groupId: g.id, no_train: g.kind === 'walk', boarding_station: g.boarding_station || state.lastMeta?.boarding_station || null, alighting_station: g.alighting_station || null, hour_ranks: g.hour_ranks || [], rank_n: g.rank_n || 0 };
+}
+
+// 목록 안의 막대 자리: 떠 있는 창 모드면 한 줄 요약만 둔다(막대 그리기는 chartHtml 하나를 같이 쓴다).
+function inlineChartHtml(g) {
+  return state.floatMode ? '' : chartHtml(g);
+}
+
+// 구간 묶음의 시간대 순위 막대. 높이는 순서뿐이며 낮을수록 한산하다. 고른 시간의 출발 열차만 시각순으로 보여 준다.
+function chartHtml(g) {
+  if (g.kind === 'walk') return '<p class="rg-note">걸어서 가는 장소예요. 열차를 타지 않아 시간대 순위가 없습니다.</p>';
+  const hours = windowHours(), byHour = new Map(g.hour_ranks.map(c => [c.hour, c])), span = Math.max(1, g.rank_n - 1);
+  const sel = state.groupHours[g.id] ?? null, cur = byHour.get(sel);
+  const cols = hours.map(h => {
+    const c = byHour.get(h);
+    if (!c) return `<div class="col empty" role="img" aria-label="${h}시 열차 없음"><span class="bar"></span><span class="h">${h}</span><span class="v">–</span></div>`;
+    const frac = (c.rank - 1) / span, n = Math.min(5, 1 + Math.floor(frac * 4.999)), on = sel === h;
+    const label = `${h}시, ${g.rank_n}개 시간대 중 ${c.rank}번째로 한산`;
+    return `<button type="button" class="col${on ? ' sel' : ''}" data-hour="${h}" data-gid="${escapeHtml(g.id)}" aria-pressed="${on}" aria-label="${label}${on ? ', 선택됨' : ''}" title="${label}"><span class="bar" style="height:${8 + Math.round(frac * 28)}px;background:var(--q${n})"></span><span class="h">${h}</span><span class="v">${c.rank}</span></button>`;
+  }).join('');
+  const trains = cur ? `<div class="train-list"><div class="train-group"><strong>${sel}시 · ${g.rank_n}개 시간대 중 ${cur.rank}번째로 한산</strong> <span>${cur.trains.map(x => escapeHtml(formatTrainTime(x.departure_time))).join(', ')}</span></div></div>` : '<p class="rg-note">시간을 누르면 그 시간대에 승차역에서 출발하는 열차를 볼 수 있어요.</p>';
+  return `<div class="rg-bars"><div class="cols" style="--n:${hours.length}">${cols}</div></div>${trains}
+    <p class="rg-note">막대 높이는 순서를 나타내며 사람 수가 아닙니다. 낮은 막대(1번째)가 가장 한산하며, 순위 차이가 2 이하인 시간대는 같은 수준으로 봅니다.</p>`;
+}
+
+function placeRow(g, place) {
+  const p = place.poi || {}, walk = g.kind === 'walk';
+  const wa = place.walk_access_minutes, we = place.walk_egress_minutes, wt = place.walk_total_minutes;
+  const walkLine = typeof wt !== 'number' ? ''
+    : walk ? `걸어서 약 ${wt}분 (추정)` : `걷기 ${wa}분 + ${we}분 = ${wt}분 (추정)`;
+  const advice = (!walk && typeof place.distance_km === 'number' && typeof place.walking_distance_km === 'number' && place.distance_km < place.walking_distance_km * 0.85)
+    ? `<div class="walk-advice">걸어서 바로 가는 편이 더 가까울 수 있어요 (직선 약 ${Math.round(place.distance_km * 1000)}m)</div>` : '';
+  const key = placeKey(p), on = state.selectedItem && state.selectedItem.groupId === g.id && placeKey(state.selectedItem.poi) === key;
+  return `<div class="place-row${on ? ' selected' : ''}" role="button" tabindex="0" data-gid="${escapeHtml(g.id)}" data-pkey="${escapeHtml(key)}">
+      <div class="name">${catIcon(p.facility_type)}<span class="name-text">${escapeHtml(p.name)}</span></div>
+      <div class="meta"><span class="rt">직선 ${typeof place.distance_km === 'number' ? place.distance_km.toFixed(1) : '–'}km</span><span class="rt">${ICON.walk}${walkLine}</span></div>
+      ${advice}
+      <div class="addr">${escapeHtml(p.address || '주소 정보 없음')}</div>
+      <div class="row-foot">${kakaoRouteLink(p, walk)}</div>
+    </div>`;
+}
+
+function findItem(gid, pkey) {
+  return state.listed.find(r => r.groupId === gid && placeKey(r.poi) === pkey) || null;
+}
+
+// 장소를 고른다: 지도에 핀·경로를 그리고 목록의 행을 표시한다. fromMap 이면 구역을 펼치고 행으로 스크롤한다.
+function selectPlace(item, fromMap = false, keepCamera = false) {
+  document.querySelectorAll('#resultsCards .place-row.selected').forEach(r => r.classList.remove('selected'));
+  const row = [...document.querySelectorAll('#resultsCards .place-row')].find(r => r.dataset.gid === item.groupId && r.dataset.pkey === placeKey(item.poi));
+  if (row) {
+    row.classList.add('selected');
+    if (fromMap) {
+      const sec = row.closest('details');
+      if (sec && !sec.open) sec.open = true;
+      row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
+  state.floatGid = item.groupId;
+  renderFloat();
+  showPlaceRoute(item, true, !keepCamera);
+}
+
+// 선택한 장소가 현재 보이는 결과에 없으면 선택·경로·분석 프로필을 모두 비운다(이전 장소의 순위가 남지 않게).
+function clearSelectionIfMissing(items) {
+  if (state.floatGid && !items.some(r => r.groupId === state.floatGid)) { state.floatGid = null; renderFloat(); }
+  const sel = state.selectedItem;
+  if (sel && !items.some(r => r.groupId === sel.groupId && placeKey(r.poi) === placeKey(sel.poi))) {
+    state.selectedItem = null;
+    clearRoute();
+    window.Analysis?.setSelected(null);
+  }
+}
+
+function announceHour(gid, hour) {
+  const g = (state.results || []).find(x => x.id === gid), c = g?.hour_ranks?.find(x => x.hour === hour);
   const live = document.getElementById('viewStatus');
-  if (live) live.textContent = announce;
-  renderTimeStrip();
+  if (live) live.textContent = c ? `${groupTitle(g)} ${hour}시: ${g.rank_n}개 시간대 중 ${c.rank}번째로 한산, 승차역 출발 열차 ${c.trains.map(x => formatTrainTime(x.departure_time)).join(', ')}` : '';
 }
 
 function renderRecommendations(payload) {
   state.lastMeta = payload.meta || state.lastMeta;
-  const results = (payload.results || []).filter(r => (!r.group || r.group === state.tab) && (state.selectedCategory === 'all' || r.poi?.facility_type === state.selectedCategory));
-  renderPoiMarkers(results);
-  renderGroupTabs();
+  const groups = visibleGroups();
+  state.listed = groups.flatMap(g => g.categories.flatMap(c => c.places.map(p => itemFor(g, p))));
+  clearSelectionIfMissing(state.listed);
+  renderPoiMarkers(state.listed);
+  const alive = new Set(groups.map(g => g.id));
+  Object.keys(state.groupHours).forEach(id => { if (!alive.has(id)) delete state.groupHours[id]; });
+  if (!state.open) state.open = state.selectedCategory !== 'all'
+    ? new Set(groups.flatMap(g => g.categories.map(c => `${g.id}|${c.category}`)))
+    : new Set((groups[0]?.categories || []).map(c => `${groups[0].id}|${c.category}`));
 
-  document.getElementById('resultsMeta').textContent = `${state.date} 운행일 · ${state.activeHour !== null ? `${state.activeHour}시 기준` : `${state.startHour}~${state.endHour}시`} · 한산함 ${Math.round(state.quietWeight * 100)}%`;
-
+  document.getElementById('resultsMeta').textContent = `${state.date} 운행일 · ${state.startHour}~${state.endHour}시 · 직선거리 순`;
   const cards = document.getElementById('resultsCards');
-  if (!results.length) {
-    state.listed = [];
-    const hint = state.tab === 'near'
-      ? '걷는 시간 합계가 이 한도 안이고 총 30분 이내인 가까운 곳이 없습니다. 걷는 시간 한도를 늘리거나 [지하철로 멀리] 탭을 눌러 보세요.'
-      : '총 30분을 넘는 먼 곳이 없습니다. 걷는 시간 한도가 짧으면 먼 곳이 걸러질 수 있어요. 한도를 늘려 보세요.';
-    cards.innerHTML = `<p class="empty-state" role="status">${hint}</p>`;
-    syncViewHour();
-    return;
+  if (!groups.length) {
+    cards.innerHTML = '<p class="empty-state" role="status">조건에 맞는 장소가 없습니다. 걷는 시간 한도나 지하철 이동 구간 조건을 바꿔 보세요.</p>';
+  } else {
+    cards.innerHTML = groups.map(g => {
+      const walkG = g.kind === 'walk', ico = walkG ? ICON.walk : ICON.train;
+      const label = walkG ? '걸어서' : `${stationName(g.boarding_station)}역 → ${stationName(g.alighting_station)}역`;
+      const badge = walkG ? '' : `<span class="rg-badge">${g.stops}구간</span>`;
+      return `<section class="route-group${walkG ? ' is-walk' : ''}" aria-label="${escapeHtml(groupTitle(g))}">
+      <h3 class="rg-title">${state.floatMode ? `<button type="button" class="rg-sel" data-gid="${escapeHtml(g.id)}" aria-pressed="${state.floatGid === g.id}" aria-label="${escapeHtml(groupTitle(g))}, 누르면 시간대 순위 창이 열립니다">${ico}<span class="rg-label">${escapeHtml(label)}</span>${badge}</button>` : `${ico}<span class="rg-label">${escapeHtml(label)}</span>${badge}`}</h3>
+      <div class="rg-chart" data-chart="${escapeHtml(g.id)}">${inlineChartHtml(g)}</div>
+      <div class="rg-places">${g.categories.map(c => { const key = `${g.id}|${c.category}`; return `<details class="cat-sec" data-key="${escapeHtml(key)}"${state.open.has(key) ? ' open' : ''}><summary><span class="cs-name">${escapeHtml(catLabel(c.category))}</span><span class="cs-count">(${c.places.length}곳)</span></summary>${c.places.map(p => placeRow(g, p)).join('')}</details>`; }).join('')}</div>
+    </section>`; }).join('');
+    cards.querySelectorAll('details.cat-sec').forEach(d => d.addEventListener('toggle', () => { d.open ? state.open.add(d.dataset.key) : state.open.delete(d.dataset.key); }));
+    const notes = payload.meta?.limitations;
+    if (Array.isArray(notes) && notes.length) {
+      const note = document.createElement('details');
+      note.className = 'limits-note';
+      note.innerHTML = `<summary>예측의 한계</summary><p>${escapeHtml(notes.join(' · '))}</p>`;
+      cards.prepend(note);
+    }
   }
+  window.Analysis?.refreshHeatmap();
+  window.Analysis?.refreshProfile();
+  renderFloat();
+}
 
-  const loads = results.filter(r => !r.no_train && typeof r.mean_load === 'number').map(r => r.mean_load);
-  state.rowCtx = { lo: Math.min(...loads), hi: Math.max(...loads) };
-  state.listed = results;
-  cards.innerHTML = results.map((r, i) => `<article class="result-card row" data-index="${i}">${rowInner(r, i, null)}</article>`).join('');
+// 시간 막대 클릭(목록 안 막대·떠 있는 창 공통): 그 묶음의 시간을 고르고 막대·창을 다시 그린다.
+function pickHour(col) {
+  const gid = col.dataset.gid, hour = Number(col.dataset.hour), g = (state.results || []).find(x => x.id === gid);
+  if (!g) return;
+  state.groupHours[gid] = state.groupHours[gid] === hour ? null : hour;
+  const box = [...document.querySelectorAll('#resultsCards [data-chart]')].find(b => b.dataset.chart === gid);
+  if (box) box.innerHTML = inlineChartHtml(g);
+  const body = document.querySelector('#rankFloat .rf-body');
+  if (body && state.floatGid === gid) body.innerHTML = chartHtml(g);
+  announceHour(gid, state.groupHours[gid]);
+  window.Analysis?.refreshProfile();
+  [...document.querySelectorAll('.col[data-hour]')].find(b => b.dataset.gid === gid && Number(b.dataset.hour) === hour && b.isConnected)?.focus();
+}
 
-  // 카드 클릭 이벤트 바인딩
-  cards.querySelectorAll('.result-card').forEach(card => {
-    card.tabIndex = 0;
-    card.setAttribute('role', 'button');
-    card.addEventListener('keydown', ev => { if (ev.target.closest('.kakao-route')) return; if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); card.click(); } });
-    card.addEventListener('click', ev => {
-      if (ev.target.closest('.kakao-route')) return;
-      cards.querySelectorAll('.result-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      const idx = Number(card.dataset.index);
-      const item = results[idx];
-      showPlaceRoute(item, true);
-    });
+// 떠 있는 순위 창(대체 표시). 내용은 chartHtml 을 그대로 쓴다. 제목줄을 끌어 옮기고 ×·Esc 로 닫는다.
+function clampFloat(box, left, top) {
+  return { left: Math.max(4, Math.min(window.innerWidth - box.offsetWidth - 4, left)), top: Math.max(4, Math.min(window.innerHeight - box.offsetHeight - 4, top)) };
+}
+function placeFloat(box, left, top) {
+  const p = clampFloat(box, left, top);
+  box.style.left = `${p.left}px`;
+  box.style.top = `${p.top}px`;
+  state.floatPos = p;
+}
+function renderFloat() {
+  const box = document.getElementById('rankFloat');
+  if (!box) return;
+  const g = state.floatMode && state.floatGid ? (state.results || []).find(x => x.id === state.floatGid) : null;
+  const onRecommend = document.getElementById('tab-recommend')?.classList.contains('active');
+  if (!g || !onRecommend) { box.hidden = true; box.setAttribute('aria-hidden', 'true'); box.innerHTML = ''; return; }
+  box.removeAttribute('aria-hidden');
+  const wasHidden = box.hidden;
+  box.hidden = false;
+  box.setAttribute('aria-label', `시간대 순위: ${groupTitle(g)}`);
+  box.innerHTML = `<div class="rf-bar" tabindex="0" aria-label="${escapeHtml(groupTitle(g))}. 제목줄을 끌어 옮길 수 있고 방향키로도 움직입니다. Esc로 닫습니다."><strong>${escapeHtml(groupTitle(g))}</strong><button type="button" class="rf-close" aria-label="순위 창 닫기">×</button></div><div class="rf-body">${chartHtml(g)}</div>`;
+  if (state.floatPos) placeFloat(box, state.floatPos.left, state.floatPos.top);
+  else {
+    const a = document.querySelector('.map-area')?.getBoundingClientRect();
+    placeFloat(box, a ? a.right - box.offsetWidth - 12 : window.innerWidth, a ? a.bottom - box.offsetHeight - 12 : window.innerHeight);   // 처음에는 지도 영역 오른쪽 아래(검색 패널을 가리지 않는다)
+  }
+}
+// 사용자가 ×/Esc 로 닫는 경우: 체크를 끄고 저장한 뒤 목록의 순위 막대를 되살린다. (자동으로 숨길 때는 renderFloat 만 쓴다.)
+function closeFloat() { setFloatMode(false); }
+function setFloatMode(on) {
+  state.floatMode = on;
+  const toggle = document.getElementById('rankFloatToggle');
+  if (toggle) toggle.checked = on;
+  try { localStorage.setItem('rankFloat', on ? '1' : '0'); } catch (_) { /* 저장 실패는 현재 화면에만 적용 */ }
+  state.floatGid = on ? (state.selectedItem?.groupId ?? null) : null;
+  if (state.results.length) renderRecommendations({ meta: state.lastMeta }); else renderFloat();
+}
+function initFloat() {
+  const box = document.getElementById('rankFloat'), toggle = document.getElementById('rankFloatToggle');
+  if (!box || !toggle) return;
+  try { state.floatMode = localStorage.getItem('rankFloat') === '1'; } catch (_) { /* 저장소를 못 쓰면 기본값(끔) */ }
+  toggle.checked = state.floatMode;
+  toggle.addEventListener('change', () => setFloatMode(toggle.checked));
+  let drag = null;
+  box.addEventListener('pointerdown', e => {
+    const bar = e.target.closest('.rf-bar');
+    if (!bar || e.button !== 0 || e.target.closest('button')) return;
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, left: box.offsetLeft, top: box.offsetTop };
+    box.setPointerCapture(e.pointerId);
+    box.classList.add('is-dragging');
+    e.preventDefault();
   });
+  box.addEventListener('pointermove', e => { if (drag && drag.id === e.pointerId) placeFloat(box, drag.left + e.clientX - drag.x, drag.top + e.clientY - drag.y); });
+  const end = e => { if (drag && drag.id === e.pointerId) { drag = null; box.classList.remove('is-dragging'); } };
+  box.addEventListener('pointerup', end);
+  box.addEventListener('pointercancel', end);
+  box.addEventListener('click', e => {
+    if (e.target.closest('.rf-close')) { closeFloat(); return; }
+    const col = e.target.closest('.col[data-hour]');
+    if (col) pickHour(col);
+  });
+  box.addEventListener('keydown', e => {
+    const d = e.target.classList?.contains('rf-bar') && { ArrowLeft: [-12, 0], ArrowRight: [12, 0], ArrowUp: [0, -12], ArrowDown: [0, 12] }[e.key];
+    if (d) { e.preventDefault(); placeFloat(box, box.offsetLeft + d[0], box.offsetTop + d[1]); }
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !box.hidden) closeFloat(); });
+  window.addEventListener('resize', () => { if (!box.hidden) placeFloat(box, box.offsetLeft, box.offsetTop); });
+}
 
-  syncViewHour();
-
-  const transit = results.filter(r => !r.no_train);
-  document.getElementById('predictionAnalysis').innerHTML = transit.length
-    ? `<div class="analysis-scroll"><table><thead><tr><th>출발 시각</th><th>이용 구간 / 장소</th><th>평균 재차</th><th>최대 재차</th></tr></thead><tbody>${transit.map(r => `<tr><td>${escapeHtml(formatTrainTime(r.departure_time))}</td><td>${escapeHtml(stationName(r.boarding_station))} → ${escapeHtml(stationName(r.alighting_station))}<br><strong>${escapeHtml(r.poi?.name)}</strong></td><td>${countLabel(r.mean_load)}</td><td>${countLabel(r.max_load)}</td></tr>`).join('')}</tbody></table></div>`
-    : '열차 이동이 필요한 추천이 없습니다.';
-
-  const notes = payload.meta?.limitations;
-  if (Array.isArray(notes) && notes.length) {
-    const note = document.createElement('details');
-    note.className = 'limits-note';
-    note.innerHTML = `<summary>예측의 한계</summary><p>${escapeHtml(notes.join(' · '))}</p>`;
-    cards.prepend(note);
-  }
+// 목록 클릭(위임): 시간 막대는 그 묶음의 시간을 고르고, 장소 행은 장소를 고른다.
+function initResultsList() {
+  const cards = document.getElementById('resultsCards');
+  cards.addEventListener('click', ev => {
+    const col = ev.target.closest('.col[data-hour]');
+    if (col) { pickHour(col); return; }
+    const sel = ev.target.closest('.rg-sel');
+    if (sel) { state.floatGid = sel.dataset.gid; renderFloat(); cards.querySelectorAll('.rg-sel').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.gid === state.floatGid))); document.querySelector('#rankFloat .rf-bar')?.focus(); return; }
+    if (ev.target.closest('.kakao-route')) return;
+    const row = ev.target.closest('.place-row');
+    const item = row && findItem(row.dataset.gid, row.dataset.pkey);
+    if (item) selectPlace(item);
+  });
+  cards.addEventListener('keydown', ev => {
+    const row = ev.target.closest?.('.place-row');
+    if (row && ev.target === row && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); row.click(); }
+  });
 }
 
 function setUpdating(on) {
@@ -1009,8 +1013,7 @@ async function requestRecommendations(opts = {}) {
   const auto = opts.auto === true;
   clearTimeout(state.researchTimer);
   state.researchTimer = null;
-  const hourMode = Number.isInteger(opts.hour) ? opts.hour : (auto ? state.activeHour : null);
-  const prevPoiId = auto ? (state.selectedItem?.poi?.id ?? null) : null;
+  const prev = auto && state.selectedItem ? { gid: state.selectedItem.groupId, key: placeKey(state.selectedItem.poi) } : null;
   if (!state.departure) {
     document.getElementById('resultsCards').innerHTML = '<p class="empty-state">먼저 위의 출발지 선택을 눌러 지도 선택을 켜거나, 역 목록에서 출발지를 골라 주세요.</p>';
     renderMetroSchematic();
@@ -1049,13 +1052,12 @@ async function requestRecommendations(opts = {}) {
       signal: controller.signal,
       body: JSON.stringify({
         date: state.date,
-        start_hour: hourMode ?? state.startHour,
-        end_hour: hourMode ?? state.endHour,
-        ...(hourMode === null ? { include_matrix: true } : {}),
-        quiet_weight: Math.round(state.quietWeight * 100),
+        start_hour: state.startHour,
+        end_hour: state.endHour,
         category: state.selectedCategory,
         origin: state.departure,
-        limit: 50,
+        ...(Number(document.getElementById('minStops').value) > 0 ? { min_stops: Number(document.getElementById('minStops').value) } : {}),
+        ...(Number(document.getElementById('maxStops').value) < STATIONS.length - 1 ? { max_stops: Number(document.getElementById('maxStops').value) } : {}),
         ...(document.getElementById('maxWalk').value !== '' ? { max_walk_minutes: Number(document.getElementById('maxWalk').value) } : {}),
       }),
     });
@@ -1065,45 +1067,21 @@ async function requestRecommendations(opts = {}) {
     } catch (_) {
       throw new Error('예측 서비스 응답을 읽을 수 없습니다.');
     }
-    if (!response.ok) throw new Error(typeof payload.detail === 'string' ? payload.detail : '예측 서비스가 요청을 처리하지 못했습니다.');
-    if (!Array.isArray(payload.results)) throw new Error('예측 결과 형식을 확인할 수 없습니다.');
+    if (!response.ok) throw new Error(typeof payload.error === 'string' ? payload.error : '예측 서비스가 요청을 처리하지 못했습니다.');
+    if (!Array.isArray(payload.groups)) throw new Error('예측 결과 형식을 확인할 수 없습니다.');
     if (id !== state.recommendationRequestId) return;
 
     setUpdating(false);
-    if (!auto) { state.viewHour = null; state.tab = 'near'; }
-    state.results = payload.results;
+    if (!auto) { state.groupHours = {}; state.open = null; }
+    state.results = payload.groups;
     state.lastMeta = payload.meta || state.lastMeta;
-    state.activeHour = hourMode;
-    if (hourMode === null) {
-      state.chipRange = { start: state.startHour, end: state.endHour };
-      state.matrix = payload.matrix || null;
-    }
+    state.chipRange = { start: state.startHour, end: state.endHour };
     renderRecommendations(payload);
-    renderTimeStrip();
-    window.Analysis?.refreshHeatmap();
     if (!auto) document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-
-    if (auto && prevPoiId !== null) {
-      // 출발지 변경 후 재검색: 같은 탭에 같은 장소가 있으면 새 결과로 경로를 다시 그린다(카메라는 움직이지 않음)
-      const idx = state.listed.findIndex(r => r.poi?.id === prevPoiId);
-      if (idx >= 0) {
-        document.querySelector(`.result-card[data-index="${idx}"]`)?.classList.add('selected');
-        showPlaceRoute(state.listed[idx], true, false);
-        syncViewHour(); // 같은 장소이고 그 시간이 새 matrix에 있으면 유지, 아니면 초기화
-      } else {
-        clearRoute();
-        state.selectedItem = null;
-        window.Analysis?.setSelected(null);
-        state.viewHour = null;
-        syncViewHour();
-        const other = payload.results.some(r => r.poi?.id === prevPoiId);
-        showUpdateNote(other ? '선택했던 장소가 새 출발지 기준으로 다른 탭으로 옮겨져 선택을 해제했습니다.' : '선택했던 장소가 새 출발지 기준 결과에 없어 선택을 해제했습니다.');
-      }
-    } else if (state.listed.length > 0) {
-      // 현재 탭 1위 장소의 경로를 지도에 기본 표시
-      const firstCard = document.querySelector('.result-card[data-index="0"]');
-      if (firstCard) firstCard.classList.add('selected');
-      showPlaceRoute(state.listed[0], true);
+    if (prev) {
+      // 출발지 변경 후 재검색: 같은 구간 묶음에 같은 장소가 있으면 새 결과로 경로를 다시 그린다(카메라는 움직이지 않음). 없으면 선택은 이미 해제되어 있다.
+      const item = findItem(prev.gid, prev.key);
+      if (item) { selectPlace(item, false, true); } else { showUpdateNote('선택했던 장소가 새 출발지 기준 결과에 없어 선택을 해제했습니다.'); }
     }
   } catch (error) {
     if (id !== state.recommendationRequestId) return;
@@ -1116,7 +1094,7 @@ async function requestRecommendations(opts = {}) {
     }
     renderPoiMarkers([]);
     document.getElementById('resultsMeta').textContent = '추천을 불러오지 못했습니다';
-    document.getElementById('resultsCards').innerHTML = `<p class="empty-state is-error" role="alert">${escapeHtml(error.name === 'AbortError' ? '응답 시간이 길어 요청을 중단했습니다. 잠시 후 다시 시도해 주세요.' : error.message === 'Failed to fetch' ? '예측 서비스에 연결할 수 없습니다. prediction_api.py 가 실행 중인지, 주소가 http://127.0.0.1:5500/web/index.html 인지 확인해 주세요.' : error.message)}<br>혼잡도나 추천 점수를 임의로 대신 표시하지 않습니다.</p>`;
+    document.getElementById('resultsCards').innerHTML = `<p class="empty-state is-error" role="alert">${escapeHtml(error.name === 'AbortError' ? '응답 시간이 길어 요청을 중단했습니다. 잠시 후 다시 시도해 주세요.' : error.message === 'Failed to fetch' ? '예측 서비스에 연결할 수 없습니다. prediction_api.py 가 실행 중인지, 주소가 http://127.0.0.1:5500/web/index.html 인지 확인해 주세요.' : error.message)}<br>순위를 임의로 대신 표시하지 않습니다.</p>`;
     document.getElementById('predictionAnalysis').textContent = '예측 자료를 불러오지 못했습니다.';
   } finally {
     clearTimeout(timeout);
@@ -1127,191 +1105,6 @@ async function requestRecommendations(opts = {}) {
       setSearchLabel('찾기');
     }
   }
-}
-
-// 시간 막대: 검색 뒤 응답의 matrix(실제 값)로만 그린다. 막대를 눌러도 순위·목록은 바뀌지 않고, 선택한 장소의 표시만 그 시간 값으로 바뀐다(D-019).
-function renderTimeStrip() {
-  const box = document.getElementById('timeStrip');
-  if (!box) return;
-  const m = state.matrix;
-  if (!m || !m.rows?.length || !state.results.length) { box.hidden = true; box.innerHTML = ''; return; }
-  const t = viewTarget();
-  const own = !!(t && t.usable);                       // 선택한 장소의 시간별 값이 있을 때만 막대를 누를 수 있다
-  const series = m.hours.map((h, i) => {
-    if (own) return t.row.cells[i]?.mean_load ?? null;
-    const v = m.rows.filter(r => !r.no_train && (!r.group || r.group === state.tab)).map(r => r.cells[i]?.mean_load).filter(x => typeof x === 'number');
-    return v.length ? Math.min(...v) : null;
-  });
-  const vals = series.filter(v => typeof v === 'number');
-  if (!vals.length) { box.hidden = true; box.innerHTML = ''; return; }
-  const preferredWidth = Math.max(370, Math.min(780, 220 + m.hours.length * 28));
-  box.style.setProperty('--strip-preferred-width', `${preferredWidth}px`);
-  const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
-  const qn = v => Math.min(5, 1 + Math.floor(((v - lo) / span) * 4.999));
-  const qLabel = ['매우 한산', '한산', '보통', '붐빔', '매우 붐빔'];
-  const sel = state.selectedItem;
-  const walkOnly = !!sel?.no_train;
-  const basis = own
-    ? `선택한 장소(${t.row.name}) 기준`
-    : walkOnly
-      ? '도보 전용 장소 자체의 혼잡도가 아님'
-      : '상위 후보 중 가장 한산한 값 기준';
-  const recommendationHour = sel && !sel.no_train && sel.departure_time
-    ? Number(String(sel.departure_time).split(':')[0])
-    : null;
-  const currentView = walkOnly
-    ? '선택한 장소는 도보 전용'
-    : state.viewHour === null ? '기본 추천 보기' : `현재 표시: ${state.viewHour}시`;
-  const hint = own ? '시간을 누르면 선택한 장소의 그 시간 정보를 보여줍니다 (순위는 그대로)'
-    : !sel ? '장소를 고르면 시간을 눌러 그 장소의 시간별 정보를 볼 수 있어요'
-    : walkOnly ? '이 그래프는 이 장소의 혼잡도가 아닙니다. 같은 탭의 지하철 추천안 중 시간별 최소값입니다.'
-    : '이 장소는 시간별 값이 없어 막대만 보여 줍니다 (상위 15곳만 제공)';
-  const cols = m.hours.map((h, i) => {
-    const v = series[i], selectedHour = state.viewHour === null ? recommendationHour : state.viewHour;
-    const on = selectedHour === h;
-    if (typeof v !== 'number') return `<div class="col empty" role="img" aria-label="${h}시 열차 없음"><span class="bar"></span><span class="h">${h}</span><span class="v">–</span></div>`;
-    const n = qn(v), height = 8 + Math.round(((v - lo) / span) * 28);
-    const label = `${h}시, 예상 재차 ${Math.round(v)}명, ${qLabel[n - 1]}`;
-    const inner = `<span class="bar" style="height:${height}px;background:var(--q${n})"></span><span class="h">${h}</span><span class="v">${Math.round(v)}</span>`;
-    if (!own) return `<div class="col static${on ? ' sel' : ''}" role="img" aria-label="${label}${on ? ', 선택됨' : ''}" title="${label}">${inner}</div>`;
-    return `<button type="button" class="col${on ? ' sel' : ''}" data-hour="${h}" aria-pressed="${on}" aria-label="${label}${on ? ', 선택됨' : ''}" title="${label}">${inner}</button>`;
-  }).join('');
-  box.hidden = false;
-  box.classList.toggle('is-collapsed', state.timeStripCollapsed);
-  const chartTitle = walkOnly ? '다른 지하철 추천안 · 예상 재차인원(명)' : '시간대별 예상 재차인원(명)';
-  box.innerHTML = `<div class="strip-head"><div class="strip-title" tabindex="0" aria-label="플로팅 창을 끌어 이동할 수 있습니다. 방향키로 이동하고 Home 키로 처음 위치로 되돌립니다." aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Home"><div class="strip-heading"><strong>언제 가면 한산할까</strong><span class="strip-drag-affordance" aria-hidden="true" title="창의 빈 곳을 끌어 이동">⠿ 끌어 이동</span></div><span class="strip-current">${escapeHtml(currentView)}</span><span class="strip-basis">${escapeHtml(chartTitle)} · ${escapeHtml(basis)}</span></div>
-      <div class="strip-actions"><button type="button" class="strip-best" aria-pressed="${state.viewHour === null}"${own ? '' : ' disabled'}>기본 추천 보기</button>
-      <button type="button" class="strip-reset" aria-label="패널 위치 초기화" title="패널 위치 초기화">↺</button>
-      <button type="button" class="strip-toggle" aria-expanded="${!state.timeStripCollapsed}" aria-controls="timeStripContent">${state.timeStripCollapsed ? '펼치기' : '접기'}</button></div></div>
-    <div class="strip-content" id="timeStripContent"><div class="strip-scroll in-range"><div class="cols" style="--n:${m.hours.length}">${cols}</div></div>
-    <div class="legend"><span><i style="background:var(--q1)"></i>한산</span><span><i style="background:var(--q3)"></i>보통</span><span><i style="background:var(--q5)"></i>붐빔</span><span class="legend-hint">${hint}</span></div></div>`;
-  box.querySelector('.strip-toggle').addEventListener('click', e => {
-    state.timeStripCollapsed = !state.timeStripCollapsed;
-    box.classList.toggle('is-collapsed', state.timeStripCollapsed);
-    e.currentTarget.setAttribute('aria-expanded', String(!state.timeStripCollapsed));
-    e.currentTarget.textContent = state.timeStripCollapsed ? '펼치기' : '접기';
-  });
-  bindTimeStripHandle(box);
-  box.querySelectorAll('.col[data-hour]').forEach(btn => btn.addEventListener('click', () => { state.viewHour = Number(btn.dataset.hour); syncViewHour(); document.querySelector(`#timeStrip .col[data-hour="${state.viewHour}"]`)?.focus(); }));
-  box.querySelector('.strip-best').addEventListener('click', () => { state.viewHour = null; syncViewHour(); document.querySelector('#timeStrip .strip-best')?.focus(); });
-  requestAnimationFrame(applyTimeStripPosition);
-}
-
-const TIME_STRIP_POSITION_KEY = 'timeStrip.position.v1';
-
-function readTimeStripPosition() {
-  try {
-    const value = JSON.parse(localStorage.getItem(TIME_STRIP_POSITION_KEY) || 'null');
-    if (value && Number.isFinite(value.x) && Number.isFinite(value.y)) {
-      return { x: Math.max(0, Math.min(1, value.x)), y: Math.max(0, Math.min(1, value.y)) };
-    }
-  } catch (_) { /* 저장소를 사용할 수 없으면 기본 위치를 쓴다 */ }
-  return null;
-}
-
-function stripPositionLimits(box) {
-  const area = document.querySelector('.map-area');
-  if (!area || !box) return null;
-  const xRange = Math.max(0, area.clientWidth - box.offsetWidth - 16);
-  const yRange = Math.max(0, area.clientHeight - box.offsetHeight - 16);
-  return { area, xRange, yRange };
-}
-
-function applyTimeStripPosition() {
-  const box = document.getElementById('timeStrip');
-  if (!box || box.hidden) return;
-  const limits = stripPositionLimits(box);
-  if (!limits) return;
-  const p = state.timeStripPosition || { x: 0, y: 1 };
-  box.style.left = `${8 + p.x * limits.xRange}px`;
-  box.style.top = `${8 + p.y * limits.yRange}px`;
-  box.style.right = 'auto';
-  box.style.bottom = 'auto';
-}
-
-function saveTimeStripPosition() {
-  const box = document.getElementById('timeStrip');
-  const limits = stripPositionLimits(box);
-  if (!box || !limits) return;
-  const left = Math.max(8, Math.min(limits.area.clientWidth - box.offsetWidth - 8, box.offsetLeft));
-  const top = Math.max(8, Math.min(limits.area.clientHeight - box.offsetHeight - 8, box.offsetTop));
-  box.style.left = `${left}px`;
-  box.style.top = `${top}px`;
-  state.timeStripPosition = {
-    x: limits.xRange ? (left - 8) / limits.xRange : 0,
-    y: limits.yRange ? (top - 8) / limits.yRange : 1,
-  };
-  try { localStorage.setItem(TIME_STRIP_POSITION_KEY, JSON.stringify(state.timeStripPosition)); }
-  catch (_) { /* 저장소를 쓸 수 없어도 현재 위치 이동은 유지한다 */ }
-}
-
-function resetTimeStripPosition() {
-  state.timeStripPosition = null;
-  try { localStorage.removeItem(TIME_STRIP_POSITION_KEY); } catch (_) { /* 기본 위치로 복귀는 계속 진행 */ }
-  applyTimeStripPosition();
-}
-
-function moveTimeStripBy(dx, dy) {
-  const box = document.getElementById('timeStrip');
-  const limits = stripPositionLimits(box);
-  if (!box || !limits) return;
-  const left = Math.max(8, Math.min(limits.area.clientWidth - box.offsetWidth - 8, box.offsetLeft + dx));
-  const top = Math.max(8, Math.min(limits.area.clientHeight - box.offsetHeight - 8, box.offsetTop + dy));
-  box.style.left = `${left}px`;
-  box.style.top = `${top}px`;
-  saveTimeStripPosition();
-}
-
-function bindTimeStripHandle(box) {
-  const handle = box.querySelector('.strip-title');
-  const resetButton = box.querySelector('.strip-reset');
-  if (!handle) return;
-  box.addEventListener('pointerdown', e => {
-    if (e.button !== 0 || e.target.closest('button, a, input, select, .strip-scroll')) return;
-    const startLeft = box.offsetLeft, startTop = box.offsetTop;
-    state.timeStripDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, left: startLeft, top: startTop };
-    box.classList.add('is-dragging');
-    box.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
-  box.addEventListener('pointermove', e => {
-    const drag = state.timeStripDrag;
-    if (!drag || drag.id !== e.pointerId) return;
-    const limits = stripPositionLimits(box);
-    if (!limits) return;
-    const left = Math.max(8, Math.min(limits.area.clientWidth - box.offsetWidth - 8, drag.left + e.clientX - drag.x));
-    const top = Math.max(8, Math.min(limits.area.clientHeight - box.offsetHeight - 8, drag.top + e.clientY - drag.y));
-    box.style.left = `${left}px`;
-    box.style.top = `${top}px`;
-  });
-  const finishDrag = e => {
-    const drag = state.timeStripDrag;
-    if (!drag || drag.id !== e.pointerId) return;
-    state.timeStripDrag = null;
-    box.classList.remove('is-dragging');
-    saveTimeStripPosition();
-    if (box.hasPointerCapture(e.pointerId)) box.releasePointerCapture(e.pointerId);
-  };
-  box.addEventListener('pointerup', finishDrag);
-  box.addEventListener('pointercancel', finishDrag);
-  handle.addEventListener('keydown', e => {
-    const step = e.shiftKey ? 40 : 12;
-    const delta = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
-    if (delta) { e.preventDefault(); moveTimeStripBy(...delta); }
-    else if (e.key === 'Home') { e.preventDefault(); resetTimeStripPosition(); }
-  });
-  resetButton?.addEventListener('click', resetTimeStripPosition);
-}
-
-function initTimeStripPosition() {
-  state.timeStripPosition = readTimeStripPosition();
-  const area = document.querySelector('.map-area'), box = document.getElementById('timeStrip');
-  if (typeof ResizeObserver !== 'undefined' && area && box) {
-    const observer = new ResizeObserver(applyTimeStripPosition);
-    observer.observe(area);
-    observer.observe(box);
-  }
-  window.addEventListener('resize', applyTimeStripPosition);
 }
 
 // 출발지 문장 칸: 눌러서 지도 안내와 역 목록을 연다 (Esc/바깥 클릭으로 닫힘)
@@ -1361,24 +1154,42 @@ function setMapPickMode(active) {
   document.querySelector('.map-area')?.classList.toggle('is-picking', state.mapPickMode);
 }
 
+// 이동 구간 드롭다운: 이상 0..N(0=제한 없음), 이하 1..N(N=제한 없음). 서로 모순되는 칸은 끄고 값은 바꾸지 않는다.
+function syncStopsOptions() {
+  const N = STATIONS.length - 1, lo = document.getElementById('minStops'), hi = document.getElementById('maxStops');
+  if (Number(lo.value) > Number(hi.value)) { lo.value = '0'; hi.value = String(N); }   // 어긋난 복원 값은 기본값으로
+  [...lo.options].forEach(o => { o.disabled = Number(o.value) > Number(hi.value); });
+  [...hi.options].forEach(o => { o.disabled = Number(o.value) < Number(lo.value); });
+}
+
+function initStopsSelects() {
+  const N = STATIONS.length - 1, lo = document.getElementById('minStops'), hi = document.getElementById('maxStops');
+  lo.innerHTML = Array.from({ length: N + 1 }, (_, n) => `<option value="${n}">${n === 0 ? '제한 없음' : `${n}개 이상`}</option>`).join('');
+  hi.innerHTML = Array.from({ length: N }, (_, i) => `<option value="${i + 1}">${i + 1 === N ? '제한 없음' : `${i + 1}개 이하`}</option>`).join('');
+  lo.value = '0'; hi.value = String(N);
+  [lo, hi].forEach(el => el.addEventListener('change', syncStopsOptions));
+  syncStopsOptions();
+}
+
 function initSearchBtn() {
-  document.getElementById('maxWalk').addEventListener('change', () => {
+  initStopsSelects();
+  ['maxWalk', 'minStops', 'maxStops'].forEach(id => document.getElementById(id).addEventListener('change', () => {
     if (state.results.length > 0) {
       setSearchLabel('다시 찾기');
-      document.getElementById('predictionAnalysis').textContent = '도보 시간이 변경되었습니다. [다시 찾기]를 누르면 다시 계산합니다.';
+      document.getElementById('predictionAnalysis').textContent = '검색 조건이 변경되었습니다. [다시 찾기]를 누르면 다시 계산합니다.';
     }
-  });
+  }));
   setSearchLabel('찾기');
   document.getElementById('searchBtn').addEventListener('click', () => requestRecommendations());
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initTimeStripPosition();
   initTabs();
   initRecommendationControls();
   initDateInput();
   initFilters();
-  initGroupTabs();
+  initResultsList();
+  initFloat();
   initQueryBar();
   initSearchBtn();
   loadPois();
