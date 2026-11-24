@@ -49,3 +49,6 @@ artifacts/
 # 배포·로컬 실행 때 scripts/sync_static_data.mjs 가 원본(data/raw/...)에서 만드는 공개 사본(커밋하지 않는다)
 static-web/data/weather/
 static-web/data/t04/raw/
+
+# 문서 폴더
+/output/

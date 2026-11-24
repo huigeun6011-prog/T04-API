@@ -94,6 +94,13 @@ function nextDate(date) {
   return d.toISOString().slice(0, 10);
 }
 
+// 예보 제공 범위: KST 오늘 + 15일(static-engine.js 와 같은 기준). 문구가 아니라 날짜로 판별한다.
+function isBeyondForecast(date) {
+  const d = new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' })}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 15);
+  return date > d.toISOString().slice(0, 10);
+}
+
 function distKm(lat1, lng1, lat2, lng2) {
   const r = Math.PI / 180, dLat = (lat2 - lat1) * r, dLng = (lng2 - lng1) * r;
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin(dLng / 2) ** 2;
@@ -199,9 +206,7 @@ function setDeparture(lat, lng, label = null) {
 
   document.getElementById('locationBox').innerHTML = `<div class="loc-addr">${ICON.pin} ${escapeHtml(label || '출발지 지정됨')}</div><div class="loc-coords">위도 ${lat.toFixed(5)} · 경도 ${lng.toFixed(5)}</div>`;
   const slot = document.getElementById('slotOrigin');
-  if (slot) slot.textContent = label || '지도에서 고른 위치';
-  const near = STATIONS.map(s => ({ ...s, km: distKm(lat, lng, s.lat, s.lng) })).sort((a, b) => a.km - b.km).slice(0, 5);
-  document.getElementById('stationDistList').innerHTML = near.map(s => `<div class="stn-row"><span class="stn-row-name">${escapeHtml(s.name)}역</span><span class="stn-row-dist">직선거리 ${(s.km * 1000).toFixed(0)}m</span></div>`).join('');
+  if (slot) { slot.textContent = label || '지도에서 고른 위치'; slot.classList.remove('is-empty'); }
 
   if (departureChanged) {
     // 출발지를 바꾸면 이전 기준의 결과·경로·분석은 즉시 버리고, 사용자가 다시 찾기를 누를 때만 재계산한다.
@@ -218,6 +223,7 @@ function setDeparture(lat, lng, label = null) {
     setStale(false);
     state.results = [];
     state.lastMeta = null;
+    renderWeatherFallbackNotice();
     state.selectedItem = null;
     state.listed = [];
     state.groupHours = {};
@@ -565,7 +571,8 @@ function ensureVisible(points) {
 // ─────────────────────────────────────────────
 async function loadPois() {
   const cards = document.getElementById('resultsCards');
-  cards.innerHTML = '<p class="empty-state" role="status">장소 데이터를 불러오는 중입니다.</p>';
+  cards.replaceChildren();   // 로딩 안내는 지도 오른쪽 위 알림(#loadToast)이 맡는다
+  window.LoadToast?.set('pois', '장소 데이터를 불러오는 중입니다.');
   try {
     const response = await fetch('./data/pois.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -578,6 +585,8 @@ async function loadPois() {
     console.error('POI 데이터 로드 실패:', error);
     cards.innerHTML = '<p class="empty-state">장소 데이터를 불러오지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.</p>';
     document.getElementById('resultsMeta').textContent = '데이터 로드 실패';
+  } finally {
+    window.LoadToast?.set('pois', null);
   }
 }
 
@@ -605,7 +614,9 @@ async function loadWeather(date) {
   const controller = new AbortController();
   state.weatherController = controller;
   state.weather = null;
+  state.weatherFailure = null;
   state.nextWeather = null;
+  window.updateWeatherIcon?.();
   box.setAttribute('aria-busy', 'true');
   box.innerHTML = '<span class="placeholder-text">날씨를 불러오는 중입니다…</span>';
   let timedOut = false;
@@ -629,19 +640,28 @@ async function loadWeather(date) {
       state.nextWeather = { available: false, date: nextDate(date) };
       renderHourlyWeather();
     } else {
+      window.updateWeatherIcon?.();
       const message = timedOut ? '날씨 조회가 오래 걸리고 있습니다. 잠시 후 다시 시도해 주세요.'
         : error.name === 'AbortError' ? '날씨 조회를 중단했습니다. 다시 시도할 수 있습니다.'
         : '선택한 날짜의 날씨를 불러오지 못했습니다. 제공 범위나 연결 상태를 확인한 뒤 다시 시도해 주세요.';
       // 오류 유형(timeout/auth/rate_limit/offline/schema_error)을 구분해 보여 준다. 원인 문구는 t04-core 의 ERROR_INFO 를 쓴다.
-      const kind = timedOut ? 'timeout' : error.name === 'AbortError' ? null : (error.kind || 'schema_error');
+      const outOfRange = !timedOut && error.name !== 'AbortError' && isBeyondForecast(date);
+      const kind = outOfRange ? 'out_of_range' : timedOut ? 'timeout' : error.name === 'AbortError' ? null : (error.kind || 'schema_error');
       const info = kind && window.T04Core?.ERROR_INFO?.[kind];
-      box.innerHTML = `<span class="placeholder-text weather-error" role="status">${info ? `<strong>${escapeHtml(info.label)} (${kind})</strong> — ${escapeHtml(info.cause)} ` : ''}${escapeHtml(message)}</span>`;
+      const WARN_SVG = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg>';
+      state.weatherFailure = { kind: kind || 'aborted' };
+      window.updateWeatherIcon?.();
+      if (outOfRange) {
+        box.innerHTML = `<div class="weather-alert weather-alert--stale weather-alert--box" role="status"><span class="weather-alert__icon" aria-hidden="true">${WARN_SVG}</span><div class="weather-alert__body"><strong class="weather-alert__title">제공 범위 밖 날짜</strong><p class="weather-alert__text">날씨 예보는 오늘부터 15일 후까지 제공됩니다. 날짜를 바꿔 주세요.</p></div></div>`;
+        return;
+      }
+      box.innerHTML = `<div class="weather-alert weather-alert--fail weather-alert--box" role="alert"><span class="weather-alert__icon" aria-hidden="true">${WARN_SVG}</span><div class="weather-alert__body">${info ? `<strong class="weather-alert__title">${escapeHtml(info.label)} (${kind})</strong>` : ''}<p class="weather-alert__text">${info ? `${escapeHtml(info.cause)} ` : ''}${escapeHtml(message)}</p></div></div>`;
       const retry = document.createElement('button');
       retry.type = 'button';
-      retry.className = 'update-retry';
+      retry.className = 'update-retry weather-retry';
       retry.textContent = '날씨 다시 불러오기';
       retry.addEventListener('click', () => loadWeather(state.date));
-      box.appendChild(retry);
+      box.querySelector('.weather-alert__body').appendChild(retry);
     }
   } finally {
     clearTimeout(timeout);
@@ -656,11 +676,13 @@ const WEATHER_SOURCE_LABEL = { forecast: 'Open-Meteo 예보', archive: 'Open-Met
 const weatherKstFormat = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
 function weatherMetaHtml(weather) {
   const fetched = weather.fetched_at && !Number.isNaN(Date.parse(weather.fetched_at)) ? `${weatherKstFormat.format(new Date(weather.fetched_at))} KST` : '알 수 없음';
-  return `<ul class="weather-meta"><li>출처: ${escapeHtml(WEATHER_SOURCE_LABEL[weather.source] || 'Open-Meteo')}</li>`
+  const fallbackNote = weather.fallback ? `<p class="weather-fallback" role="status">대체 날씨입니다. 요청날짜 ${escapeHtml(weather.date)} 대신 자료날짜 ${escapeHtml(weather.source_date)}의 시간별 ${weather.fallback.kind === 'observed' ? '관측' : '예보'} 패턴을 표시합니다. 선택일의 실제 날씨와 다를 수 있습니다.</p>` : '';
+  return fallbackNote + `<details class="weather-source"><summary>출처·조회 시각·기준 시간대</summary><ul class="weather-meta"><li>출처: ${escapeHtml(weather.fallback ? '대체 날씨' : WEATHER_SOURCE_LABEL[weather.source] || 'Open-Meteo')}</li>`
     + `<li>값과 단위: 기온 °C · 강수 mm · 적설 cm</li>`
-    + `<li>출처 시각: ${escapeHtml(weather.date)} 00시~23시 시간별 값(원천이 따로 발표 시각을 주지 않음)</li>`
+    + `<li>출처 시각: ${escapeHtml(weather.source_date || weather.date)} 00시~23시 시간별 값(원천이 따로 발표 시각을 주지 않음)</li>`
     + `<li>조회 시각: ${escapeHtml(fetched)}${weather.cached ? ' (저장해 둔 조회 결과)' : ''}</li>`
-    + `<li>기준 시간대: Asia/Seoul</li></ul>`;
+    + (weather.fallback ? `<li>대체 사유: ${escapeHtml(weather.fallback.reason)}</li><li>원본 출처: ${escapeHtml(weather.fallback.source_url)}</li>` : '')
+    + `<li>기준 시간대: Asia/Seoul</li></ul></details>`;
 }
 
 function weatherNumber(value, unit) {
@@ -669,13 +691,14 @@ function weatherNumber(value, unit) {
 
 function renderHourlyWeather() {
   if (!state.weather?.available) return;
+  window.updateWeatherIcon?.();
   const rows = [];
   for (let hour = state.startHour; hour <= state.endHour; hour++) {
     const day = hour === 24 ? state.nextWeather : state.weather, key = `${hour === 24 ? nextDate(state.date) : state.date}T${String(hour % 24).padStart(2, '0')}:00`;
     const h = day?.hourly, i = h?.time?.indexOf(key) ?? -1;
     rows.push(`<tr><th>${hour === 24 ? '24시 (익일 00시)' : `${hour}시`}</th><td>${weatherNumber(h?.temperature_2m?.[i], '°C')}</td><td>${weatherNumber(h?.precipitation?.[i], 'mm')}</td><td>${weatherNumber(h?.snowfall?.[i], 'cm')}</td></tr>`);
   }
-  document.getElementById('weatherBox').innerHTML = `<div class="weather-badge">Open-Meteo · ${['archive', 'local_archive'].includes(state.weather.source) ? '과거 날씨' : '예보'}</div><div class="weather-hourly"><table><caption>선택한 시간대의 대전 날씨</caption><thead><tr><th>시간</th><th>기온</th><th>강수</th><th>적설</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>${weatherMetaHtml(state.weather)}${state.endHour === 24 && !state.nextWeather?.available ? `<p class="control-help">${state.nextWeather ? '익일 00시 날씨는 불러오지 못했거나 제공 범위 밖입니다.' : '익일 00시 날씨를 조회 중입니다…'}</p>` : ''}`;
+  document.getElementById('weatherBox').innerHTML = `<div class="weather-hourly"><table><caption>선택한 시간대의 대전 날씨</caption><thead><tr><th>시간</th><th>기온</th><th>강수</th><th>적설</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>${weatherMetaHtml(state.weather)}${state.endHour === 24 && !state.nextWeather?.available ? `<p class="control-help">${state.nextWeather ? '익일 00시 날씨는 불러오지 못했거나 제공 범위 밖입니다.' : '익일 00시 날씨를 조회 중입니다…'}</p>` : ''}`;
 }
 
 function initRecommendationControls() {
@@ -911,6 +934,32 @@ function announceHour(gid, hour) {
   if (live) live.textContent = c ? `${groupTitle(g)} ${hour}시: ${g.rank_n}개 시간대 중 ${c.rank}번째로 한산, 승차역 출발 열차 ${c.trains.map(x => formatTrainTime(x.departure_time)).join(', ')}` : '';
 }
 
+function renderWeatherFallbackNotice(meta) {
+  document.querySelectorAll('.recommend-weather-fallback').forEach(el => el.remove());
+  if (!meta?.weather_fallbacks?.length) return;
+  const text = '대체 날씨로 계산했습니다. ' + meta.weather_fallbacks.map(f =>
+    `요청날짜 ${f.requested_date} 대신 자료날짜 ${f.source_date}의 시간별 ${f.kind === 'observed' ? '관측' : '예보'} 패턴을 사용했습니다.`
+  ).join(' ') + ' 선택일의 실제 날씨와 다를 수 있습니다. 24시는 익일 00시에 대응합니다.';
+  for (const target of [document.getElementById('resultsCards'), document.getElementById('predictionAnalysis')]) {
+    if (!target) continue;
+    const note = document.createElement('div');
+    note.className = 'recommend-weather-fallback';
+    note.setAttribute('role', 'status');
+    note.textContent = text;
+    const details = document.createElement('details');
+    const summary = document.createElement('summary');
+    summary.textContent = '대체 자료 출처·조회 시각·사유';
+    details.append(summary);
+    for (const f of meta.weather_fallbacks) {
+      const info = document.createElement('p');
+      info.textContent = `${f.requested_date} ← ${f.source_date} · 조회 ${f.fetched_at} · 사유: ${f.reason} · 출처: ${f.source_url}`;
+      details.append(info);
+    }
+    note.append(details);
+    target === document.getElementById('resultsCards') ? target.prepend(note) : target.before(note);
+  }
+}
+
 function renderRecommendations(payload) {
   state.lastMeta = payload.meta || state.lastMeta;
   const groups = visibleGroups();
@@ -948,6 +997,7 @@ function renderRecommendations(payload) {
   }
   window.Analysis?.refreshHeatmap();
   window.Analysis?.refreshProfile();
+  renderWeatherFallbackNotice(state.lastMeta);
   renderFloat();
 }
 
@@ -1096,6 +1146,7 @@ async function requestRecommendations(opts = {}) {
   const controller = new AbortController();
   state.recommendationController = controller;
   const id = ++state.recommendationRequestId;
+  renderWeatherFallbackNotice();
   const button = document.getElementById('searchBtn');
   const startedAt = Date.now();
   let tick = null;
@@ -1149,6 +1200,11 @@ async function requestRecommendations(opts = {}) {
     }
   } catch (error) {
     if (id !== state.recommendationRequestId) return;
+    renderWeatherFallbackNotice();
+    if (state.lastMeta?.weather_fallbacks) {
+      const { weather_fallbacks, ...meta } = state.lastMeta;
+      state.lastMeta = meta;
+    }
     const message = error.name === 'AbortError'
       ? (timedOut ? '계산이 오래 걸려 중단했습니다. 잠시 후 다시 시도해 주세요.' : '계산을 중단했습니다. 다시 찾기를 눌러 주세요.')
       : error.message === 'Failed to fetch' ? '추천에 필요한 자료를 불러오지 못했습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.'

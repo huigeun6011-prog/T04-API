@@ -2,6 +2,21 @@
  * No Kakao SDK, app key, authorization header, or upstream URL reaches this file.
  * Projection is supplied by the verified, local MapViewProjection module.
  */
+// 첫 화면 로딩 알림(#loadToast) 하나로 지도·장소 데이터 로딩을 합친다. 하나라도 진행 중이면 보인다.
+window.LoadToast = (() => {
+  const pending = new Map();
+  return {
+    set(key, text) {
+      if (text) pending.set(key, text); else pending.delete(key);
+      const el = document.getElementById('loadToast');
+      if (!el) return;
+      const first = ['map', 'pois'].map((k) => pending.get(k)).find(Boolean);
+      el.textContent = first || '';
+      el.hidden = !first;
+    }
+  };
+})();
+
 (function () {
   'use strict';
   const svgNS = 'http://www.w3.org/2000/svg';
@@ -48,10 +63,6 @@
       this.zoomIn = this.button('+', '지도 확대', () => this.setLevel(this.level - 1));
       this.zoomOut = this.button('−', '지도 축소', () => this.setLevel(this.level + 1));
       this.controls.append(this.zoomIn, this.zoomOut);
-      this.status = document.createElement('div');
-      this.status.className = 'rest-map-status';
-      this.status.setAttribute('role', 'status');
-      this.status.textContent = '지도를 불러오는 중입니다.';
       this.error = document.createElement('div');
       this.error.className = 'rest-map-error';
       this.error.hidden = true;
@@ -66,7 +77,7 @@
       const hint = document.createElement('div');
       hint.className = 'rest-map-hint';
       hint.textContent = '드래그로 이동 · + / − 확대와 축소';
-      element.replaceChildren(this.image, this.svg, this.layer, hint, this.controls, this.status, this.error);
+      element.replaceChildren(this.image, this.svg, this.layer, hint, this.controls, this.error);
       this.bindInteractions();
       if (typeof ResizeObserver === 'function') {
         this.observer = new ResizeObserver(() => this.relayout());
@@ -147,7 +158,7 @@
       const center = this.center, level = this.level;
       const width = Math.min(2048, Math.round(this.width)), height = Math.min(1024, Math.round(this.height));
       this.error.hidden = true;
-      this.status.hidden = false;
+      if (!this.loadedOnce) window.LoadToast?.set('map', '지도를 불러오는 중입니다.');   // 첫 로딩만 알린다
       this.element.setAttribute('aria-busy', 'true');
       let objectUrl = null;
       try {
@@ -169,12 +180,14 @@
         this.imageCenter = center; this.imageLevel = level; this.imageWidth = width; this.imageHeight = height;
         this.render();
         if (previous) URL.revokeObjectURL(previous);
-        this.status.hidden = true;
+        this.loadedOnce = true;
+        window.LoadToast?.set('map', null);
         this.emit('load');
       } catch (error) {
         if (objectUrl) URL.revokeObjectURL(objectUrl);
         if (id !== this.requestId || controller.signal.aborted) return;
-        this.status.hidden = true;
+        this.loadedOnce = true;
+        window.LoadToast?.set('map', null);   // 오류는 기존 rest-map-error 가 알린다
         this.error.hidden = false;
         this.emit('error');
       } finally {

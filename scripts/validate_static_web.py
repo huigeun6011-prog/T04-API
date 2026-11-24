@@ -80,7 +80,11 @@ const api=require(process.argv[1]), data=JSON.parse(fs.readFileSync(process.argv
   }});
   assert.equal((await remote.fetchWeatherForDate('2026-11-23')).source,'forecast');
   assert.equal((await remote.fetchWeatherForDate('2026-11-22')).source,'archive');
-  assert.equal((await remote.fetchWeatherForDate('2026-12-09')).available,false);
+  const beyondForecast=await remote.fetchWeatherForDate('2026-12-09');
+  assert.equal(beyondForecast.available,true);
+  assert.equal(beyondForecast.source,'fallback');
+  assert.equal(beyondForecast.fallback.source_date,'2026-11-23');
+  assert.equal(beyondForecast.fallback.requested_date,'2026-12-09');
   assert.equal((await remote.fetchWeatherForDate('2026-02-30')).available,false);
   const count=calls.length;await remote.fetchWeatherForDate('2026-11-23');assert.equal(calls.length,count);
   const timeout=api.createEngine({timeoutMs:5,minRequestIntervalMs:0,fetch:async(url,{signal})=>new Promise((resolve,reject)=>signal.addEventListener('abort',()=>reject(new Error('timeout'))))});
@@ -111,7 +115,7 @@ const api=require(process.argv[1]), data=JSON.parse(fs.readFileSync(process.argv
             build(site)
             assert (site/'config.local.js').read_text(encoding='utf-8')=='user sentinel'
             assert not list(site.rglob('*.joblib')) and not list(site.rglob('*.py'))
-            for name in ('t04-core.js', 't04-board.js', 't04-board.css'):
+            for name in ('t04-core.js', 'weather-daily.js', 'weather-daily-view.js', 'weather-daily.css'):
                 assert (site / name).is_file(), f'Missing static T04 file: {name}'
             for name in T04_PUBLIC_FILES:
                 assert (site / 'data/t04' / name).is_file(), f'Missing static T04 data file: {name}'

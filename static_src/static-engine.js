@@ -64,6 +64,49 @@
     const resources = options.resources || {};
     let ready;
     const cache = new Map(), pending = new Map();
+    const successfulForecasts = new Map();
+    const daily = options.dailyWeather || root.DailyWeather || (typeof require === 'function' ? require('./weather-daily.js') : undefined);
+    const weatherFields = ['temperature_2m', 'precipitation', 'snowfall'];
+    function complete(hourly, day) {
+      return Array.isArray(hourly?.time) && hourly.time.length === 24 &&
+        hourly.time.every((t, i) => t === `${day}T${String(i).padStart(2, '0')}:00`) &&
+        weatherFields.every(k => Array.isArray(hourly[k]) && hourly[k].length === 24 &&
+          hourly[k].every(v => Number.isFinite(v) && (k === 'temperature_2m' || v >= 0)));
+    }
+    async function fallbackWeather(day, failure) {
+      const candidates = [];
+      const saved = cache.get(day)?.value;
+      if (saved) candidates.push(saved);
+      const forecasts = [...successfulForecasts.values()].sort((a,b) => cmp(b.fetched_at, a.fetched_at));
+      const shared = (options.getLastSuccessfulForecast || daily?.getLastSuccessfulForecast)?.();
+      function fromRecord(record, kind) {
+        const r = daily.validateRecord(record);
+        if (daily.kindOf(r) !== kind || !/^https:\/\/(?:api|archive-api)\.open-meteo\.com\//.test(r.reading.source_url)) return;
+        return {date: daily.dataDateOf(r), hourly: r.raw.hourly, source: kind,
+          fetched_at: r.reading.fetched_at, source_url: r.reading.source_url};
+      }
+      let sharedWeather;
+      try { if (shared) sharedWeather = fromRecord(shared, 'forecast'); } catch (_) { /* Invalid or synthetic records are ineligible. */ }
+      if (sharedWeather?.date === day) candidates.push(sharedWeather);
+      candidates.push(...[...forecasts, ...(sharedWeather ? [sharedWeather] : [])].sort((a,b) => cmp(b.fetched_at, a.fetched_at)));
+      let chosen = candidates.find(w => complete(w.hourly, w.date));
+      if (!chosen && daily) {
+        try {
+          const doc = options.fallbackRows ? await options.fallbackRows() : await json(daily.recordPath);
+          const rows = daily.readRows(Array.isArray(doc) ? {rows: doc} : doc);
+          chosen = rows.map(r => fromRecord(r, 'observed')).filter(Boolean)
+            .sort((a,b) => cmp(b.date, a.date) || cmp(b.fetched_at, a.fetched_at))[0];
+        } catch (_) { /* No usable stored observation: preserve the original failure. */ }
+      }
+      if (!chosen) return failure;
+      const provenance = {requested_date: day, source_date: chosen.date, fetched_at: chosen.fetched_at,
+        source_url: chosen.source_url || new URL(`data/weather/${chosen.date}.json`, base).href,
+        kind: ['archive', 'local_archive'].includes(chosen.source) ? 'observed' : chosen.source,
+        reason: failure.reason, error_kind: failure.error_kind};
+      return {available: true, date: day, source: 'fallback', cached: false, fetched_at: chosen.fetched_at,
+        source_url: provenance.source_url, source_date: chosen.date, fallback: provenance,
+        hourly: {...chosen.hourly, time: chosen.hourly.time.map(t => day + t.slice(10))}};
+    }
     let queue = Promise.resolve(), lastRemote = 0;
     async function json(path) {
       const controller = new AbortController();
@@ -100,7 +143,7 @@
         const indices = raw.time.map((t, i) => t.startsWith(day + 'T') ? i : -1).filter(i => i >= 0);
         if (indices.length !== 24) throw new Error('선택한 날짜의 시간별 날씨가 없습니다.');
         const hourly = Object.fromEntries(['time', 'temperature_2m', 'precipitation', 'snowfall'].map(k => [k, indices.map(i => raw[k][i])]));
-        return {available: true, date: day, source, cached: false, fetched_at: new Date().toISOString(), hourly};
+        return {available: true, date: day, source, cached: false, fetched_at: new Date().toISOString(), source_url: `${endpoint}?${params}`, hourly};
       });
       queue = task.catch(() => {});
       return task;
@@ -123,9 +166,12 @@
       if (saved && Date.now() < saved.expires) return subscribed(Promise.resolve({...saved.value, cached: true}), signal);
       if (!pending.has(day)) {
         pending.set(day, loadWeather(day).then(value => {
-          if (value.available) cache.set(day, {value, expires: Date.now() + (value.source === 'local_archive' ? Infinity : day < today() ? 7 * 86400000 : 3600000)});
+          if (!value.available) return fallbackWeather(day, value);
+          if (!complete(value.hourly, day)) return fallbackWeather(day, {available: false, date: day, reason: '시간별 날씨가 불완전합니다.', error_kind: 'schema_error'});
+          cache.set(day, {value, expires: Date.now() + (options.cacheTtlMs ?? (value.source === 'local_archive' ? Infinity : day < today() ? 7 * 86400000 : 3600000))});
+          if (value.source === 'forecast') successfulForecasts.set(day, value);
           return value;
-        }).catch(e => ({available: false, date: day, reason: e.message, error_kind: weatherErrorKind(e)})).finally(() => pending.delete(day)));
+        }).catch(e => fallbackWeather(day, {available: false, date: day, reason: e.message, error_kind: weatherErrorKind(e)})).finally(() => pending.delete(day)));
       }
       return subscribed(pending.get(day), signal);
     }
@@ -151,10 +197,12 @@
       const hour = stop => Number(stop.time.split(':')[0]) || 24;
       const trains = rt.schedules[version].filter(t => t.day_type === (holiday ? '휴일' : '평일') && t.stops.slice(0, -1).some(s => s.station === board.name && start <= hour(s) && hour(s) <= end));
       const hours = [...new Set(trains.flatMap(t => t.stops.map(hour)))].filter(h => 5 <= h && h <= 24).sort((a,b) => a-b);
-      const weather = new Map(), sources = new Set();
+      const weather = new Map(), sources = new Set(), fallbacks = new Map(), requestWeather = new Map();
       for (const h of hours) {
         const d = h === 24 ? addDays(day, 1) : day;
-        const w = await fetchWeatherForDate(d, {signal}); check(signal);
+        if (!requestWeather.has(d)) requestWeather.set(d, await fetchWeatherForDate(d, {signal}));
+        const w = requestWeather.get(d); check(signal);
+        if (w.fallback) fallbacks.set(d, w.fallback);
         if (!w.available) throw new Error(w.reason);
         const i = w.hourly.time.indexOf(`${d}T${String(h % 24).padStart(2, '0')}:00`);
         const values = ['temperature_2m', 'precipitation', 'snowfall'].map(k => w.hourly[k]?.[i]);
@@ -221,7 +269,8 @@
         groups.push(group);
       }
       groups.sort((a,b)=>a.nearest_km-b.nearest_km || cmp(a.id,b.id)); check(signal);
-      return {groups,meta:{...rt.meta,service_date:day,boarding_station:board,weather_source:[...sources].sort(cmp),min_stops:minStops,max_stops:maxStops,max_walk_minutes:maxWalk}};
+      return {groups,meta:{...rt.meta,service_date:day,boarding_station:board,weather_source:[...sources].sort(cmp),min_stops:minStops,max_stops:maxStops,max_walk_minutes:maxWalk,
+        ...(fallbacks.size ? {weather_fallbacks: [...fallbacks.values()]} : {})}};
     }
     return Object.freeze({recommend,fetchWeatherForDate,preload});
   }
