@@ -39,7 +39,7 @@ Get-NetTCPConnection -LocalPort 5500 -State Listen -ErrorAction SilentlyContinue
 
 페이지는 `http://127.0.0.1:5500/web/index.html`입니다.
 
-**Node 테스트** — `node --test scripts/`(Node 22 기준). Worker는 `worker/`에서 `npm test`를 실행합니다.
+**Node 테스트** — `node --test scripts/*.test.mjs`(Node 22 기준. `node --test scripts/`처럼 폴더만 주면 Node 22에서 실패한다). Worker는 `worker/`에서 `npm test`를 실행합니다.
 
 자세한 실행·배포 절차, 지도 설정, 파일별 역할은 [인수인계](docs/HANDOFF.md)(§8~§9, §12)와 [웹 연결](docs/AI/WEB_INTEGRATION_DESIGN.md)을 참고하세요.
 

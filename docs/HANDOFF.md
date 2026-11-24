@@ -4,7 +4,7 @@
 
 ## 1. 목표와 확정한 요구
 
-- **정적 웹(D-030)·T04 공개 구성** — 초기 Pages 배포는 [D-031](DECISIONS.md)과 [ROADMAP 완료 기록](../ROADMAP.md)에 있다. 현행 T04는 [D-034](DECISIONS.md)의 전날 관측 기록을 사용하며, 새 Actions·Pages 실행과 실제 둘째 날짜 조회는 미검증이다(§12). 정적 웹 운영에 Python API·YML·재학습은 필요 없고 원본 `web/`·Python 파일은 보존돼 있다. 로컬 실행은 [README](../README.md)를 본다.
+- **정적 웹(D-030)·T04 공개 구성** — 초기 Pages 배포는 [D-031](DECISIONS.md)과 [ROADMAP 완료 기록](../ROADMAP.md)에 있다. 현행 T04는 [D-034](DECISIONS.md)의 전날 관측 기록을 사용한다. 수집 Actions는 쓰지 않아 삭제했고 추가 조회 계획도 없다(§12). 정적 웹 운영에 Python API·YML·재학습은 필요 없고 원본 `web/`·Python 파일은 보존돼 있다. 로컬 실행은 [README](../README.md)를 본다.
 
 - 대전 1호선으로 이동할 때 덜 붐비는 시간·이용 역·목적지를 추천한다. 모델은 장소 자체의 방문객 수를 예측하지 않는다.
 - 지도는 Kakao Maps(기존 `web/`은 JS SDK, 정적 웹은 `worker/`의 REST 이미지 프록시), 주소 좌표 변환은 VWorld다. `best_model.pt`는 이전 모델이고 공식 추론 파일은 `outputs/load_predictor.joblib`이다.
@@ -126,7 +126,7 @@ production 전체 감사에서도 저장 load≥0·종점0은 만족했지만 �
 - `prediction_api.py`는 표준 `ThreadingHTTPServer`로 기본 포트 5500에서 웹과 API를 함께 제공한다. 경로는 `GET /api/health`, `/api/stations`, `/api/predict`(웹은 쓰지 않음), `POST /api/recommend`다(`/api/profile`은 D-028로 제거). FastAPI/ONNX는 사용하지 않는다.
 - 추천은 Open-Meteo 날씨, 시간표, `outputs/load_predictor.joblib`, POI와 출발지 좌표를 사용한다. 순위는 구간별 시간대 상대 순위이며 `quiet_weight`는 없다(D-028). 도보는 직선거리 기반 추정이며 실제 보행 경로·운영시간은 없다. 열차 ETA는 걷기와 열차 이동만 포함하고 대기·환승은 포함하지 않는다. API 성공이 추천 효용이나 실제 승객 수 정확도를 증명하지 않는다.
 - UI(D-028, 2026-11-23): 장소 목록은 직선거리·카테고리·도보 시간으로 정렬하고 인원·건수를 보이지 않는다. 장소를 고르면 구간별 시간대 순위와 행별 순위 히트맵을 보이고, 선택한 시간대는 그 시간 열차 출발 시각을 시간순으로 보인다. 가장 한산한 열차 한 대를 고르지 않으며 '더 나은 시간' 안내와 인접 시간 목록은 없다. 가까운 곳/지하철로 멀리 탭, 걷는 시간 합계 한도, 분석·모델 소개 화면은 유지한다. 도보 전용 장소에는 순위가 없다. 개편 후 브라우저 시각 확인은 하지 않았다(사용자 확인 예정). `scripts/data_prep/compare_od_vs_production_recommend.py`는 응답 필드 제거로 깨져 있다(ROADMAP 9번).
-- 저장소의 로컬 `main`은 GitHub `origin`을 추적하고 이전 GitLab은 `old-origin`이다. 승하차 전환 전의 로컬 기준 커밋은 `a351d72`다. 승하차 전환 및 수집 워크플로 삭제는 작업 트리 변경이다. 공개 저장소 이력의 Kakao 키 폐기 상태는 확인하지 않았다([ROADMAP](../ROADMAP.md)의 사용자 결정 참고).
+- 저장소의 로컬 `main`은 GitHub `origin`을 추적하고 이전 GitLab은 `old-origin`이다. 승하차 전환 전의 로컬 기준 커밋은 `a351d72`다. 승하차 전환 및 수집 워크플로 삭제는 작업 트리 변경이다. 공개 저장소 이력(`a3b6bc9`)의 Kakao JS 키는 사용자가 2026-11-24 폐기했다고 알려 왔다. 키 원문은 이력에 남아 있다([ROADMAP](../ROADMAP.md) 참고).
 - 지도 선로 자료는 OSM 양방향 관계에서 뽑은 42개 구간이며, 곡선 끝점을 사용자 제공 역 좌표에 맞췄다. 코드상 22개 역과 구간 끝점 연결은 확인했다. 최근 좌표 보정 후 지도 정합, 터치·모바일 최종 확인은 미완료다. D-015~D-020에는 그 당시 핀·카드·패널·시간 막대·탭 등의 브라우저 확인 기록이 있으므로 최근 변경 검증과 혼동하지 않는다.
 - 추천 400 오류(중복 키워드)는 수정 완료했다([D-026](DECISIONS.md)).
 - `extract_train_loads.py`의 출력 종점 0 보정은 개선 GT의 raw 잔차 정책과 다르며, 이를 raw 물리 검증으로 간주하지 않는다.
@@ -147,7 +147,7 @@ Invoke-RestMethod http://127.0.0.1:5500/api/health
 
 페이지는 `http://127.0.0.1:5500/web/index.html`이고 API도 같은 5500(`/api/*`, 같은 출처)이다. `web/` 아래 파일만 GET/HEAD로 정적 제공하고 그 밖(`.env`, `outputs/`, `data/` 등)은 404이다. 예전 2포트 방식(Live Server 5500 + API 8000, `--port 8000`)을 쓰려면 `web/config.local.js` 등에서 `window.RECOMMENDATION_API_BASE = 'http://127.0.0.1:8000'`을 지정하면 되고, CORS는 5500의 localhost/127.0.0.1을 허용한다. 미리보기 도구용 설정은 `.claude/launch.json`(이름 `app`)이다. 현재 프로세스가 실행 중이라는 상태는 시간이 지나면 바뀌므로 이 문서만 보고 가정하지 않는다. 재시작은 해당 서버 터미널에서 종료한 후 같은 명령으로 한다.
 
-정적 웹은 브라우저에서 계산한다. 로컬에서는 `run_static.bat`으로 정적 파일 서버를 시작한다. 변환·검증 명령은 [README](../README.md)에 있다. T04 Node 테스트는 `node --test scripts/`(Node 22 기준), Worker 테스트는 `worker/`의 `npm test`다.
+정적 웹은 브라우저에서 계산한다. 로컬에서는 `run_static.bat`으로 정적 파일 서버를 시작한다. 변환·검증 명령은 [README](../README.md)에 있다. T04 Node 테스트는 `node --test scripts/*.test.mjs`(Node 22 기준, 폴더만 주면 실패), Worker 테스트는 `worker/`의 `npm test`다.
 
 ## 9. 파일 안내
 
@@ -175,7 +175,7 @@ Invoke-RestMethod http://127.0.0.1:5500/api/health
 | `scripts/data_prep/make_od_labels.py`, `compare_od_vs_production_recommend.py`, `experiment_synthetic_od.py` | OD 라벨 생성·조립기, 추천 민감도 비교, 합성 정답 복원(E-20). 실행 절차는 [LOAD_ESTIMATION_RUNBOOK](AI/LOAD_ESTIMATION_RUNBOOK.md). |
 | `scripts/hangzhou/`(+`LINE_C_PROTOCOL.md`), `outputs/hangzhou/`, `data/external/hangzhou/`(gitignore) | 항저우 태그 자료 시간표 복원 시도(E-22). §11 참고. |
 | `static_src/`, `static-web/`, `scripts/build_static_web.py`, `scripts/validate_static_web.py` | 정적 웹 소스, Pages 배포 폴더, 빌더, Python–JS 동등성 검증(D-030). 현행 T04는 `static-web/data/t04/weather-daily.json`과 공개 fixture를 사용한다. |
-| `static_src/weather-daily.js`, `scripts/t04_weather_record.mjs`, `.github/workflows/t04-weather-record.yml` | T04 날씨 행 검증, 전날 관측 기록, 예약 수집과 변경 시 Pages 배포(D-034). |
+| `static_src/weather-daily.js`, `scripts/t04_weather_record.mjs` | T04 날씨 행 검증, 전날 관측 기록(수동 도구, D-034). 예약 수집 워크플로는 삭제했다. |
 | `scripts/t04_daily_record.mjs`, `scripts/utils/backfill_subway.py`, `scripts/utils/backfill_weather.py` | 수동 일별 기록, 운행일 이력 생성, 과거 승하차·날씨 백필. §12 참고. |
 | `scripts/sync_static_data.mjs`, `run_static.bat`, `.github/workflows/pages.yml` | 공개용 데이터 생성, 로컬 정적 웹 실행, GitHub Pages 배포. |
 | `worker/`, `scripts/check_map_proxy.mjs`, `scripts/validate_map_projection.js` | Kakao REST 지도 이미지 프록시 Worker와 정렬 검증 도구. [worker/README](../worker/README.md). |
@@ -208,16 +208,27 @@ Invoke-RestMethod http://127.0.0.1:5500/api/health
 
 출처는 ALEPH 학생 대시보드(`aleph-omega.vercel.app/cortex?panel=tasks`)의 "과제 4. 외부 데이터 모니터링 대시보드 개발" 안내 카드 1~5와 제출 양식이다(화면을 그대로 읽은 것이며 강사가 따로 알려 준 내용은 반영하지 않았다). 사용자 말에 따르면 이 저장소의 프로젝트는 이 과제를 위해 시작했다(2026-11-23). 계획시간 6~7h, 실제 날짜 2일이며 날짜가 바뀔 때까지 기다리는 시간은 작업시간에 넣지 않는다.
 
+### 최종 상태(2026-11-24, 나중에 돌아온 사람이 먼저 읽을 것)
+
+- **한 줄 요약** — T04는 제출 준비를 마쳤다. 공개 결과물은 GitHub Pages `https://huigeun6011-prog.github.io/T04-API/#t04-lab`, 소스는 `https://github.com/huigeun6011-prog/T04-API`의 full commit URL이다. 제출 양식에는 결과물·소스 URL, 재현·통과 확인 4구분, 확인 문서 파일을 넣었다. 'AI와 나의 판단 3줄'(C28)과 최종 제출 버튼은 사용자가 직접 한다. 이 문서는 최종 제출 여부를 기록하지 않는다.
+- **조건 기준** — 카드 1~5 원문을 2026-11-24 Aside로 다시 읽었다. 화면에 있는 번호는 C01, C03~C28이다. C02와 C29~C35는 카드에 번호가 없다(로그인 없음·40/64자리 commit 요건은 제출 양식 안내에 글로 있다). 외부 패키지의 "35개·봉인 영수증"은 기준이 아니다.
+- **확인한 것** — 공개 Pages에서 직접 조작해 확인했다. 값·단위·출처·출처 시각·조회 시각·시간대 표시, 원본 24시간 평균과 저장값·화면값 일치(13.05→13.1, 8.42→8.4), 실패 5유형의 별도 상태·마지막 정상값 유지·오래된 값 표시, 다시 시도 후 fresh/none과 합성 기록 1→2건, 같은 날 재조회 시 1건 유지, 실제 기록 2건과 변화 −4.7°C. D-035 대체 정책도 공개 `static-engine.js`에 들어 있다. Node 22.23.5에서 테스트 파일 5개 52건 통과.
+- **알려진 한계** — ① 실제 기록 2건의 조회 시각은 파일 수정 시각 대용(`time_basis: file_mtime`)이며 화면에도 그렇게 표시한다. 사용자가 실제 API를 호출해 수집했지만 응답 수신 시각을 독립적으로 증명하지 못한다. ② 폐기된 Kakao JS 키가 커밋 `a3b6bc9`에 문자열로 남아 있다(C11은 이력 고지로 처리). ③ 모바일 터치·스크린리더는 확인하지 않았다. ④ 영수증 해석은 기준에서 제외했고 ALEPH 쪽 처리는 모른다.
+- **증거 파일** — `output/submission/T04-Submission.docx`(10쪽)와 `shots/`, `crop/` 스크린샷. `.gitignore`의 `/output/` 때문에 Git에는 없고 이 PC에만 있다. 다시 만들려면 Aside `repl`로 공개 Pages를 열어 한 번에 한 장씩 촬영한다(연속 촬영은 CDP 시간 초과가 잦다). 상태를 만든 직후 바로 찍어야 안정적이다.
+- **하지 않기로 한 것** — GitHub Actions 자동 수집(워크플로 삭제 `855049b`, 한 번도 실행되지 않음)과 추가 수동 수집. 제출 평가가 끝나기 전에 실제 기록을 더하면 "정확히 2건"(C22)이 깨지므로 건드리지 않는다. 평가 뒤에는 자유롭게 바꿔도 된다.
+- **로컬 도구** — Node 22.23.5(winget `OpenJS.NodeJS.22`), GitHub CLI 2.105.0(`gh`, 로그인됨), Aside CLI(`aside repl`·`aside session`). 새 터미널에서 PATH가 잡힌다. 테스트는 `node --test scripts/*.test.mjs`다.
+- **Git** — 문서 정리 변경은 커밋 전이다. 커밋은 사용자가 마지막에 한다. 새 커밋을 올리면 제출 양식의 소스 URL 해시도 바꿔야 하며, 올리지 않아도 이미 푸시된 `855049b`로 제출 조건은 충족한다.
+
 ### 현행 구현(2026-11-24, D-034·D-035)
 
-- **최신 제출 화면** — 2026-10-31·2026-11-01 Archive 보관 자료를 사용한다. 사용자 확인 조회일은 각각 11월 2일·3일(KST)이다. 파일 수정 시각을 `fetched_at`의 대용값으로 넣고 `time_basis: file_mtime`으로 구분한다. 당시 응답 수신 시각을 독립적으로 확인할 수 없다. 로컬 `#t04-lab`에서 13.1°C와 8.4°C 및 변화량 −4.7°C를 확인했다. 11월 24일 기록은 `prior_rows`에 보존했다. 아래 자동 수집과 첫 기록은 이전 작업 이력이며, 사용자는 Actions 수집을 사용하지 않기로 했다.
+- **최신 제출 화면** — 2026-10-31·2026-11-01 Archive 보관 자료를 사용한다. 사용자 확인 조회일은 각각 11월 2일·3일(KST)이다. 파일 수정 시각을 `fetched_at`의 대용값으로 넣고 `time_basis: file_mtime`으로 구분한다. 당시 응답 수신 시각을 독립적으로 확인할 수 없다. 로컬 `#t04-lab`에서 13.1°C와 8.4°C 및 변화량 −4.7°C를 확인했다. 11월 24일 기록은 `prior_rows`에 보존했다. 사용자는 이 두 건을 실제 API 호출로 직접 수집했고 그대로 제출한다. 수집 방식은 위변조 불가를 보장하지 못한다고 판단해 Actions 수집을 쓰지 않으며 내일 수동 수집도 하지 않는다. 아래 자동화와 첫 기록 항목은 이전 작업 이력이다.
 
 - **추적값과 행** — 과제용 기록은 `archive-api.open-meteo.com`에서 조회한 대전 전날(KST) 00~23시의 평균기온이다. 사용자는 조회 이후에도 바뀌는 예보 대신 하루가 끝난 뒤의 Archive 자료를 선택했다. 사용자 확인에서 2026-11-23 원본 24시간 평균은 예보 6.25°C, Archive 6.48°C였다. `static-web/data/t04/weather-daily.json`에는 원본·요약과 함께 `reading.fetched_at`(실제 조회 시각), `record_date`(조회 KST 날짜), `source_time`(자료 날짜 00:00 KST), `source_name`(‘Open-Meteo 대전 관측(archive)’)을 저장한다. `static_src/weather-daily.js`의 `normalize`·`validateRecord`는 Archive 행은 자료 날짜가 기록 날짜의 전날인지, 예보·합성 행은 같은 날인지 확인한다. `archiveUrl`·`requestObserved`로 조회하고 `latestRow`·`dataDateOf`·`kindOf`로 최신 행·자료 날짜·종류(`observed`/`forecast`)를 구분한다.
-- **자동화** — `.github/workflows/t04-weather-record.yml`이 00:35·03:35·06:35 KST(15:35·18:35·21:35 UTC)와 수동 `force` 입력으로 실행된다. `node scripts/t04_weather_record.mjs`는 오늘 행이 있으면 `SKIPPED`, 자료 미제공이면 `PENDING`으로 파일을 유지하고 종료 코드 0을 반환한다. 그 밖의 오류는 종료 1이다. 같은 날짜의 덮어쓰기는 `--force` 또는 `FORCE=1`로만 한다. 변경 시 `weather-daily.json`만 커밋하고 `pull --rebase`·푸시를 최대 3회 시도한다. 성공 때만 같은 실행에서 `pages.yml`을 호출한다. 별도 `weather-observed` 파일과 수집 단계·스크립트는 폐기했다.
-- **실제 기록 1건** — 사용자 지시로 2026-11-24 01:09 KST에 조회한 예보 행(평균 2.1°C)을 현재 파일에서 제거했다. 해당 행은 Git 이력에 남아 있다. 빈 승하차 잔재 `static-web/data/t04/daily.json`은 `git rm`으로 삭제를 스테이징했다. 첫 Archive 행은 기록 날짜 2026-11-24, 자료 날짜 2026-11-23, 평균 **6.5°C**, `fetched_at` **2026-11-24T02:20:19.452Z**(11:20 KST)다. 이 시각에 실제 조회했다는 작업 보고와 파일의 시각이 일치한다. 조회 시각을 과거로 바꾸거나 당시 조회하지 않은 기록을 만들지 않는다.
+- **자동화(철회, 2026-11-24)** — 예약 워크플로 `t04-weather-record.yml`은 한 번도 실행되지 않은 채 삭제했다(`855049b`). 남은 수동 도구 `node scripts/t04_weather_record.mjs`는 오늘 행이 있으면 `SKIPPED`, 자료 미제공이면 `PENDING`으로 파일을 유지하고 종료 코드 0을 반환한다. 그 밖의 오류는 종료 1이다. 같은 날짜의 덮어쓰기는 `--force` 또는 `FORCE=1`로만 한다. 변경 시 `weather-daily.json`만 커밋하고 `pull --rebase`·푸시를 최대 3회 시도한다. 성공 때만 같은 실행에서 `pages.yml`을 호출한다. 별도 `weather-observed` 파일과 수집 단계·스크립트는 폐기했다.
+- **11-24 조회 기록(`prior_rows`, 제출 화면에는 쓰지 않음)** — 사용자 지시로 2026-11-24 01:09 KST에 조회한 예보 행(평균 2.1°C)을 현재 파일에서 제거했다. 해당 행은 Git 이력에 남아 있다. 빈 승하차 잔재 `static-web/data/t04/daily.json`은 `git rm`으로 삭제를 스테이징했다. 첫 Archive 행은 기록 날짜 2026-11-24, 자료 날짜 2026-11-23, 평균 **6.5°C**, `fetched_at` **2026-11-24T02:20:19.452Z**(11:20 KST)다. 이 시각에 실제 조회했다는 작업 보고와 파일의 시각이 일치한다. 조회 시각을 과거로 바꾸거나 당시 조회하지 않은 기록을 만들지 않는다.
 - **카드 표시** — 사용자 결정은 창을 열 때 오늘 예보(`requestToday`)를 조회하고, 실패하면 최신 저장 관측을 자료 날짜·조회 날짜와 함께 주황색 ‘오래된 값’으로, 표시할 값이 없으면 붉은 오류로 보여 주는 것이다. 카드에서 `localStorage` 사용을 제거했다. 코드에서 이번 화면 실행 중 이미 받은 예보가 있으면 재조회 실패 시 그 값을 우선 보인다. 실시간 값이 없으면 저장 목록에서 최신 행을 고르며, 현재 저장 파일은 관측 행만 담고 있다. 추천 계산은 기존대로 보관 파일을 먼저 읽고 없을 때 공개 API에 직접 요청한다.
-- **추천 대체 정책과 미검증** — 추천용 날씨를 얻지 못했을 때는 D-035의 마지막 정상 예보 → 최신 저장 실제 관측 순서를 적용한다. ‘날씨 없이는 추천하지 않는다’는 사용자 지시는 철회했고 사용자 직접 입력도 하지 않기로 했다. `static_src/static-engine.js`는 정상 날씨가 없거나 시간값이 불완전하면 대체 자료의 시간별 기온·강수·적설을 같은 KST 시간으로 대응하며 둘 다 없을 때만 오류를 반환한다. 실제 자료일·요청일을 구분하고 합성 자료·취소 요청은 제외한다. 자료 나이 제한은 두지 않는다. 정상 조회 성공 시 대체 안내를 제거한다. 새 GitHub Actions와 Pages의 실제 실행, 세 예약 시각의 Archive 제공 여부도 미검증이다. 둘째 기록은 2026-11-25 00:35 KST 이후 Actions에서 만들 예정이다. 세 차례 모두 `PENDING`이면 당일 기록은 비며 소급 생성하지 않는다.
-- **제출** — 사용자는 다음 과제를 보기 위해 실제 기록 1건인 상태로 먼저 제출한 뒤 보완할 계획이며 C27·C28은 직접 작성한다. 확인 주소는 `…/#t04-lab`의 실제·합성 기록 목록과 합성 오류 재생이다. C22~C24에는 서로 다른 실제 KST 조회일의 두 기록과 출처·시각·단위·저장값·화면값 대조, 변화량 재계산이 필요하다. 자료 날짜와 조회 날짜의 일치는 기준표 조건에 없으며 기존 예보 행을 검증하던 코드 규칙이었다. 현재 제출 글에 2일 증거가 있다고 쓰지 않는다. ALEPH의 영수증 생성 방식은 확인하지 못했고, 사용자는 패키지의 ‘봉인 영수증’ 설명이 부정확할 수 있다고 보았다. 기존 영수증이 삭제한 2.1°C 예보 행을 참조했는지도 미확인이다. 참조했다면 C23 대조에서 불일치할 수 있다.
+- **추천 대체 정책과 미검증** — 추천용 날씨를 얻지 못했을 때는 D-035의 마지막 정상 예보 → 최신 저장 실제 관측 순서를 적용한다. ‘날씨 없이는 추천하지 않는다’는 사용자 지시는 철회했고 사용자 직접 입력도 하지 않기로 했다. `static_src/static-engine.js`는 정상 날씨가 없거나 시간값이 불완전하면 대체 자료의 시간별 기온·강수·적설을 같은 KST 시간으로 대응하며 둘 다 없을 때만 오류를 반환한다. 실제 자료일·요청일을 구분하고 합성 자료·취소 요청은 제외한다. 자료 나이 제한은 두지 않는다. 정상 조회 성공 시 대체 안내를 제거한다. 추가 실제 조회와 Actions 수집은 하지 않는다(기록은 사용자가 수집한 `rows` 2건). 공개 Pages 화면 확인은 2026-11-24에 마쳤다(위 최종 상태).
+- **제출(최종 결정, 2026-11-24)** — 사용자는 직접 수집한 실제 기록 2건(조회 11-02·11-03, 파일 수정 시각 대용)을 그대로 제출하기로 했고 추가 수집은 하지 않는다. C28(AI와 나의 판단)은 직접 작성한다. 아래는 이전 계획 시점의 서술이다. 확인 주소는 `…/#t04-lab`의 실제·합성 기록 목록과 합성 오류 재생이다. C22~C24에는 서로 다른 실제 KST 조회일의 두 기록과 출처·시각·단위·저장값·화면값 대조, 변화량 재계산이 필요하다. 자료 날짜와 조회 날짜의 일치는 기준표 조건에 없으며 기존 예보 행을 검증하던 코드 규칙이었다. (2026-11-24 이후 실제 2건이 화면에 있으며 한계는 위 최종 상태에 적었다.) ALEPH의 영수증 생성 방식은 확인하지 못했고, 사용자는 패키지의 ‘봉인 영수증’ 설명이 부정확할 수 있다고 보았다. 기존 영수증이 삭제한 2.1°C 예보 행을 참조했는지도 미확인이다. 참조했다면 C23 대조에서 불일치할 수 있다.
 
 ### 직전 당일 예보 버전 기록(2026-11-24 이후 D-034로 대체됨)
 
