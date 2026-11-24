@@ -38,6 +38,7 @@
   let labMode = false;
   let labBusy = false;
   let labRows = [];
+  let labLive;
   let labError;
   let fixtureManifest;
   let loaded = false;
@@ -150,7 +151,7 @@
     const error = labMode ? labError : realError;
     const busy = labMode ? labBusy : realBusy;
     const selected = selection && (selection.src === 'lab' ? labMode && labRows : realRows).find((row) => row.reading.record_date === selection.date);
-    const live = labMode ? labRows.at(-1) : realLive || fallbackRow();
+    const live = labMode ? labLive : realLive || fallbackRow();
     const usingSaved = !labMode && !realLive && Boolean(live);
     shownLab = labMode && !(selected && selection.src === 'real');
     const shown = selected || live;
@@ -247,6 +248,7 @@
 
   async function replay(id) {
     if (!labMode || labBusy) return;
+    selection = undefined;
     labBusy = true;
     render();
     try {
@@ -261,7 +263,9 @@
       if (!response.ok) throw new TypeError('fixture unavailable');
       const fixture = await response.json();
       if (fixture.fixture_id !== id) throw new TypeError('fixture id mismatch');
-      labRows = Weather.upsert(labRows, Weather.fromFixture(fixture));
+      const reading = Weather.fromFixture(fixture);
+      labRows = Weather.upsert(labRows, reading);
+      labLive = reading;
       labError = null;
     } catch (error) {
       labError = error;
@@ -296,7 +300,14 @@
   lab.addEventListener('click', (event) => {
     const action = event.target.closest('button')?.dataset.replay;
     if (!action) return;
-    if (action === 'reset') { labRows = []; labError = null; if (selection?.src === 'lab') selection = undefined; render(); return; }
+    if (action === 'reset') {
+      labRows = [];
+      labLive = undefined;
+      labError = null;
+      if (selection?.src === 'lab') selection = undefined;
+      render();
+      return;
+    }
     void replay(action === 'failure' ? fixtureList.value : action);
   });
   retry.addEventListener('click', () => {
