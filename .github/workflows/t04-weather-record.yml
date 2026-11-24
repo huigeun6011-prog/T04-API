@@ -1,0 +1,71 @@
+name: T04 weather record
+
+on:
+  schedule:
+    - cron: '35 15 * * *' # 00:35 KST
+    - cron: '35 18 * * *' # 03:35 KST
+    - cron: '35 21 * * *' # 06:35 KST
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Replace today's existing weather record
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: t04-weather-record
+  cancel-in-progress: false
+
+jobs:
+  record:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.publish.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: main
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: '22'
+      - name: Record yesterday's Archive weather
+        env:
+          FORCE: ${{ inputs.force && '1' || '0' }}
+        run: node scripts/t04_weather_record.mjs
+      - name: Commit and push weather record
+        id: publish
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if [[ -f static-web/data/t04/weather-daily.json ]]; then
+            git add -- static-web/data/t04/weather-daily.json
+          fi
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "T04 날씨 기록 $(TZ=Asia/Seoul date +%F)"
+          for attempt in 1 2 3; do
+            echo "Weather record push attempt ${attempt}/3"
+            if git pull --rebase origin main && git push origin HEAD:refs/heads/main; then
+              echo 'changed=true' >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [[ -d "$(git rev-parse --git-path rebase-merge)" || -d "$(git rev-parse --git-path rebase-apply)" ]]; then
+              git rebase --abort
+            fi
+          done
+          echo "::error::T04 weather records were not pushed after 3 attempts (local HEAD $(git rev-parse --short HEAD))."
+          exit 1
+  deploy:
+    needs: record
+    if: github.ref == 'refs/heads/main' && needs.record.outputs.changed == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/pages.yml
